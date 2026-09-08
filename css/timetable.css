@@ -1,0 +1,150 @@
+@import "compass/css3";
+
+$primary-font: 'Lato', sans-serif;
+
+@import url(https://www.markmurray.co/codepen/customstyle.css), 
+  url(https://fonts.googleapis.com/css?family=Lato:300,400);
+
+*, *:before, *:after { @inlude box-sizing(border-box); }
+
+
+$light-navy: #4f708f;
+$blue:    #3498db;
+$purple:  #9b59b6;
+$navy:    #34495e;
+$green:   #2ecc71;
+$red:     #e74c3c;
+$orange:  #f39c12;
+$yellow:  #f1c40f;
+$gray:    #bdc3c7;
+
+.blue   { background: $blue }
+.purple { background: $purple }
+.navy   { background: $navy }
+.green  { background: $green }
+.red    { background: $red }
+.orange { background: $orange }
+.yellow { background: $yellow }
+.gray   { background: $gray }
+
+.add-module {
+ 
+  background: white;
+  background: $navy;
+ 
+  
+  h1 {
+    color: $light-navy;
+    font-size: 0.8em;
+    line-height: 2;
+  }
+  
+  input {
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    background: #3d566e;
+  
+    box-sizing: border-box;
+    margin-bottom: 0.5em;
+    font-size: 0.8em;
+  }
+  
+  input[type="time"]{
+    font-size: 0.9em;
+  }
+  
+  input[type="submit"]{
+    background: lighten($red, 5%);
+    cursor: pointer;
+    
+    &:hover { background: $red }
+  }
+  
+  .half {
+    width: 100%;
+    display: inline-block;
+    margin: 0;
+  }
+  
+  .day-picker {
+    margin-bottom: 0.5em;
+  }
+  
+  .day-picker li {
+    font-size: 0.8em;
+    display: inline-block;
+    background: lighten($navy, 5%);
+    padding: 0.5em;
+    color: $light-navy;
+    cursor: pointer;
+    width: calc(100% / 5 - 1.15em);
+    text-align: center;
+    border: 1px solid;
+    margin-right: -1px;
+    @include transition(all 0.3s ease);
+    
+    &:first-child { border-radius: 5px 0 0 5px; }
+    &:hover { color: white; position: relative; }
+    &:last-child { border-radius: 0 5px 5px 0; }
+  }
+  
+  .day-picker li.day-selected {
+    color: white;
+    position: relative;
+  }
+  
+  .color-picker {
+    margin: 0 auto 0.5em;
+    text-align: center;
+  }
+  
+  .color-picker li {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    margin: 5px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0.6;
+    @include transition(opacity 0.3s ease);
+    
+    &:hover { opacity: 1 }
+  }
+  
+  .color-picker li.color-selected {
+    border: 2px solid white;
+    opacity: 1;
+  }
+}
+
+.nav-pills > .noround a {
+  border-radius: 0px;
+  background-color: #eee
+}
+
+.nav.nav-pills>li+li {
+  margin-left: 2px;
+  /*orig: 2px*/
+}
+
+.tab-pane {
+  background-color: rgba(125, 125, 125, 0.1);
+}
+
+.tab-pane h3 {
+}
+
+li.active .btn-group .btn {
+  background-color: #337ab7;
+  color: #fff;
+}
+
+table.table {
+  font-size: 1.5rem;
+}
+
+thead .table-head {
+  box-sizing: border-box;
+  color: rgb(125, 125, 125, 0.7);
+}

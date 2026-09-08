@@ -1,0 +1,34 @@
+services:
+  db:
+    image: mariadb:11
+    container_name: icthosp-db
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: icthospital
+      MARIADB_USER: icthospital
+      MARIADB_PASSWORD: icthospital
+    ports:
+      - "33063:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    container_name: icthosp-app
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./src:/app
+    ports:
+      - "8082:8000"
+    working_dir: /app
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+volumes:
+  dbdata:
