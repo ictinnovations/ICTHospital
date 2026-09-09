@@ -385,17 +385,11 @@ table i {
                                             </span>
                                         </form>--}}
 
-                                        <form class="navbar-search" name="navbar_search" action="{{url('/student/list')}}" id="navbar_search" method="post">
-                                          <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                          <input type="hidden" name="search" value="yes">
-
-                                              <input placeholder="Search Student" class="au-input au-input--full au-input--h65 " name="student_name" id="student_name" 
-                                              type="text" autocomplete="off">
-                                              <span class="search-dropdown__icon">
-                                                <i class="zmdi zmdi-search"></i>
-                                            </span>
-                                              <div id="studentListd">
-                                              </div>
+                                        <form class="navbar-search" name="navbar_search" action="{{ url('/search') }}" id="navbar_search" method="get">
+                                          <input placeholder="Search patients and doctors" class="au-input au-input--full au-input--h65" name="q" id="global_search" type="text" autocomplete="off">
+                                          <span class="search-dropdown__icon">
+                                            <i class="zmdi zmdi-search"></i>
+                                          </span>
                                         </form>
                                     </div>
                                 </div>
@@ -426,105 +420,7 @@ table i {
                           <!-- fees dropdown starts-->
                           <div class="btn-group pull-right">
                             <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                              <i class="glyphicon glyphicon-list-alt"></i><span class=""> Fees</span>
-                              <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                          
-
-                              <li><a href="{{url('/template/create')}}"><i class="glyphicon glyphicon-folder-open"></i><span> Fee Collection Message</span></a></li>
-                              @if(in_array('view_fess',$permision))
-                              <li><a href="{{url('/fees/view')}}"><i class="glyphicon glyphicon-search"></i> Student Fees</a></li>
-                               @endif
-
-                               @if(in_array('add_fess',$permision))
-                              <li><a href="{{url('/fees/invoices')}}"><i class="glyphicon glyphicon-shopping-cart"></i> Invoices</a></li>
-                              <!--<li><a href="/fee/vouchar"><i class="glyphicon glyphicon-pencil"></i> Create Vouchar</a></li>-->
-                              <li><a href="{{url('/fee/collection')}}"><i class="glyphicon glyphicon-pencil"></i> Fees Collection</a></li>
-                              @endif
-                              <li class="divider"></li>
-                              
-                              @if(in_array('view_fess',$permision))
-                              <li><a href="{{url('/fees/list')}}"><i class="glyphicon glyphicon-list"></i> Fees List</a></li>
-                              @endif
-                              <li><a href="{{url('/fees/setup')}}"><i class="glyphicon glyphicon-cog"></i> Fees Setup</a></li>
-                            </ul>
-                          </div>--}}
-                           @if(family_check()=='on')
-                           <div class="noti-wrap">
-                           <div class="noti__item js-item-menu">
-                                        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                          <i class="glyphicon glyphicon-user"></i>
-                                          <span class=""> Family Lists</span>
-                                         
-                                        </button>
-                                        <div class="mess-dropdown js-dropdown">
-                                            
-                                           <a href="{{url('/family/list')}}">
-                                        <div class="notifi__item">
-                                         <i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;&nbsp;&nbsp;Get List</a>
-                                        </div>
-                                        </a>
-                                        </div>
-                                        </div>
-                                        @endif
-
-                           <div class="noti-wrap">
-                           <div class="noti__item js-item-menu">
-                                        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                          <i class="glyphicon glyphicon-list-alt"></i>
-                                          <span class=""> Fees</span>
-                                         
-                                        </button>
-                                     
-                                        <div class="mess-dropdown js-dropdown">
-                                            
-                                           <a href="{{url('/template/create')}}">
-                                        <div class="notifi__item">
-                                         <i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;&nbsp;&nbsp; Fee Collection Message</a>
-                                        </div>
-                                        </a>
-                                        <a href="{{url('/fees/view')}}">
-                                          <div class="notifi__item">
-                                           <i class="glyphicon glyphicon-search"></i> &nbsp;&nbsp;&nbsp;&nbsp;Student Fees
-                                          </div>
-                                        </a>
-                                        @if(in_array('add_fess',$permision))
-                                        <a href="{{url('/fees/invoices')}}">
-                                          <div class="notifi__item">
-                                           <i class="glyphicon glyphicon-shopping-cart"></i> &nbsp;&nbsp;&nbsp;&nbsp;Invoices
-                                          </div>
-                                        </a>
-                                        @endif
-                                        @if(in_array('add_fess',$permision))
-                                        <a href="{{url('/fee/collection')}}">
-                                          <div class="notifi__item">
-                                           <i class="glyphicon glyphicon-pencil"></i> &nbsp;&nbsp;&nbsp;&nbsp;Fees Collection
-                                          </div>
-                                        </a>
-                                        @endif
-                                        @if(in_array('view_fess',$permision))
-                                        <a href="{{url('/fees/list')}}">
-                                          <div class="notifi__item">
-                                          <i class="glyphicon glyphicon-list"></i>&nbsp;&nbsp;&nbsp;&nbsp;Fees List
-                                          </div>
-                                        </a>
-                                        @endif
-                                        
-                                        {{--<a href="{{url('/fees/list')}}">
-                                          <div class="notifi__item">
-                                           <i class="glyphicon glyphicon-list"></i>&nbsp;&nbsp;&nbsp;&nbsp; Fees List
-                                          </div>
-                                        </a>--}}
-                                        @if(in_array('add_fess',$permision))
-                                        <a href="{{url('/fees/setup')}}">
-                                          <div class="notifi__item">
-                                           <i class="glyphicon glyphicon-cog"></i>&nbsp;&nbsp;&nbsp;&nbsp; Fees Setup
-                                          </div>
-                                        </a>
-                                        @endif
-                                        </div>
-                                    </div>
+                              <i class="glyphicon glyphicon-list-alt"></i>
                                   <div class="noti__item js-item-menu">
                                     {{--<i class="zmdi zmdi-notifications"></i>
                                     --}}
@@ -532,32 +428,12 @@ table i {
                                       <i class="glyphicon glyphicon-print"></i><span class=""> Reports</span>
                                     </button>
                                     <div class="notifi-dropdown js-dropdown">
-                                         <a href="{{url('/gradesheet')}}">
-                                        <div class="notifi__item">
-                                         Marksheet
-                                        </div>
-                                        </a>
-                                        <a href="{{url('/attendance/student_report')}}">
-                                          <div class="notifi__item">
-                                           Student Wise Attendance
-                                          </div>
-                                        </a>
-                                        <a href="{{url('/tabulation')}}">
-                                          <div class="notifi__item">
-                                           Tabulationsheet
-                                          </div>
-                                        </a>
                                         <a href="{{url('/smslog')}}">
                                           <div class="notifi__item">
                                            Voice Log / SMS Log
                                           </div>
                                         </a>
                                          <div class="divider"></div>
-                                        <a href="{{url('/fees/classreport')}}">
-                                          <div class="notifi__item">
-                                           Fee Class Report
-                                          </div>
-                                        </a>
                                         <div class="divider"></div>
                                         <a href="{{url('/accounting/report')}}">
                                           <div class="notifi__item">
@@ -769,14 +645,6 @@ table i {
                               <strong>{{ $error }}.</strong>
                             </div>
                           @endif
-
-                          
-                          @if(Voucharcheck()==0)
-                               <div class="alert alert-danger">
-                                  <button data-dismiss="alert" class="close" type="button">×</button>
-                                  <strong> Note!</strong> <strong>Please Create Vouchars this Months On dashboard</strong>
-                               </div>
-                          @endif
                           @yield('content')
 
                           <!-- content ends -->
@@ -785,7 +653,7 @@ table i {
                                 <div class="copyright">
                                    <p class="col-md-9 col-sm-9 col-xs-12 copyright"> <a href="#" target="_blank">{{Session::get('inName')}}</a> &copy;<?php echo date("Y");?></p>
                                     <p class="col-md-3 col-sm-3 col-xs-12 powered-by">Developed by:
-                                    <a href="http://ictvision.net/">IctVision</a></p>
+                                    <a href="https://www.ictinnovations.com/" target="_blank" rel="noopener">ICT Innovations</a></p>
                                 </div>
                             </div>
                         </div>
@@ -865,31 +733,6 @@ table i {
 <script>
 $(document).ready(function(){
 
- $('#student_name').keyup(function(){ 
-        var query = $('#student_name').val();
-        if(query != '')
-        {
-         var _token = $('input[name="_token"]').val();
-         $.ajax({
-          url:"{{ url('student/search') }}",
-          method:"POST",
-          data:{query:query, _token:_token},
-          success:function(data){
-           $('#studentListd').fadeIn();  
-           $('#studentListd').html(data);
-          }
-         });
-        }else{
-           $('#studentListd').fadeOut(); 
-        }
-    });
-    $('#studentListd').on('click', 'li', function() { 
-        // $('#student_name').val($(this).text());  
-         var sd_id = $(this).attr('data-sid'); 
-         $('#student_name').val(sd_id);
-         $('#studentListd').fadeOut(); 
-         $( "#navbar_search" ).submit(); 
-    });
 
 });
 </script>

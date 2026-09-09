@@ -1,14 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Schema;
 
 use DB;
 use App\Models\FeeCol;
-use App\Models\Student;
-use App\Models\Subject;
 use App\Models\Institute;
 use App\Models\Accounting;
-use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AccountSector;
 use App\Models\AccountingSetting;
@@ -37,16 +35,16 @@ class AccountingController extends BaseController
 	 */
 	public function index(Request $request)
 	{
-		$accounting = AccountingSetting::first();
-		if (empty($accounting)) {
-			$accounting = new Damidata();
-			$accounting->company_id = '';
-			$accounting->api_link = '';
-			$accounting->username = '';
-			$accounting->password = '';
-		}
+		// An unsaved model gives the form the same shape as a saved one,
+		// without writing an empty row on every visit.
+		$accounting = AccountingSetting::first() ?: new AccountingSetting([
+			'company_id' => '',
+			'api_link' => '',
+			'username' => '',
+			'password' => '',
+		]);
 
-		return View('app.accounting', compact('accounting'));
+return View('app.accounting', compact('accounting'));
 	}
 
 	public function store(Request $request)
@@ -240,7 +238,7 @@ class AccountingController extends BaseController
 		}
 		if ($mn != '' && $year != '') {
 
-			$incomes = DB::select(DB::raw("SELECT * FROM accounting WHERE type ='Income' and YEAR(date)='" . $year . "'  and MONTH(date)='" . $month . "'"));
+			$incomes = DB::select("SELECT * FROM accounting WHERE type = 'Income' AND YEAR(date) = ? AND MONTH(date) = ?", [$year, $month]);
 		}
 		//echo "<pre>".$mn.$year;print_r($incomes);
 		//return View::Make('app.accountIncomeView',compact('incomes'));
@@ -254,7 +252,7 @@ class AccountingController extends BaseController
 
 
 
-		$incomes = DB::select(DB::raw("SELECT * FROM accounting WHERE type ='Income' and YEAR(date)='" . $year . "'  and MONTH(date)='" . $month . "'"));
+		$incomes = DB::select("SELECT * FROM accounting WHERE type = 'Income' AND YEAR(date) = ? AND MONTH(date) = ?", [$year, $month]);
 		//return View::Make('app.accountIncomeView',compact('incomes'));
 		return View('app.accountIncomeView', compact('incomes', 'year', 'mn'));
 	}
@@ -380,7 +378,7 @@ class AccountingController extends BaseController
 		}
 		if ($mn != '' && $year != '') {
 
-			$expences = DB::select(DB::raw("SELECT * FROM accounting WHERE type ='Expence' and YEAR(date)='" . $year . "'  and MONTH(date)='" . $month . "'"));
+			$expences = DB::select("SELECT * FROM accounting WHERE type = 'Expence' AND YEAR(date) = ? AND MONTH(date) = ?", [$year, $month]);
 		}
 		return View('app.accountExpenceView', compact('expences', 'year', 'mn'));
 	}
@@ -389,7 +387,7 @@ class AccountingController extends BaseController
 		$year     = trim($request->input('year'));
 		$mn       = trim($request->input('month'));
 		$month    = date('m', strtotime($mn));
-		$expences = DB::select(DB::raw("SELECT * FROM accounting WHERE type ='Expence' and YEAR(date)='" . $year . "' and MONTH(date)='" . $month . "'"));
+		$expences = DB::select("SELECT * FROM accounting WHERE type = 'Expence' AND YEAR(date) = ? AND MONTH(date) = ?", [$year, $month]);
 		//return View::Make('app.accountExpenceView',compact('expences'));
 		return View('app.accountExpenceView', compact('expences', 'year', 'mn'));
 	}
@@ -451,23 +449,39 @@ class AccountingController extends BaseController
 		} else {
 
 			$datas = Accounting::select('name', 'amount', 'date', 'description')->where('type', '=', $rtype)->where('date', '>=', $fdate)->where('date', '<=', $tdate)->get();
-			$total = DB::select(DB::raw("SELECT sum(amount) as total FROM accounting where type='" . $rtype . "' and date >='" . $fdate . "' and date <='" . $tdate . "'"));
+			$total = DB::select("SELECT SUM(amount) as total FROM accounting WHERE type = ? AND date >= ? AND date <= ?", [$rtype, $fdate, $tdate]);
 
 			if ($rtype == 'Income') {
-				$tutionfees = FeeCol::join('billHistory', 'stdBill.billNo', '=', 'billHistory.billNo')->select(DB::RAW('sum(stdBill.payableAmount) as payTotal,IFNULL(sum(paidAmount),0) as paiTotal,(IFNULL(sum(payableAmount),0)- IFNULL(sum(paidAmount),0)) as dueamount'))
-					//->where('class',$request->input('class'))
-					//->groupBy('month')
-					->where('billHistory.title', 'monthly')
-					->whereDate('stdBill.updated_at', '>=', $fdate . ' 00:00:00')
-					->whereDate('stdBill.updated_at', '<=', $tdate . ' 00:00:00')
-					->first();
-				$otherfees = FeeCol::join('billHistory', 'stdBill.billNo', '=', 'billHistory.billNo')->select(DB::RAW('sum(stdBill.payableAmount) as payTotal,IFNULL(sum(paidAmount),0) as paiTotal,(IFNULL(sum(payableAmount),0)- IFNULL(sum(paidAmount),0)) as dueamount'))
-					//->where('class',$request->input('class'))
-					//->groupBy('month')
-					->where('billHistory.title', '<>', 'monthly')
-					->whereDate('stdBill.updated_at', '>=', $fdate . ' 00:00:00')
-					->whereDate('stdBill.updated_at', '<=', $tdate . ' 00:00:00')
-					->first();
+				// Patient billing, which is where a hospital's income comes from.
+				// gross_total and amount_received are varchar in the legacy schema,
+				// so both are cast before they are summed.
+				$received = 'CAST(COALESCE(NULLIF(payment.amount_received, ""), "0") AS DECIMAL(15,2))';
+				$gross    = 'CAST(COALESCE(NULLIF(payment.gross_total, ""), "0") AS DECIMAL(15,2))';
+
+				$totals = function ($deposits) use ($fdate, $tdate, $received, $gross) {
+					$q = DB::table('payment')
+						->select(DB::raw(
+							'IFNULL(SUM(' . $gross . '), 0) as payTotal,'
+							. ' IFNULL(SUM(' . $received . '), 0) as paiTotal,'
+							. ' IFNULL(SUM(' . $gross . ') - SUM(' . $received . '), 0) as dueamount'
+						))
+						->whereDate('payment.date', '>=', $fdate)
+						->whereDate('payment.date', '<=', $tdate);
+
+					if (Schema::hasColumn('payment', 'deposit_type')) {
+						$q = $deposits
+							? $q->where('payment.deposit_type', '<>', '')
+							: $q->where(function ($w) {
+								$w->whereNull('payment.deposit_type')
+								  ->orWhere('payment.deposit_type', '');
+							});
+					}
+
+					return $q->first();
+				};
+
+				$tutionfees = $totals(false);
+				$otherfees  = $totals(true);
 			} else {
 				$otherfees  = array();
 				$tutionfees = array();
@@ -497,26 +511,41 @@ class AccountingController extends BaseController
 
 			$incomes = Accounting::select('name', 'amount', 'description', 'date')->where('type', '=', 'Income')->where('date', '>=', $fdate)->where('date', '<=', $tdate)->get();
 
-			$intotal = DB::select(DB::raw("SELECT sum(amount) as total FROM accounting where type='Income' and date >='" . $fdate . "' and date <='" . $tdate . "'"));
+			$intotal = DB::select("SELECT SUM(amount) as total FROM accounting WHERE type = 'Income' AND date >= ? AND date <= ?", [$fdate, $tdate]);
 
-			$tutionfees = FeeCol::join('billHistory', 'stdBill.billNo', '=', 'billHistory.billNo')->select(DB::RAW('sum(stdBill.payableAmount) as payTotal,IFNULL(sum(paidAmount),0) as paiTotal,(IFNULL(sum(payableAmount),0)- IFNULL(sum(paidAmount),0)) as dueamount'))
-				//->where('class',$request->input('class'))
-				//->groupBy('month')
-				->where('billHistory.title', 'monthly')
-				->whereDate('stdBill.updated_at', '>=', $fdate . ' 00:00:00')
-				->whereDate('stdBill.updated_at', '<=', $tdate . ' 00:00:00')
-				->first();
-			$otherfees = FeeCol::join('billHistory', 'stdBill.billNo', '=', 'billHistory.billNo')->select(DB::RAW('sum(stdBill.payableAmount) as payTotal,IFNULL(sum(paidAmount),0) as paiTotal,(IFNULL(sum(payableAmount),0)- IFNULL(sum(paidAmount),0)) as dueamount'))
-				//->where('class',$request->input('class'))
-				//->groupBy('month')
-				->where('billHistory.title', '<>', 'monthly')
-				->whereDate('stdBill.updated_at', '>=', $fdate . ' 00:00:00')
-				->whereDate('stdBill.updated_at', '<=', $tdate . ' 00:00:00')
-				->first();
-			//echo "<pre>";print_r($tutionfees->toArray());exit;
+			// Patient billing, which is where a hospital's income comes from.
+			// gross_total and amount_received are varchar in the legacy schema, so
+			// both are cast before they are summed.
+			$received = 'CAST(COALESCE(NULLIF(payment.amount_received, ""), "0") AS DECIMAL(15,2))';
+			$gross    = 'CAST(COALESCE(NULLIF(payment.gross_total, ""), "0") AS DECIMAL(15,2))';
+
+			$totals = function ($deposits) use ($fdate, $tdate, $received, $gross) {
+				$q = DB::table('payment')
+					->select(DB::raw(
+						'IFNULL(SUM(' . $gross . '), 0) as payTotal,'
+						. ' IFNULL(SUM(' . $received . '), 0) as paiTotal,'
+						. ' IFNULL(SUM(' . $gross . ') - SUM(' . $received . '), 0) as dueamount'
+					))
+					->whereDate('payment.date', '>=', $fdate)
+					->whereDate('payment.date', '<=', $tdate);
+
+				if (Schema::hasColumn('payment', 'deposit_type')) {
+					$q = $deposits
+						? $q->where('payment.deposit_type', '<>', '')
+						: $q->where(function ($w) {
+							$w->whereNull('payment.deposit_type')
+							  ->orWhere('payment.deposit_type', '');
+						});
+				}
+
+				return $q->first();
+			};
+
+			$tutionfees = $totals(false);
+			$otherfees  = $totals(true);
 
 			$expences = Accounting::select('name', 'amount', 'description', 'date')->where('type', '=', 'Expence')->where('date', '>=', $fdate)->where('date', '<=', $tdate)->get();
-			$extotal = DB::select(DB::raw("SELECT sum(amount) as total FROM accounting where type='Expence' and date >='" . $fdate . "' and date <='" . $tdate . "'"));
+			$extotal = DB::select("SELECT SUM(amount) as total FROM accounting WHERE type = 'Expence' AND date >= ? AND date <= ?", [$fdate, $tdate]);
 			$intotals = $intotal[0]->total + $tutionfees->paiTotal + $otherfees->paiTotal;
 			//$balance = array($intotal[0]->total-$extotal[0]->total);
 			$balance = array($intotals - $extotal[0]->total);
@@ -526,7 +555,7 @@ class AccountingController extends BaseController
 			$institute = Institute::select('*')->first();
 
 			//return View::Make('app.accountreportprintsum', compact('datas','formdata','incomes','expences','intotal','extotal','balance','institute'));
-			return View('app.accountreportprintsum', compact('datas', 'formdata', 'incomes', 'expences', 'intotal', 'extotal', 'balance', 'institute', 'intotals', 'tutionfees', 'otherfees'));
+			return View('app.accountreportprintsum', compact('formdata', 'incomes', 'expences', 'intotal', 'extotal', 'balance', 'institute', 'intotals', 'tutionfees', 'otherfees'));
 		}
 	}
 

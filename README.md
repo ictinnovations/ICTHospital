@@ -1,9 +1,8 @@
 # ICTHospital
 
 Hospital management software with unified communications built in. ICTHospital handles
-the day-to-day running of a hospital or clinic — patients, appointments, admissions,
-lab, pharmacy and billing — and adds SMS, voice and video consultation so patients and
-clinicians can reach each other without leaving the system.
+the day-to-day running of a hospital or clinic, and adds SMS, voice and video
+consultation so patients and clinicians can reach each other without leaving the system.
 
 Built and maintained by [ICT Vision](https://ict.vision), part of
 [ICT Innovations](https://www.ictinnovations.com).
@@ -26,20 +25,27 @@ the application is being rebuilt on **Laravel 11**, sharing a foundation with ou
 - Full hospital data model: 50 tables covering patients, appointments, doctors, nurses,
   beds and wards, prescriptions, lab tests, diagnostic reports, pharmacy, payments,
   expenses and payroll
-- Authentication, users, roles and permissions
+- Authentication, users, and a hospital role catalogue: 90 permissions across Admin,
+  Doctor, Nurse and Accountant, grouped by patients, appointments, admissions, clinical,
+  pharmacy, staff, billing and administration
 - Hospital dashboard: patient and appointment counts, bed occupancy, clinical activity,
   income against expenses, recent patients and appointments
 - Global search across patients and doctors
-- Settings, messaging, SMS logging, templates, barcode generation, activity logging
-- ICTCore integration for SMS and voice
+- Messaging to patients and doctors over [ICTCore](https://github.com/ictinnovations/ictcore),
+  with templates, SMS logging and notification types
+- Two scheduled jobs, `hospital:payment-reminder` and `hospital:appointment-reminder`,
+  which text patients who owe money or who are due in
+- Accounting: income, expenses, sectors and reports
+- Settings, hospital information, branches, barcode generation and an activity log
+- A schema moderniser, described below
 
 **What is not finished**
 
-- Several modules inherited from the shared foundation still carry school-specific logic
-  and are being rewritten for hospital use
-- The public-facing website module does not run on a fresh install
-- The legacy schema is carried over faithfully and not yet modernised: some dates are
-  stored as strings and foreign keys are not yet declared
+The administrative and communication half of the system runs. The clinical and front
+desk screens do not exist yet: patient registration, appointment booking, admissions and
+bed allocation, prescriptions, laboratory, pharmacy dispensing and invoicing. The tables
+are there, the migrations are there, and the Eloquent models are there waiting for them.
+Writing those controllers and views is the next body of work.
 
 If you are evaluating ICTHospital for production use today, please
 [get in touch](https://www.icthospital.com) rather than deploying from this branch.
@@ -60,6 +66,7 @@ cd ICTHospital
 composer install
 cp .env.example .env
 php artisan key:generate
+php artisan passport:keys
 ```
 
 Set your database in `.env`, then:
@@ -68,6 +75,10 @@ Set your database in `.env`, then:
 php artisan migrate --seed
 php artisan serve
 ```
+
+`passport:keys` writes `storage/oauth-private.key` and `storage/oauth-public.key`. They
+are secrets, they are in `.gitignore`, and the API guard returns a server error until
+they exist.
 
 ### Docker
 
@@ -80,35 +91,72 @@ docker compose exec app php artisan migrate --seed
 
 The application is then on http://localhost:8082.
 
+## Schema modernisation
+
+The schema was carried over from the original application exactly as it was, which means
+dates stored as `varchar(100)` and relationships stored as a loose string holding the
+parent row's id. Nothing stopped a bad date or an appointment pointing at a patient who
+had been deleted.
+
+`hospital:modernise-schema` fixes both, and refuses to do either one blindly:
+
+```bash
+php artisan hospital:modernise-schema           # report only, changes nothing
+php artisan hospital:modernise-schema --apply   # make the safe changes
+```
+
+A date column is converted to `DATE` or `DATETIME` only if every value in it parses. A
+relationship becomes a real foreign key only if every value is numeric and matches a row
+in the parent table. Anything else is skipped and reported with the reason, so you can
+clean the data and run it again. On a clean database it converts 41 date columns and adds
+16 foreign keys.
+
+The same work runs from a migration, so `php artisan migrate` upgrades an existing
+install. Read the report before applying it to live data, and take a backup.
+
 ## Communications
 
 SMS and voice run through [ICTCore](https://github.com/ictinnovations/ictcore), our own
 open source communications framework, configured in Settings. Video consultation targets
 LiveKit. None of these are required to run the core system.
 
+Two scheduled jobs use it:
+
+```bash
+php artisan hospital:payment-reminder                  # patients with an outstanding balance
+php artisan hospital:appointment-reminder              # patients due in tomorrow
+php artisan hospital:appointment-reminder --days=0     # patients due in today
+```
+
+Both report why they did nothing rather than failing, so they are safe to put on cron
+before ICTCore is configured.
+
 ## Contributing
 
 Issues and pull requests are welcome. For bug reports, the PHP version, database version
 and the exact error message help more than anything else.
 
-Run the route smoke test after any significant change:
+Run the route smoke test after any significant change. It signs in, requests every
+route that takes no parameters, and reports the status codes:
 
 ```bash
 bash smoke-test.sh
 ```
 
+The current baseline is 33 pages serving, no server errors.
+
 ## Related projects
 
-- [ICTSchool](https://github.com/ictinnovations/ICTSchool) — school management
-- [ICTCore](https://github.com/ictinnovations/ictcore) — communications framework
-- [ICTFax](https://github.com/ictinnovations/ictfax) — fax server on FreeSWITCH
-- [ICTDialer](https://github.com/ictinnovations/ictdialer) — auto dialer and campaigns
-- [ICTPBX Community Edition](https://github.com/ictinnovations/ictpbx-community-edition) — multi-tenant IP PBX
+- [ICTSchool](https://github.com/ictinnovations/ICTSchool) - school management
+- [ICTCore](https://github.com/ictinnovations/ictcore) - communications framework
+- [ICTFax](https://github.com/ictinnovations/ictfax) - fax server on FreeSWITCH
+- [ICTDialer](https://github.com/ictinnovations/ictdialer) - auto dialer and campaigns
+- [ICTPBX Community Edition](https://github.com/ictinnovations/ictpbx-community-edition) - multi-tenant IP PBX
 
 Full list: [ictinnovations.com/projects](https://ictinnovations.com/projects/)
 
 ## Licence
 
-GNU General Public License v3.0 — see [LICENSE](LICENSE).
+GNU General Public License v3.0 - see [LICENSE](LICENSE).
 
 Copyright (c) ICT Innovations.

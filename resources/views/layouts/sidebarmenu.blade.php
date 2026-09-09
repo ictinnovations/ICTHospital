@@ -1,465 +1,134 @@
-{{--<h1>ewe {{ Request::is('dashboard') ? 'active' : '' }}</h1>
+{{--
+  ICTHospital - main navigation.
+
+  Every entry here points at a route that exists. The menu this replaces was the
+  ICTSchool one: students, teachers, classes, sections, exams, marks, GPA rules,
+  promotion, timetables, question papers, academic years and family fee vouchers.
+  Those controllers and routes were removed during the hospital rebuild, so every
+  one of those links was a dead end.
+
+  Hospital modules still being built (patients, appointments, wards, pharmacy,
+  laboratory) will be added here as their controllers land.
+
+  Copyright (c) ICT Innovations <https://www.ictinnovations.com>
+  Part of ICTHospital <https://www.icthospital.com>
+  Licensed under the GNU General Public License v3.0.
 --}}
+<?php
+$here = request()->path();
 
-<div class="logo">
-  <a  class="js-arrow" href="#">
-    
-    @if(Session::get('inName')=='')
-    <img src="images/icon/logo-white.png" alt="CoolAdmin" />
-    @else
-      <h2>{{Session::get('inName')}}</h2>
-    @endif
-    </a>
-</div>
-<div class="menu-sidebar2__content js-scrollbar1">
-{{--<div class="account2">
-  <div class="image img-cir img-120">
-    <img src="{{ URL::asset('/assets/images/icon/avatar-big-01.jpg')}}" alt="John Doe" />
-  </div>
-  <h4 class="name">john doe</h4>
-  <a  class="js-arrow" href="#">Sign out</a>
-</div>--}}
-<nav class="navbar-sidebar2">
-  <ul class="list-unstyled navbar__list">
+/** Mark the open branch so the right group starts expanded. */
+$active = function ($prefixes) use ($here) {
+    foreach ((array) $prefixes as $p) {
+        if ($here === $p || strpos($here, $p . '/') === 0) {
+            return true;
+        }
+    }
+    return false;
+};
+?>
 
-    <li class="{{ Request::is('dashboard') ? 'active' : '' }} has-sub"><a class="js-arrow" href="{{url('/dashboard')}}"> <i class="fas fa-tachometer-alt"></i><span> Dashboard</span></a>
+<div class="sidebar-nav nav-canvas-thumb">
+  <ul class="nav nav-pills nav-stacked main-menu">
+
+    <li class="nav-header">Main</li>
+
+    <li>
+      <a class="{{ $active('dashboard') ? 'active' : '' }}" href="{{ url('/dashboard') }}">
+        <i class="glyphicon glyphicon-home"></i><span class="hidden-tablet"> Dashboard</span>
+      </a>
     </li>
-    @if (Session::get('userRole') =="Director")
-      <li class="has-sub">
-        <a  class="js-arrow" href="#"><i class="glyphicon glyphicon-cog"></i><span> Settings</span></a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list">
-          <li><a href="{{url('/branches')}}">Branches</a></li>
-        </ul>
-      </li>
-    @endif
-@if (Session::get('userRole') !="Director")
- {{-- @if (Session::get('userRole') =="Admin" )--}}
-    @if(in_array('teacher_view',$permision) || in_array('teacher_add',$permision) || in_array('teacher_delete',$permision) || in_array('add_teacher_bulk_add',$permision))
-      <li class="has-sub">
-        <a  class="js-arrow {{ Request::is('teacher/*') ? 'open' : '' }}" href="#">
-          <i class="glyphicon glyphicon-text-width"></i>
-          Teacher
-          <span class="arrow {{ Request::is('teacher/*') ? 'up' : '' }}">
-            <i class="fas fa-angle-down"></i> 
-          </span>
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('teacher/*') ? 'block' : 'none' }} ;">
-          @if(in_array('add_teacher_bulk_add',$permision))
-            <li class="{{ Request::is('teacher/create-file') ? 'active' : '' }}"><a href="{{url('/teacher/create-file')}}">Add from file</a></li>
-          @endif
-          @if(in_array('teacher_add',$permision))
-            <li class="{{ Request::is('teacher/create') ? 'active' : '' }}"><a href="{{url('/teacher/create')}}">Add New</a></li>
-          @endif
-          @if(in_array('teacher_view',$permision))
-            <li class="{{ Request::is('teacher/list') ? 'active' : '' }}"><a href="{{url('/teacher/list')}}">Teacher List</a></li>
-          @endif
-          @if(in_array('teacher_timetable_add',$permision))
-            <li class="{{ Request::is('teacher/create-timetable') ? 'active' : '' }}"><a href="{{url('/teacher/create-timetable')}}">Timetable Management</a></li>
-          @endif
-        </ul>
-      </li>
-    @endif
-     {{-- @if(in_array('class_add',$permision) || in_array('class_update',$permision) || in_array('class_delete',$permision) || in_array('class_view',$permision))
-      <li class="has-sub {{ Request::is('class/list') ? '' : '' }}">
-        <a  class="js-arrow {{ Request::is('class/*') ? 'open' : '' }} ;" href="#">
-          <i class="glyphicon glyphicon-home"></i>
-          Class
-          <span class="arrow {{ Request::is('class/*') ? 'up' : '' }}">
-            <i class="fas fa-angle-down"></i>
-          </span>
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('class/*') ? 'block' : 'none' }} ;">
-          @if(in_array('class_add',$permision))
-          <li class="has-sub {{ Request::is('class/create') ? 'active' : '' }}"><a href="{{url('/class/create')}}">Add New</a></li>
-                    @endif
-          @if( in_array('class_update',$permision) || in_array('class_delete',$permision) || in_array('class_view',$permision))
-          <li class="has-sub {{ Request::is('class/list') ? 'active' : '' }}"><a href="{{url('/class/list')}}">Class List</a></li>
-          @endif
-        </ul>
-      </li>
-      @endif--}}
-      {{--@if(in_array('section_add',$permision) || in_array('section_update',$permision) || in_array('section_delete',$permision) || in_array('section_time_table',$permision) || in_array('section_view',$permision))
-      <li class="has-sub">
-        <a class="js-arrow {{ Request::is('section/*') ? 'open' : '' }}" href="#"><i class="fas fa-desktop"></i>
-          Section
-          <span class="arrow {{ Request::is('section/*') ? 'up' : '' }}">
-          <i class="fas fa-angle-down"></i>
-          </span>
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('section/*') ? 'block' : 'none' }} ;">
-          @if(in_array('section_add',$permision))
-            {<li class="{{ Request::is('section/create') ? 'active' : '' }}"><a href="{{url('/section/create')}}">Add New</a></li>
-          
-          @endif
-          @if(in_array('section_view',$permision))
-            <li class="{{ Request::is('section/list') ? 'active' : '' }}"><a href="{{url('/section/list')}}">Section List</a></li>
-          @endif
-        </ul>
-      </li>
-      @endif--}}
-      @if(in_array('student_view',$permision) || in_array('student_add',$permision) || in_array('student_delete',$permision) || in_array('student_student_bulk_add',$permision))
-      <li class="has-sub">
-        <a  class="js-arrow {{ Request::is('student/*') ? 'open' : '' }}" href="#">
-          <i class="glyphicon glyphicon-user"></i>
-          Student Information
-          <span class="arrow {{ Request::is('student/*') ? 'up' : '' }}">
-            <i class="fas fa-angle-down"></i> 
-          </span>
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('student/*') ? 'block' : 'none' }} ;">
-          @if(in_array('student_student_bulk_add',$permision))
-            <li class="{{ Request::is('student/create-file') ? 'active' : '' }}"><a href="{{url('/student/create-file')}}">Add from file</a></li>
-          @endif
-          @if(in_array('student_add',$permision))
-            <li class="{{ Request::is('student/create') ? 'active' : '' }}"><a href="{{url('/student/create')}}">Student Admission</a></li>
-          @endif
-          @if(in_array('student_view',$permision))
-            <li class="{{ Request::is('student/list') ? 'active' : '' }}"><a href="{{url('/student/list')}}">Student Detail</a></li>
-          @endif
-          @if(family_check()=='on')
-            <li class="{{ Request::is('family/list') ? 'active' : '' }}"><a href="{{url('/family/list')}}">Guardian Detail</a></li>
-          @endif
-        {{--@if(in_array('promote_student',$permision) )
-        <li class="{{ Request::is('promotion') ? 'active' : '' }} has-sub">
-          <a href="{{url('/promotion')}}"><i class="glyphicon glyphicon-arrow-up"></i><span> Promotion</span></a>
-        </li>
-      @endif--}}
-        </ul>
-      </li>
-    @endif
-      @if(in_array('subject_view',$permision) || in_array('subject_add',$permision) || in_array('subject_update',$permision) || in_array('subject_delete',$permision) || in_array('section_add',$permision) || in_array('section_update',$permision) || in_array('section_delete',$permision) || in_array('section_time_table',$permision) || in_array('section_view',$permision) || in_array('class_add',$permision) || in_array('class_update',$permision) || in_array('class_delete',$permision) || in_array('class_view',$permision))
-      <li class="has-sub">
-       {{-- <a  class="js-arrow {{ Request::is('subject/*') ? 'open' : '' }}" href="#">
-        --}}
-        <a  class="js-arrow @if(Request::is('subject/*', 'section/*','promotion','class/*')) open @endif" href="#">
-          <i class="glyphicon glyphicon-book"></i>
-          <!-- Subject --> Academics
-          {{--<span class="arrow {{ Request::is('subject/*','class/*','promotion') ? 'up' : '' }}"><i class="fas fa-angle-down"></i> </span>
-          --}}
-          <span class="arrow  @if(Request::is('subject/*', 'section/*','class/*','promotion')) up @endif"><i class="fas fa-angle-down"></i> </span>
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('subject/*','section/*','class/*','promotion') ? 'block' : 'none' }} ;">
-          {{--@if(in_array('subject_add',$permision))
-            <li class="{{ Request::is('subject/create') ? 'active' : '' }}"><a href="{{url('/subject/create')}}">Add New</a></li>
-          @endif --}} 
-          @if(in_array('subject_view',$permision)) 
-            <li class="{{ Request::is('subject/list') ? 'active' : '' }}"><a href="{{url('/subject/list')}}">Subject</a></li>
-          @endif
-          @if(in_array('section_view',$permision))
-            <li class="{{ Request::is('section/list') ? 'active' : '' }}"><a href="{{url('/section/list')}}">Section List</a></li>
-          @endif
-          @if( in_array('class_update',$permision) || in_array('class_delete',$permision) || in_array('class_view',$permision))
-          <li class="has-sub {{ Request::is('class/list') ? 'active' : '' }}"><a href="{{url('/class/list')}}">Class List</a></li>
-          @endif
 
-          @if(in_array('promote_student',$permision) )
-        <li class="{{ Request::is('promotion') ? 'active' : '' }} has-sub">
-          <a href="{{url('/promotion')}}"><span> Promotion</span></a>
-        </li>
-      @endif
-        </ul>
-      </li>
-      @endif
-      
-    {{--@if(in_array('student_view',$permision) || in_array('student_add',$permision) || in_array('student_delete',$permision) || in_array('student_student_bulk_add',$permision))
-      <li class="has-sub">
-        <a  class="js-arrow {{ Request::is('student/*') ? 'open' : '' }}" href="#">
-          <i class="glyphicon glyphicon-user"></i>
-          Student
-          <span class="arrow {{ Request::is('student/*') ? 'up' : '' }}">
-            <i class="fas fa-angle-down"></i> 
-          </span>
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('student/*') ? 'block' : 'none' }} ;">
-          @if(in_array('student_student_bulk_add',$permision))
-            <li class="{{ Request::is('student/create-file') ? 'active' : '' }}"><a href="{{url('/student/create-file')}}">Add from file</a></li>
-          @endif
-          @if(in_array('student_add',$permision))
-            <li class="{{ Request::is('student/create') ? 'active' : '' }}"><a href="{{url('/student/create')}}">Add New</a></li>
-          @endif
-          @if(in_array('student_view',$permision))
-            <li class="{{ Request::is('student/list') ? 'active' : '' }}"><a href="{{url('/student/list')}}">Student List</a></li>
-          @endif
-          @if(family_check()=='on')
-<!--             <li class="{{ Request::is('family/list') ? 'active' : '' }}"><a href="{{url('/family/list')}}">Family List</a></li>
- -->          @endif
-        </ul>
-      </li>
-    @endif--}}
+    <li>
+      <a class="{{ $active('search') ? 'active' : '' }}" href="{{ url('/search') }}">
+        <i class="glyphicon glyphicon-search"></i><span class="hidden-tablet"> Search Patients</span>
+      </a>
+    </li>
 
- {{-- @endif --}}
+    <li class="nav-header">Money</li>
 
-    {{--@if(in_array('teacher_view',$permision) || in_array('teacher_add',$permision) || in_array('teacher_delete',$permision) || in_array('add_teacher_bulk_add',$permision))
-      <li class="has-sub">
-        <a  class="js-arrow {{ Request::is('teacher/*') ? 'open' : '' }}" href="#">
-          <i class="glyphicon glyphicon-text-width"></i>
-          Teacher
-          <span class="arrow {{ Request::is('teacher/*') ? 'up' : '' }}">
-            <i class="fas fa-angle-down"></i> 
-          </span>
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('teacher/*') ? 'block' : 'none' }} ;">
-          @if(in_array('add_teacher_bulk_add',$permision))
-            <li class="{{ Request::is('teacher/create-file') ? 'active' : '' }}"><a href="{{url('/teacher/create-file')}}">Add from file</a></li>
-          @endif
-          @if(in_array('teacher_add',$permision))
-            <li class="{{ Request::is('teacher/create') ? 'active' : '' }}"><a href="{{url('/teacher/create')}}">Add New</a></li>
-          @endif
-          @if(in_array('teacher_view',$permision))
-            <li class="{{ Request::is('teacher/list') ? 'active' : '' }}"><a href="{{url('/teacher/list')}}">Teacher List</a></li>
-          @endif
-          @if(in_array('teacher_timetable_add',$permision))
-            <li class="{{ Request::is('teacher/create-timetable') ? 'active' : '' }}"><a href="{{url('/teacher/create-timetable')}}">Timetable Management</a></li>
-          @endif
-        </ul>
-      </li>
-    @endif--}}
-    @if(in_array('add_student_attendance',$permision) || in_array('view_student_attendance',$permision) || in_array('view_student_monthly_reports',$permision))
-      <li class="has-sub">
-        <a  class="js-arrow {{ Request::is('attendance/*') ? 'open' : '' }}" href="#">
-          <i class="glyphicon glyphicon-pencil"></i>
-          Attendance
-          <span class="arrow {{ Request::is('attendance/*') ? 'up' : '' }}">
-            <i class="fas fa-angle-down"></i> 
-          </span>
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('attendance/*') ? 'block' : 'none' }} ;">
+    <li>
+      <a class="dropmenu {{ $active('accounting') ? 'active' : '' }}" href="#">
+        <i class="glyphicon glyphicon-usd"></i><span class="hidden-tablet"> Accounting</span>
+        <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
+      </a>
+      <ul style="{{ $active('accounting') ? '' : 'display:none;' }}">
+        <li><a href="{{ url('/accounting/income') }}"><i class="glyphicon glyphicon-plus"></i> Add Income</a></li>
+        <li><a href="{{ url('/accounting/incomelist') }}"><i class="glyphicon glyphicon-list"></i> Income List</a></li>
+        <li><a href="{{ url('/accounting/expence') }}"><i class="glyphicon glyphicon-minus"></i> Add Expense</a></li>
+        <li><a href="{{ url('/accounting/expencelist') }}"><i class="glyphicon glyphicon-list"></i> Expense List</a></li>
+        <li><a href="{{ url('/accounting/sectors') }}"><i class="glyphicon glyphicon-tags"></i> Sectors</a></li>
+        <li><a href="{{ url('/accounting/report') }}"><i class="glyphicon glyphicon-stats"></i> Report</a></li>
+        <li><a href="{{ url('/accounting/reportsum') }}"><i class="glyphicon glyphicon-stats"></i> Summary Report</a></li>
+      </ul>
+    </li>
 
-          <!-- <li><a href="/attendance/create-file">Add from file</a></li>-->
-          @if(in_array('add_student_attendance',$permision))
-            <li class="{{ Request::is('attendance/create') ? 'active' : '' }}"><a href="{{url('/attendance/create')}}">Add</a></li>
-          @endif 
-          @if(in_array('view_student_attendance',$permision))
-            <li class="{{ Request::is('attendance/list') ? 'active' : '' }}"><a href="{{url('/attendance/list')}}">View</a></li>
-          @endif
-          @if(in_array('view_student_monthly_reports',$permision))
-           <li class="{{ Request::is('attendance/monthly-report') ? 'active' : '' }}"><a href="{{url('/attendance/monthly-report')}}"><i class="glyphicon glyphicon-print"></i> Monthly Attendance Report</a></li>
-          @endif
-        </ul>
-      </li>
-    @endif
+    <li class="nav-header">Communication</li>
 
-    @if(in_array('exam_view',$permision) || in_array('exam_add',$permision)|| in_array('paper_add',$permision) || in_array('paper_view',$permision) || in_array('paper_update',$permision) || in_array('paper_delete',$permision)|| in_array('add_marks',$permision) || in_array('view_marks',$permision) || in_array('generate_result',$permision) || in_array('search_result',$permision))
-      <li class="has-sub">
-        <a  class="js-arrow {{ Request::is('exam/*','question/*','paper/*','mark/*','result/*') ? 'open' : '' }}" href="#">
-          <i class="glyphicon glyphicon-fire"></i>
-          Examinations
-          <span class="arrow {{ Request::is('exam/*','question/*','paper/*','mark/*','result/*') ? 'up' : '' }}">
-            <i class="fas fa-angle-down"></i> 
-          </span>
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('exam/*','question/*','paper/*','mark/*','result/*') ? 'block' : 'none' }} ;">
-          @if(in_array('exam_add',$permision))
-            {{--<li class="{{ Request::is('exam/create') ? 'active' : '' }}"><a href="{{url('/exam/create')}}">Add New</a></li>
-          --}}
-          @endif
-          @if(in_array('exam_view',$permision))
-            <li class="{{ Request::is('exam/list') ? 'active' : '' }}"><a href="{{url('/exam/list')}}">Exam List</a></li>
-          @endif
-          @if(in_array('paper_add',$permision))
-          <li class="{{ Request::is('question/create') ? 'active' : '' }}"><a href="{{url('/question/create')}}">Add New Questions</a></li>
-          @endif
-          @if(in_array('paper_view',$permision))
-          <li class="{{ Request::is('question/list') ? 'active' : '' }}"><a href="{{url('/question/list')}}">Question List</a></li>
-          @endif
-          @if(in_array('paper_add',$permision))
-          <li class="{{ Request::is('paper/generate') ? 'active' : '' }}"><a href="{{url('/paper/generate')}}"> Generate Paper</a></li>
-          @endif
+    <li>
+      <a class="dropmenu {{ $active(['message', 'template', 'smslog', 'notification_type']) ? 'active' : '' }}" href="#">
+        <i class="glyphicon glyphicon-envelope"></i><span class="hidden-tablet"> Messaging</span>
+        <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
+      </a>
+      <ul style="{{ $active(['message', 'template', 'smslog', 'notification_type']) ? '' : 'display:none;' }}">
+        <li><a href="{{ url('/message') }}"><i class="glyphicon glyphicon-send"></i> Send Message</a></li>
+        <li><a href="{{ url('/template/create') }}"><i class="glyphicon glyphicon-plus"></i> Add Template</a></li>
+        <li><a href="{{ url('/template/list') }}"><i class="glyphicon glyphicon-list"></i> Templates</a></li>
+        <li><a href="{{ url('/smslog') }}"><i class="glyphicon glyphicon-list-alt"></i> SMS and Voice Log</a></li>
+        <li><a href="{{ url('/notification_type') }}"><i class="glyphicon glyphicon-bell"></i> Notification Types</a></li>
+      </ul>
+    </li>
 
-          @if($system_grade=='' || $system_grade=='auto')
-            @if(in_array('add_marks',$permision))
-              <li class="{{ Request::is('mark/create') ? 'active' : '' }}"><a href="{{url('/mark/create')}}">Add New</a></li>
-            @endif
-            @if(in_array('view_marks',$permision))
-              <li class="{{ Request::is('mark/list') ? 'active' : '' }}"><a href="{{url('/mark/list')}}">Marks List</a></li>
-            @endif
-          @else
-            @if(in_array('add_marks',$permision))
-              <li class="{{ Request::is('mark/m_create') ? 'active' : '' }}"><a href="{{url('/mark/m_create')}}">Add Marks</a></li>
-            @endif
-            @if(in_array('view_marks',$permision))
-              <li class="{{ Request::is('mark/m_list') ? 'active' : '' }}"><a href="{{url('/mark/m_list')}}">Marks List</a></li>
-            @endif
-          @endif
-          @if(in_array('generate_result',$permision))
-              <li class="{{ Request::is('result/generate') ? 'active' : '' }}"><a href="{{url('/result/generate')}}">Generate Result</a></li>
-            @endif
-            @if(in_array('search_result',$permision))
-              {{--<li class="{{ Request::is('result/search') ? 'active' : '' }}"><a href="{{url('/result/search')}}">Search</a></li>
-              <li class="{{ Request::is('results') ? 'active' : '' }}"><a href="{{url('/results')}}">Search Public</a></li>--}}
-            @endif
-          <li><a href="{{url('/template/creates')}}">Template</a></li>
-        </ul>
-      </li>
-    @endif
-  {{--@if(in_array('paper_add',$permision) || in_array('paper_view',$permision) || in_array('paper_update',$permision) || in_array('paper_delete',$permision))
+    <li>
+      <a class="dropmenu {{ $active('ictcore') ? 'active' : '' }}" href="#">
+        <i class="glyphicon glyphicon-phone-alt"></i><span class="hidden-tablet"> ICTCore</span>
+        <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
+      </a>
+      <ul style="{{ $active('ictcore') ? '' : 'display:none;' }}">
+        <li><a href="{{ url('/ictcore') }}"><i class="glyphicon glyphicon-cog"></i> Integration</a></li>
+        <li><a href="{{ url('/ictcore/attendance') }}"><i class="glyphicon glyphicon-calendar"></i> Appointment Reminders</a></li>
+        <li><a href="{{ url('/ictcore/fees') }}"><i class="glyphicon glyphicon-credit-card"></i> Payment Reminders</a></li>
+      </ul>
+    </li>
 
-    <li class="has-sub">
-          <a  class="js-arrow {{ Request::is('question/*') ? 'open' : '' }} {{ Request::is('paper/generate') ? 'open' : '' }} " href="#">
-          <i class="glyphicon glyphicon-hdd"></i>
-          Paper Management
-          <span class="arrow {{ Request::is('question/*') ? 'up' : '' }}  {{ Request::is('paper/generate') ? 'up' : '' }} ">
-            <i class="fas fa-angle-down"></i>
-          </span>
-        
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('question/*') ? 'block' : '' }}  {{ Request::is('paper/generate') ? 'block' : '' }};" href="#">
+    <li class="nav-header">Administration</li>
 
-          @if(in_array('paper_add',$permision))
-          <li class="{{ Request::is('question/create') ? 'active' : '' }}"><a href="{{url('/question/create')}}">Add New</a></li>
-          @endif
-          @if(in_array('paper_view',$permision))
-          <li class="{{ Request::is('question/list') ? 'active' : '' }}"><a href="{{url('/question/list')}}">List</a></li>
-          @endif
-          @if(in_array('paper_add',$permision))
-          <li class="{{ Request::is('paper/generate') ? 'active' : '' }}"><a href="{{url('/paper/generate')}}"> Generate Paper</a></li>
-          @endif
-        </ul>
-      </li>
-    @endif--}}
-    
-    {{--@if(in_array('add_marks',$permision) || in_array('view_marks',$permision))
-      <li class="has-sub">
-          <a  class="js-arrow {{ Request::is('mark/*') ? 'open' : '' }}" href="#">
-          <i class="glyphicon glyphicon-list-alt"></i>
-          Mark Manage
-          <span class="arrow {{ Request::is('mark/*') ? 'up' : '' }}">
-            <i class="fas fa-angle-down"></i> 
-          </span>
-        </a>
-        <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('mark/*') ? 'block' : 'none' }} ;">
-          @if($system_grade=='' || $system_grade=='auto')
-            @if(in_array('add_marks',$permision))
-              <li class="{{ Request::is('mark/create') ? 'active' : '' }}"><a href="{{url('/mark/create')}}">Add New</a></li>
-            @endif
-            @if(in_array('view_marks',$permision))
-              <li class="{{ Request::is('mark/list') ? 'active' : '' }}"><a href="{{url('/mark/list')}}">Marks List</a></li>
-            @endif
-          @else
-            @if(in_array('add_marks',$permision))
-              <li class="{{ Request::is('mark/m_create') ? 'active' : '' }}"><a href="{{url('/mark/m_create')}}">Add New</a></li>
-            @endif
-            @if(in_array('view_marks',$permision))
-              <li class="{{ Request::is('mark/m_list') ? 'active' : '' }}"><a href="{{url('/mark/m_list')}}">Marks List</a></li>
-            @endif
-          @endif
-          <li><a href="{{url('/template/creates')}}">Template</a></li>
-        </ul>
-      </li>
-    @endif--}}
-    {{--@if (Session::get('userRole') =="Admin")--}}
-      {{--@if(in_array('generate_result',$permision) || in_array('search_result',$permision))
-        <li class="has-sub">
-          <a  class="js-arrow {{ Request::is('result/*') ? 'open' : '' }}" href="#">
-            <i class="glyphicon  glyphicon glyphicon-list"></i>
-            Result
-            <span class="arrow {{ Request::is('result/*') ? 'up' : '' }}">
-              <i class="fas fa-angle-down"></i> 
-            </span>
-          </a>
-          <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('result/*') ? 'block' : 'none' }} ;">
-            @if(in_array('generate_result',$permision))
-              <li class="{{ Request::is('result/generate') ? 'active' : '' }}"><a href="{{url('/result/generate')}}">Generate</a></li>
-            @endif
-            @if(in_array('search_result',$permision))
-              <li class="{{ Request::is('result/search') ? 'active' : '' }}"><a href="{{url('/result/search')}}">Search</a></li>
-              <li class="{{ Request::is('results') ? 'active' : '' }}"><a href="{{url('/results')}}">Search Public</a></li>
-            @endif
-          </ul>
-        </li>
-      @endif--}}
-        {{--@if(in_array('accunting',$permision))--}}
-        @if( accounting_check()=='yes')
-       <li class="has-sub">
-          <a  class="js-arrow {{ Request::is('accounting/*') ? 'open' : '' }}" href="#">
-            <i class="glyphicon  glyphicon glyphicon-font"></i>
-            Accounting
-            <span class="arrow {{ Request::is('accounting/*') ? 'up' : '' }}">
-              <i class="fas fa-angle-down"></i> 
-            </span>
-          </a>
-          <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('accounting/*') ? 'block' : 'none' }} ;">
-            <li class="{{ Request::is('accounting/sectors') ? 'active' : '' }}"><a href="{{url('/accounting/sectors')}}">Sectors</a></li>
-            <li class="{{ Request::is('accounting/income') ? 'active' : '' }}"><a href="{{url('/accounting/income')}}">Add Income</a></li>
-            <li class="{{ Request::is('accounting/incomelist') ? 'active' : '' }}"><a href="{{url('/accounting/incomelist')}}">View Income</a></li>
-            <li class="{{ Request::is('accounting/expence') ? 'active' : '' }}"><a href="{{url('/accounting/expence')}}">Add Expence</a></li>
-            <li class="{{ Request::is('accounting/expencelist') ? 'active' : '' }}"><a href="{{url('/accounting/expencelist')}}">View Expence</a></li>
-          </ul>
-        </li>
-        @endif
-      
-      @if(in_array('send_notification',$permision) )
-       
+    <li>
+      <a class="dropmenu {{ $active(['users', 'permission', 'useredit', 'verification_code', 'verify_code']) ? 'active' : '' }}" href="#">
+        <i class="glyphicon glyphicon-user"></i><span class="hidden-tablet"> Users and Roles</span>
+        <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
+      </a>
+      <ul style="{{ $active(['users', 'permission']) ? '' : 'display:none;' }}">
+        <li><a href="{{ url('/users') }}"><i class="glyphicon glyphicon-list"></i> Users</a></li>
+        <li><a href="{{ url('/permission') }}"><i class="glyphicon glyphicon-lock"></i> Permissions</a></li>
+      </ul>
+    </li>
 
-           <li class="has-sub">
-            <a  class="js-arrow {{ Request::is('message','notification_type','ictcore/attendance') ? 'open' : '' }}" href="#">
-            <i class="glyphicon glyphicon-envelope"></i>
-            Communication
-            <span class="arrow {{ Request::is('message','notification_type','ictcore/attendance') ? 'up' : '' }}">
-              <i class="fas fa-angle-down"></i> 
-            </span>
-          </a>
-          <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('message','notification_type','ictcore/attendance') ? 'block' : 'none' }} ;">
-           <li class="{{ Request::is('message') ? 'active' : '' }}" > <a href="{{url('/message')}}"> Communication</a></li>
-           <li class="{{ Request::is('notification_type') ? 'active' : '' }}"><a href="{{url('/notification_type')}}">Notification Types</a></li>
-           <li class="{{ Request::is('ictcore/attendance') ? 'active' : '' }}"><a href="{{url('/ictcore/attendance')}}">Notifications</a></li>
-          </ul>
-        </li>
+    <li>
+      <a class="dropmenu {{ $active(['settings', 'institute', 'branches', 'schedule', 'barcode']) ? 'active' : '' }}" href="#">
+        <i class="glyphicon glyphicon-cog"></i><span class="hidden-tablet"> Settings</span>
+        <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
+      </a>
+      <ul style="{{ $active(['settings', 'institute', 'branches', 'schedule', 'barcode']) ? '' : 'display:none;' }}">
+        <li><a href="{{ url('/institute') }}"><i class="glyphicon glyphicon-tower"></i> Hospital Information</a></li>
+        <li><a href="{{ url('/branches') }}"><i class="glyphicon glyphicon-map-marker"></i> Branches</a></li>
+        <li><a href="{{ url('/settings') }}"><i class="glyphicon glyphicon-wrench"></i> General Settings</a></li>
+        <li><a href="{{ url('/schedule') }}"><i class="glyphicon glyphicon-time"></i> Schedule</a></li>
+        <li><a href="{{ url('/barcode') }}"><i class="glyphicon glyphicon-barcode"></i> Barcode</a></li>
+      </ul>
+    </li>
 
+    <li>
+      <a class="{{ $active('activity') ? 'active' : '' }}" href="{{ url('/activity') }}">
+        <i class="glyphicon glyphicon-list-alt"></i><span class="hidden-tablet"> Activity Log</span>
+      </a>
+    </li>
 
+    <li>
+      <a href="{{ url('/users/logout') }}">
+        <i class="glyphicon glyphicon-off"></i><span class="hidden-tablet"> Sign out</span>
+      </a>
+    </li>
 
-
-
-
-
-      @endif
-    {{--@endif--}}
-        @if (Session::get('userRole') =="Admin")
-        @endif
-      @if (Session::get('userRole')=="Admin")
-
-            <li class="has-sub">
-          <a  class="js-arrow {{ Request::is('template/*') ? 'open' : '' }}" href="#">
-            <i class="glyphicon  glyphicon glyphicon-font"></i>
-            Template
-            <span class="arrow {{ Request::is('template/*') ? 'up' : '' }}">
-              <i class="fas fa-angle-down"></i> 
-            </span>
-          </a>
-          <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('template/*') ? 'block' : 'none' }} ;">
-            <li class="{{ Request::is('template/create') ? 'active' : '' }}"><a href="{{url('/template/create')}}">Add Template</a></li>
-            <li class="{{ Request::is('template/list') ? 'active' : '' }}"><a href="{{url('/template/list')}}">Templates</a></li>
-            
-          </ul>
-        </li>
-      
-        <li class="has-sub">
-          <a  class="js-arrow {{ Request::is('academicYear', 'gpa', 'users', 'holidays', 'class-off', 'institute', 'ictcore?type=sms', 'ictcore?type=voice','permission','accounting') ? 'open' : '' }}" href="#">
-            <i class="glyphicon glyphicon-cog"></i>
-             Settings 
-            <span class="arrow {{ Request::is('academicYear', 'gpa', 'users', 'holidays', 'class-off', 'institute', 'ictcore?type=sms', 'ictcore?type=voice','permission','accounting') ? 'up' : '' }}">
-              <i class="fas fa-angle-down"></i> 
-            </span>                            
-          </a>
-          <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('academicYear', 'gpa', 'users', 'holidays', 'class-off', 'institute', 'ictcore?type=sms', 'ictcore?type=voice','permission','accounting') ? 'block' : 'none' }} ;">
-            <li class="{{ Request::is('academicYear') ? 'active' : '' }}"><a href="{{url('/academicYear')}}">Academic Year</a></li>
-            <li class="{{ Request::is('gpa') ? 'active' : '' }}"><a href="{{url('/gpa')}}">GPA Ruels</a></li>
-            <li class="{{ Request::is('users') ? 'active' : '' }}"><a href="{{url('/users')}}">Users</a></li>
-            <li class="{{ Request::is('holidays') ? 'active' : '' }}"><a href="{{url('/holidays')}}">Holidays</a></li>
-            <li class="{{ Request::is('class-off') ? 'active' : '' }}"><a href="{{url('/class-off')}}">Class Off Days</a></li>
-            <li class="{{ Request::is('institute') ? 'active' : '' }}"><a href="{{url('/institute')}}">Institute</a></li>
-             @if(Auth::user()->login=='ictkashif')
-            <li class="{{ Request::is('ictcore?type=sms') ? 'active' : '' }}"><a href="{{url('/ictcore?type=sms')}}">Sms Integration</a></li>
-            <li class="{{ Request::is('ictcore?type=voice') ? 'active' : '' }}"><a href="{{url('/ictcore?type=voice')}}">Voice Integration</a></li>
-           @endif
-            
-            <li class="{{ Request::is('permission') ? 'active' : '' }}"><a href="{{url('/permission')}}">Permission</a></li>
-            {{--@if(accounting_check()!='' && accounting_check()=='yes' )
-             <li class="{{ Request::is('accounting') ? 'active' : '' }}"><a href="{{url('/accounting')}}">Accounting Api</a></li>
-             @endif --}}
-          </ul>
-        </li>
-        @endif
-        </li>
-      @endif
-  
+  </ul>
+</div>

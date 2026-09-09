@@ -4,14 +4,11 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\Student;
 use Illuminate\Support\Facades\File;
 use App\Models\Ictcore_integration;
 use App\Models\Ictcore_attendance;
 use App\Models\Ictcore_fees;
-use App\Models\SectionModel;
 use App\Models\Schedule;
-use App\Models\ClassModel;
 use App\Models\Notification;
 use DB;
 use Carbon\Carbon;
@@ -1024,7 +1021,7 @@ class ICTCoreController {
 	    if($method == 'campaign_create' && $type =='sms'){
 	    	//echo "<=sms_msg=>".$sms_msg;
 	    	 date_default_timezone_set('Asia/Karachi');
-	    	 $mask = "SidraSchool";
+	    	 $mask = substr(preg_replace('/[^A-Za-z0-9]/', '', DB::table('institute')->value('name') ?: config('app.name', 'ICTHospital')), 0, 11);
 	    	 $ictcore_integration = Ictcore_integration::select("*")->where('type','sms')->where('method','telenor')->first();
 	    		if(!empty($ictcore_integration)){
 	    			

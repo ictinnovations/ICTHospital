@@ -1,5 +1,19 @@
 @extends('layouts.master')
 @section('content')
+@php
+    /*
+     * Index the saved rows by what they configure. The original read
+     * $notification_types[0] and [1], which broke as soon as fewer than two
+     * rows existed. "attendance" and "fess" are the historic keys; the hospital
+     * build writes "appointment" and "payment" and both are accepted.
+     */
+    $byName = [];
+    foreach ($notification_types as $row) {
+        $byName[$row->notification] = $row->type;
+    }
+    $appointmentType = $byName['appointment'] ?? $byName['attendance'] ?? '';
+    $paymentType = $byName['payment'] ?? $byName['fess'] ?? '';
+@endphp
    <link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css" />
 @if (Session::get('success'))
 
@@ -25,10 +39,10 @@
                                 <div class="col-md-12">
                                 <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="name"  class=" col-form-label">Attendance</label>
+                                    <label for="name"  class=" col-form-label">Appointment Reminder</label>
                                     <div class="input-group col-md-6">
-                                       sms <input type="radio" name="attendance" @if(!empty($notification_types) && $notification_types[0]->type =='sms') checked @endif value="sms"  >
-                                       voice <input type="radio" name="attendance" @if(!empty($notification_types) && $notification_types[0]->type=='voice') checked @endif value="voice" >
+                                       sms <input type="radio" name="attendance" @if($appointmentType === 'sms') checked @endif value="sms"  >
+                                       voice <input type="radio" name="attendance" @if($appointmentType === 'voice') checked @endif value="voice" >
                                     </div>
                                     <label for="name"  class=" col-form-label">Schedule Setting</label>
                                     <div class="input-group col-md-6">
@@ -39,10 +53,10 @@
                                  
                                   <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="name"  class=" col-form-label">Fees</label>
+                                    <label for="name"  class=" col-form-label">Payment Reminder</label>
                                     <div class="input-group col-md-6">
-                                       sms <input type="radio" name="fess" @if( !empty($notification_types) && $notification_types[1]->type=='sms') checked @endif required value="sms"  >
-                                       voice <input type="radio" name="fess" @if(!empty($notification_types) && $notification_types[1]->type=='voice') checked @endif required value="voice"  >
+                                       sms <input type="radio" name="fess" @if($paymentType === 'sms') checked @endif required value="sms"  >
+                                       voice <input type="radio" name="fess" @if($paymentType === 'voice') checked @endif required value="voice"  >
                                     </div>
                                     <!-------------------------------------->
                                      
@@ -124,7 +138,7 @@
                                 <div class="col-md-12">
                                 <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="name"  class=" col-form-label">Attendance</label>
+                                    <label for="name"  class=" col-form-label">Appointment Reminder</label>
                                     <div class="input-group col-md-6">
                                        sms <input type="radio" name="attendance" value="sms"  >
                                        voice <input type="radio" name="attendance"  value="voice" >
@@ -139,7 +153,7 @@
                                  
                                   <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="name"  class=" col-form-label">Fees</label>
+                                    <label for="name"  class=" col-form-label">Payment Reminder</label>
                                     <div class="input-group col-md-6">
                                        sms <input type="radio" name="fess" required value="sms"  >
                                        voice <input type="radio" name="fess" required value="voice"  >

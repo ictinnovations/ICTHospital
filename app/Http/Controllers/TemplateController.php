@@ -3,7 +3,6 @@ namespace App\Http\Controllers;
 use DB;
 use Storage;
 use App\Models\Message;
-use App\Models\ClassModel;
 use App\Models\Ictcore_integration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;

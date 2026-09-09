@@ -89,7 +89,7 @@
 
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="glyphicon glyphicon-info-sign blue"></i></span>
-                                                {{ Form::select('group',['Director'=>'Director','Admin'=>'Admin','Teacher'=>'Teacher','Accountant'=>'Accountant','Staff'=>'Staff'],$user->group,['class'=>'form-control','required'=>'true'])}}
+                                                {{ Form::select('group',['Director'=>'Director','Admin'=>'Admin','Doctor'=>'Doctor','Nurse'=>'Nurse','Receptionist'=>'Receptionist','Accountant'=>'Accountant','Staff'=>'Staff'],$user->group,['class'=>'form-control','required'=>'true'])}}
 
 
                                             </div>
@@ -177,7 +177,9 @@
                                                 <select name="group"  required="true" class="form-control" >
                                                      <option value="Director">Director</option>
                                                      <option value="Admin">Admin</option>
-                                                     <option value="Teacher">Teacher</option>
+                                                     <option value="Doctor">Doctor</option>
+                                                     <option value="Nurse">Nurse</option>
+                                                     <option value="Receptionist">Receptionist</option>
                                                      <option value="Accountant">Accountant</option>
                                                      <option value="Staff">Staff</option>
                                                 </select>

@@ -18,8 +18,6 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\BarcodeController;
-use App\Http\Controllers\SiteController;
-use App\Http\Controllers\SliderController;
 use App\Http\Controllers\CronjobController;
 
 
@@ -154,20 +152,6 @@ Route::group(['middleware' => ['auth', 'activity']], function () {
 
 Route::group(['middleware' => 'auth'], function () {
 
-    Route::get('/cron/run', function () {
-        Log::info('Executed at ' . date('Y-m-d H:i:s'));
-        Artisan::call("Invoice:genrate");
-        return Redirect::to('/dashboard')->with('success', "Invoice Created Successfully");
-    })->name('cron.run');
-
-    Route::get('/cron/invoices/months', function () {
-        $months = Input::get('month');
-        $f_id = Input::get('family_id');
-        Log::info('Executed at ' . date('Y-m-d H:i:s'));
-        Artisan::call("Invoice:months", ['arg_name' => ['month' => $months, 'family_id' => $f_id]]);
-        return Redirect::to('/dashboard')->with('success', "Invoice Created Successfully");
-    })->name('cron.run1');
-
     Route::get('/smslog', [SmsController::class, 'getsmsLog']);
     Route::post('/smslog', [SmsController::class, 'postsmsLog']);
     Route::get('/smslog/delete/{id}', [SmsController::class, 'deleteLog']);
@@ -223,7 +207,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/accounting', [AccountingController::class, 'store'])->middleware('checkPermission:accounting');
     Route::get('/accounting/sectors', [AccountingController::class, 'sectors'])->middleware('checkPermission:accounting');
     Route::post('/accounting/sectorcreate', [AccountingController::class, 'sectorCreate'])->middleware('checkPermission:accounting');
-    Route::get('/accounting/sectorlist', [AccountingController::class, 'sectorList'])->middleware('checkPermission:accounting');
+    Route::get('/accounting/sectorlist', [AccountingController::class, 'sectors'])->middleware('checkPermission:accounting');
     Route::get('/accounting/sectoredit/{id}', [AccountingController::class, 'sectorEdit'])->middleware('checkPermission:accounting');
     Route::post('/accounting/sectorupdate', [AccountingController::class, 'sectorUpdate'])->middleware('checkPermission:accounting');
     Route::get('/accounting/sectordelete/{id}', [AccountingController::class, 'sectorDelete'])->middleware('checkPermission:accounting');
@@ -283,22 +267,6 @@ Route::middleware(['auth'])->group(function () {
     // Class Off Routes
 
     // Website Contents Routes
-    Route::get('/site/dashboard', [SiteController::class, 'dashboard'])->name('site.dashboard');
-    Route::resource('slider', SliderController::class);
-    Route::get('/site/about-content', [SiteController::class, 'aboutContent'])->name('site.about_content');
-    Route::post('/site/about-content', [SiteController::class, 'aboutContent']);
-    Route::get('site/about-content/images', [SiteController::class, 'aboutContentImage'])->name('site.about_content_image');
-    Route::post('site/about-content/images', [SiteController::class, 'aboutContentImage']);
-    Route::post('site/about-content/images/{id}', [SiteController::class, 'aboutContentImageDelete'])->name('site.about_content_image_delete');
-    Route::get('site/service', [SiteController::class, 'serviceContent'])->name('site.service');
-    Route::post('site/service', [SiteController::class, 'serviceContent']);
-    Route::get('site/statistic', [SiteController::class, 'statisticContent'])->name('site.statistic');
-    Route::post('site/statistic', [SiteController::class, 'statisticContent']);
-    Route::get('site/testimonial', [SiteController::class, 'testimonialIndex'])->name('site.testimonial');
-    Route::post('site/testimonial', [SiteController::class, 'testimonialIndex']);
-    Route::get('site/testimonial/create', [SiteController::class, 'testimonialCreate'])->name('site.testimonial_create');
-    Route::post('site/testimonial/create', [SiteController::class, 'testimonialCreate']);
-    Route::get('site/subscribe', [SiteController::class, 'subscribe'])->name('site.subscribe');
 });
 
 
@@ -306,4 +274,4 @@ Route::middleware(['super_admin'])->group(function () {
 });
 
 
-Route::get('/cronjob/feenotification', [CronjobController::class, 'feenotification']);
+Route::get('/cronjob/payment-reminder', [CronjobController::class, 'paymentReminder']);

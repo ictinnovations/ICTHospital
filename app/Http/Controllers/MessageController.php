@@ -3,9 +3,6 @@ namespace App\Http\Controllers;
 use DB;
 use App\Models\Level;
 use App\Models\Message;
-use App\Models\Student;
-use App\Models\Teacher;
-use App\Models\ClassModel;
 use Illuminate\Http\Request;
 use App\Models\Ictcore_integration;
 use Illuminate\Support\Facades\Input;
@@ -30,11 +27,10 @@ class MessageController extends BaseController {
 	*/
 	public function index()
 	{
-		 $classes = ClassModel::select('code','name')->orderby('code','asc')->get();
 		 $messages = DB::table('message')
 				    ->select(DB::raw('message.id,message.name,message.description,message.recording'))
 				    ->get();
-		return View('app.messageCreate',compact('classes','messages'));
+		return View('app.messageCreate',compact('messages'));
 		//echo "this is section controller";
 	}
 
@@ -46,16 +42,14 @@ class MessageController extends BaseController {
 	*/
 	public function create(Request $request)
 	{    
-		if($request->input('role')=='student'){
+		if($request->input('role')=='patient'){
 			$rules=[
 			'role' => 'required',
 			'message' => 'required',
-			'mess_name' => 'required',
-			'class'   => 'required',
-			'section' => 'required'
+			'mess_name' => 'required'
 			];
         }
-        if($request->input('role')=='teacher'){
+        if($request->input('role')=='doctor'){
 			$rules=[
 			'role' => 'required',
 			'message' => 'required',
@@ -203,26 +197,17 @@ class MessageController extends BaseController {
 				                $group_id= $ict->ictcore_api('groups','POST',$data );
 		                    }
                         }
-						if($role =='student' || $role =='parent' || $role =='all_student'){
+						if($role =='patient' || $role =='all_patient'){
 
-							$section = $request->input('section');
-							$class = $request->input('class');
-							$student=	DB::table('Student')
-							->select('*')
-							->where('isActive','Yes');
-							if($request->input('role')!='all_student'){
-							    $student=$student->whereIn('section', $section)
-							         ->where('class', $class);
-						    }
-							$student=$student->get();
+$patients = DB::table('patient')->select('*')->get();
 
 							//echo "<pre>";print_r($student->toArray());
 							//exit;
-							foreach($student as $std){
-								if (preg_match("~^0\d+$~", $std->fatherCellNo)) {
-                                	$to = preg_replace('/0/', '92', $std->fatherCellNo, 1);
+							foreach($patients as $std){
+								if (preg_match("~^0\d+$~", $std->phone)) {
+                                	$to = preg_replace('/0/', '92', $std->phone, 1);
 	                            }else {
-	                                $to =$std->fatherCellNo;  
+	                                $to =$std->phone;  
 	                            }
                                 
 								$data = array(
@@ -236,7 +221,7 @@ class MessageController extends BaseController {
                                     if($msg_type!='quick'){
                                 		$group_contact_id = $ict->telenor_apis('add_contact',$group_id,$to,'','','');
                                     }else{
-                                        $snd_msg  = $ict->verification_number_telenor_sms($to,$request->input('message'),'SidraSchool',$ictcore_integration->ictcore_user,$ictcore_integration->ictcore_password,$type);
+                                        $snd_msg  = $ict->verification_number_telenor_sms($to,$request->input('message'),$this->senderMask(),$ictcore_integration->ictcore_user,$ictcore_integration->ictcore_password,$type);
 
                                     }
                                 }else{
@@ -248,7 +233,7 @@ class MessageController extends BaseController {
 											//$program_id = 'program_id =>'.$get_msg->ictcore_program_id;
 
 											$data = array(
-											'title' => 'Attendance',
+											'title' => 'Hospital Message',
 											'program_id' =>$program_id,
 											'account_id'     => 1,
 											'contact_id'     => $contact_id,
@@ -265,11 +250,11 @@ class MessageController extends BaseController {
 										}
 									}
 							}
-						}else if($role =='teacher'){
-							$teacher=	DB::table('teacher')
+						}else if($role =='doctor'){
+							$doctors=	DB::table('doctor')
 							->select('*')
 							->get();
-							foreach($teacher as $techrd){
+							foreach($doctors as $techrd){
 								if (preg_match("~^0\d+$~", $techrd->phone)) {
                                 	$to = preg_replace('/0/', '92', $techrd->phone, 1);
 	                            }else {
@@ -288,7 +273,7 @@ class MessageController extends BaseController {
                                    if($msg_type!='quick'){
                                 		$group_contact_id = $ict->telenor_apis('add_contact',$group_id,$to,'','','');
                                     }else{
-                                        $snd_msg  = $ict->verification_number_telenor_sms($to,$request->input('message'),'SidraSchool',$ictcore_integration->ictcore_user,$ictcore_integration->ictcore_password,$type);
+                                        $snd_msg  = $ict->verification_number_telenor_sms($to,$request->input('message'),$this->senderMask(),$ictcore_integration->ictcore_user,$ictcore_integration->ictcore_password,$type);
                                     }
                                 }else{
 								//$contact_id = $ict->ictcore_api('contacts','POST',$data );
@@ -301,7 +286,7 @@ class MessageController extends BaseController {
 											//$program_id = 'program_id =>'.$get_msg->ictcore_program_id;
 
 											$data = array(
-											'title' => 'Attendance',
+											'title' => 'Hospital Message',
 											$program_id,
 											'account_id'     => 1,
 											'contact_id'     => $contact_id,
@@ -334,7 +319,7 @@ class MessageController extends BaseController {
                                 if($msg_type!='quick'){
                                 		$group_contact_id = $ict->telenor_apis('add_contact',$group_id,$to,'','','');
                                     }else{
-                                        $snd_msg  = $ict->verification_number_telenor_sms($to,$request->input('message'),'SidraSchool',$ictcore_integration->ictcore_user,$ictcore_integration->ictcore_password,$type);
+                                        $snd_msg  = $ict->verification_number_telenor_sms($to,$request->input('message'),$this->senderMask(),$ictcore_integration->ictcore_user,$ictcore_integration->ictcore_password,$type);
                                     }
                                 }else{
                                      $data = array(
@@ -354,7 +339,7 @@ class MessageController extends BaseController {
 											//$program_id = 'program_id =>'.$get_msg->ictcore_program_id;
 
 											$data = array(
-											'title' => 'Attendance',
+											'title' => 'Hospital Message',
 											//$program_id,
 											'program_id' =>$program_id,
 											'account_id'     => 1,
@@ -481,5 +466,24 @@ class MessageController extends BaseController {
 		$class = Level::find($id);
 		$class->delete();
 		return Redirect::to('/level/list')->with("success","Level Deleted Succesfully.");
+	}
+
+	/**
+	 * Sender mask for outbound SMS.
+	 *
+	 * Taken from the hospital name in Settings. Gateways reject anything
+	 * longer than eleven characters or containing punctuation.
+	 */
+	protected function senderMask()
+	{
+		$name = DB::table('institute')->value('name');
+
+		if (empty($name)) {
+			$name = config('app.name', 'ICTHospital');
+		}
+
+		$mask = preg_replace('/[^A-Za-z0-9]/', '', $name);
+
+		return substr($mask, 0, 11);
 	}
 }

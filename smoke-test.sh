@@ -14,7 +14,7 @@
 
 BASE="${1:-http://localhost:8082}"
 USER="${2:-admin}"
-PASS="${3:-secret123}"
+PASS="${3:-123456}"
 JAR="$(mktemp)"
 OUT="$(mktemp)"
 

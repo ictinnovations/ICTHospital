@@ -82,13 +82,13 @@
 
             @endforeach
             <tr>
-            <td>Fee Collection</td>
+            <td>Patient Payments</td>
                     <td>{{$tutionfees->paiTotal}}</td>
                     <td></td>
                     <td></td>
             </tr>
             <tr>
-            <td>Others</td>
+            <td>Patient Deposits</td>
                     <td>{{$otherfees->paiTotal}}</td>
                     <td></td>
                     <td></td>

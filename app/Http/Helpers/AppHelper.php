@@ -42,8 +42,9 @@ class AppHelper
         5 => 'Other',
     ];
     const EMP_TYPES = [
-        1 => 'Teacher',
-        2 => 'Staff'
+        1 => 'Doctor',
+        2 => 'Nurse',
+        3 => 'Staff'
     ];
 
     const BLOOD_GROUP = [

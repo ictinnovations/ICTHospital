@@ -38,7 +38,7 @@
 
 
                                  <div class="form-group row">
-                                    <label for="name" class="col-sm-2 col-form-label">Upload Absent Student Message File</label>
+                                    <label for="name" class="col-sm-2 col-form-label">Upload Missed Appointment Message File</label>
                                     <div class="input-group col-md-6">
 
                                         <input type="file" class="form-control"  name="message_absent" placeholder="">
@@ -66,7 +66,7 @@
 
 
                                  <div class="form-group row">
-                                    <label for="name" class="col-sm-2 col-form-label">Upload Late Student Message File</label>
+                                    <label for="name" class="col-sm-2 col-form-label">Upload Late Arrival Message File</label>
                                     <div class="input-group col-md-6">
 
                                         <input type="file" class="form-control"  name="message_late" placeholder="">

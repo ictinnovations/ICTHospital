@@ -21,3 +21,5 @@ yarn-error.log
 
 # runtime logs
 /storage/logs/*.log
+/storage/oauth-private.key
+/storage/oauth-public.key

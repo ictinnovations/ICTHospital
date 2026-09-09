@@ -119,24 +119,6 @@ class SmsController extends BaseController {
 		return Redirect::to('/sms')->with("success","SMS Format Deleted Succesfully.");
 	}
 
-	public function getsmssend()
-	{
-
-		$students=array();
-		$classes = ClassModel::lists('name','code');
-		$formdata = new formfoo;
-		$formdata->class="";
-		$formdata->section="";
-		$formdata->shift="";
-		$formdata->session="";
-		//return View::Make("app.smssender",compact('students','classes','formdata'));
-	        return View("app.smssender",compact('students','classes','formdata'));
-
-	}
-	public function postsend()
-	{
-		return "Do not mess with me";
-	}
 
 	public function getsmsLog()
 	{

@@ -1,184 +1,288 @@
 <?php
+/**
+ * ICTHospital - scheduled notification jobs.
+ *
+ * Replaces the school fee notification inherited from ICTSchool, which walked the
+ * Student table and chased unpaid monthly school bills through stdBill/billHistory.
+ * The hospital equivalent is an outstanding patient payment: a row in `payment`
+ * where the amount received is short of the gross total.
+ *
+ * Every lookup is guarded. A missing table, a missing notification type or an
+ * unconfigured ICTCore integration returns a described "skipped" result rather
+ * than a 500, because this runs unattended from cron.
+ *
+ * Copyright (c) ICT Innovations <https://www.ictinnovations.com>
+ * Part of ICTHospital <https://www.icthospital.com>
+ * Licensed under the GNU General Public License v3.0.
+ */
+
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Redirect;
-use App\Models\Subject;
-use App\Models\ClassModel;
-use App\Models\Student;
-use App\Models\Attendance;
-use App\Models\Accounting;
-use App\Models\Marks;
-use App\Models\AddBook;
-use App\Models\FeeCol;
-use App\Models\FeeSetup;
-use App\Models\Institute;
-use App\Models\FeeHistory;
-use DB;
-use Illuminate\Console\Command;
+
 use App\Models\Ictcore_fees;
 use App\Models\Ictcore_integration;
-use App\Http\Controllers\ICTCoreController;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
-class CronjobController extends BaseController {
+class CronjobController extends BaseController
+{
+    /** Contacts pushed to ICTCore in a single run. */
+    protected $batchLimit = 200;
 
-	public function __construct()
-	{
-		/*$this->beforeFilter('csrf', array('on'=>'post'));
-		$this->beforeFilter('auth');
-		$this->beforeFilter('userAccess',array('only'=> array('getDelete','stdfeesdelete')));*/
-		//$this->middleware('auth');
-		 //$this->middleware('auth', array('only'=>array('index')));
-	}
-	
+    /** Local numbers starting with a single 0 get this country code instead. */
+    protected $countryCode = '92';
+
+    /**
+     * Remind patients who still owe money on a payment record.
+     *
+     * Returns a JSON summary so both the HTTP route and the console command can
+     * report what happened.
+     */
+    public function paymentReminder()
+    {
+        $result = $this->runPaymentReminder();
+
+        Log::info('ICTHospital payment reminder', $result);
+
+        return response()->json($result);
+    }
+
+    /**
+     * Kept so existing cron entries pointing at the old school route keep working.
+     */
     public function feenotification()
     {
-     //$this->info('Notification sended successfully');
+        return $this->paymentReminder();
+    }
 
-		$student_all =	DB::table('Student')->select( '*')->get();
-		if(count($student_all)>0){
-			 $ict  = new ICTCoreController();
-			$i=0;
-			$attendance_noti     = DB::table('notification_type')->where('notification','fess')->first();
-		    $ictcore_fees        = Ictcore_fees::select("*")->first();
-			$ictcore_integration = Ictcore_integration::select("*")->where('type',$attendance_noti->type)->first();
-			if($ictcore_integration->method=="telenor"){
-             $group_id = $ict->telenor_apis('group','','','','','');
-			}else{
-				if(!empty($ictcore_integration) && $ictcore_integration->ictcore_url && $ictcore_integration->ictcore_user && $ictcore_integration->ictcore_password){ 
-				     
-					  $data = array(
-						'name' => 'Fee Notification',
-						'description' => 'fee notification using cron job',
-						);
+    /**
+     * Does the work and returns a plain array. No output, no exits.
+     */
+    public function runPaymentReminder()
+    {
+        $skip = function ($reason) {
+            return ['status' => 'skipped', 'reason' => $reason, 'contacts' => 0];
+        };
 
-					echo  $group_id= $ict->ictcore_api('groups','POST',$data );
-		     	}else{
+        foreach (['payment', 'notification_type', 'ictcore_integration'] as $table) {
+            if (! Schema::hasTable($table)) {
+                return $skip('table ' . $table . ' is missing');
+            }
+        }
 
-		           // return Redirect::to('/fees/classreport')->withErrors("Please Add ictcore integration in Setting Menu");
-                    exit();
-		     	}
-		     }
-		     $contacts =array();
-		     $i=0;
-				foreach($student_all as $stdfees)
-				{
+        $notification = DB::table('notification_type')
+            ->whereIn('notification', ['payment', 'fess'])
+            ->first();
 
-					$student =	DB::table('billHistory')->leftJoin('stdBill', 'billHistory.billNo', '=', 'stdBill.billNo')
-					->select( 'billHistory.billNo','billHistory.month','billHistory.fee','billHistory.lateFee','stdBill.class as class1','stdBill.payableAmount','stdBill.billNo','stdBill.payDate','stdBill.regiNo')
-					// ->whereYear('stdBill.payDate', '=', 2017)
-					->where('stdBill.regiNo','=',$stdfees->regiNo)->whereYear('stdBill.payDate', '=', date('Y'))->where('billHistory.month','=',date('n'))->where('billHistory.month','<>','-1')
-					//->orderby('stdBill.payDate')
-					->get();
-                    
-					if(count($student)>0 ){
-						$datanot[]=array($stdfees->regiNo);
-					}else{
-						if (preg_match("~^0\d+$~", $stdfees->fatherCellNo)) {
-                        	$to = preg_replace('/0/', '92', $stdfees->fatherCellNo, 1);
-                        }else {
-                            $to =$stdfees->fatherCellNo;  
-                        }
-						$data = array(
-				        //'registrationNumber' =>$stdfees->regiNo,
-						'first_name'         => $stdfees->firstName,
-						'last_name'          =>  $stdfees->lastName,
-						'phone'              =>  $to,
-						'email'              => '',
-						);
-                        if($ictcore_integration->method=="telenor"){
-                        	
-                        	if(strlen(trim($to))==12){
-						     $contacts[] = $to;
-					        }
-                        	//$group_contact_id = $ict->telenor_apis('add_contact',$group_id,$stdfees->fatherCellNo,'','','');
-                             //break;
-                        }else{
-					   $contact_id = $ict->ictcore_api('contacts','POST',$data );
+        if (! $notification || empty($notification->type)) {
+            return $skip('no notification type is configured for patient payments');
+        }
 
-					   $group = $ict->ictcore_api('contacts/'.$contact_id.'/link/'.$group_id,'PUT',$data=array() );
-					 }
-					}
+        $integration = Ictcore_integration::where('type', $notification->type)->first();
 
-					if($i==5){
-						break;
-					}
-					$i++;
-				}
+        if (! $integration) {
+            return $skip('no ICTCore integration is configured for type ' . $notification->type);
+        }
 
-				if($ictcore_integration->method=="telenor" && !empty($contacts)){
-				$comseprated= implode(',',$contacts);
-                     
-				$group_contact_id = $ict->telenor_apis('add_contact',$group_id,$comseprated,'','','');
-			    /*echo "1<pre>1<br>";print_r($contacts1);echo "<br>";
-			    echo "<pre><br>";print_r($contacts);
+        $outstanding = $this->outstandingPayments();
 
-			    exit;*/
-			    //echo "<pre>rrtrt";print_r($group_contact_id);exit;
-			}
-		}
-			else{
-			//$resultArray = array();
-				exit();
-			}
-		
-			    if($ictcore_integration->method=="telenor"){
-                   $fee_msg = DB::table('ictcore_fees');
-                   if($fee_msg->count()>0 && $fee_msg->first()->description!=''){
-                   	$msg = $fee_msg->first()->description;
-                   }else{
-                   	$msg= "please submit your child  fee for this month";
-                   }
-                    //$group_id='410598';
-                   echo  $campaign      = $ict->telenor_apis('campaign_create',$group_id,'',$msg,$fee_msg->first()->telenor_file_id,$attendance_noti->type);
-                  // echo $campaign;
-                     // $this->info('Notification sended successfully'.$campaign);
-                  
-                   // $send_campaign = $ict->telenor_apis('send_msg','','','','',$campaign);
+        if ($outstanding->isEmpty()) {
+            return ['status' => 'ok', 'reason' => 'nothing outstanding', 'contacts' => 0];
+        }
 
-			    }else{
-			    if(!empty($ictcore_fees) && $ictcore_fees->ictcore_program_id!=''){
-		                
-		                if($attendance_noti->type=='sms'){
-		                	////////Send sms campaign using ictcore///////////////
+        $ict = new ICTCoreController();
+        $telenor = isset($integration->method) && $integration->method === 'telenor';
 
-		                	$fee_msg = DB::table('ictcore_fees');
-			                   if($fee_msg->count()>0 && $fee_msg->first()->description!=''){
-			                   	$msg = $fee_msg->first()->description;
-			                   }else{
-			                   	$msg= "please submit your child  fee for this month";
-			                   }
-									
-									$data = array(
-													'name' => 'fee_noti',
-													'data' => $msg,
-													'type' => 'utf-8',
-													'description' =>'',
-											);
-									$text_id  =  $ict->ictcore_api('messages/texts','POST',$data );
-									$data     = array(
-													'name' =>'fee_noti',
-													'text_id' =>$text_id,
-												);
-									$program_id  =  $ict->ictcore_api('programs/sendsms','POST',$data );
+        $groupId = $telenor
+            ? $ict->telenor_apis('group', '', '', '', '', '')
+            : $this->createIctcoreGroup($ict, $integration);
 
+        if (! $groupId) {
+            return $skip('ICTCore did not return a contact group, check the integration settings');
+        }
 
-		                	$program_id =$program_id ;
-		                }else{
-		                	$program_id = $ictcore_fees->ictcore_program_id;
-		                }
+        $numbers = [];
 
-	                $data = array(
-						'program_id' => $program_id,
-						'group_id'   => $group_id,
-						'delay'      => '',
-						'try_allowed' => '',
-						'account_id' => 1,
-					);
-					//echo ""
-					$campaign_id = $ict->ictcore_api('campaigns','POST',$data );
-					//$campaign_id = $ict->ictcore_api('campaigns/$campaign_id/start','PUT',$data=array() );
-			}
-		}
+        foreach ($outstanding as $row) {
+            $phone = $this->normalisePhone($row->phone);
+
+            if ($phone === null) {
+                continue;
+            }
+
+            if ($telenor) {
+                $numbers[] = $phone;
+                continue;
+            }
+
+            $contactId = $ict->ictcore_api('contacts', 'POST', [
+                'first_name' => $row->name,
+                'last_name' => '',
+                'phone' => $phone,
+                'email' => $row->email ?: '',
+            ]);
+
+            if ($contactId) {
+                $ict->ictcore_api('contacts/' . $contactId . '/link/' . $groupId, 'PUT', []);
+                $numbers[] = $phone;
+            }
+        }
+
+        if (empty($numbers)) {
+            return $skip('no usable phone numbers on the outstanding payments');
+        }
+
+        if ($telenor) {
+            $ict->telenor_apis('add_contact', $groupId, implode(',', $numbers), '', '', '');
+        }
+
+        $campaign = $this->sendCampaign($ict, $integration, $notification, $groupId, $telenor);
+
+        return [
+            'status' => 'ok',
+            'reason' => 'reminder campaign created',
+            'contacts' => count($numbers),
+            'campaign' => $campaign,
+        ];
+    }
+
+    /**
+     * Payments where the patient still owes something.
+     *
+     * `gross_total` and `amount_received` are varchar in the legacy schema, so both
+     * are cast before they are compared.
+     */
+    protected function outstandingPayments()
+    {
+        $money = function ($column) {
+            return DB::raw('CAST(COALESCE(NULLIF(' . $column . ', ""), "0") AS DECIMAL(15,2))');
+        };
+
+        $query = DB::table('payment')
+            ->select([
+                DB::raw('COALESCE(NULLIF(payment.patient_name, ""), patient.name) as name'),
+                DB::raw('COALESCE(NULLIF(payment.patient_phone, ""), patient.phone) as phone'),
+                DB::raw('patient.email as email'),
+            ])
+            ->leftJoin('patient', 'patient.id', '=', 'payment.patient')
+            ->whereRaw(
+                'CAST(COALESCE(NULLIF(payment.gross_total, ""), "0") AS DECIMAL(15,2))'
+                . ' > CAST(COALESCE(NULLIF(payment.amount_received, ""), "0") AS DECIMAL(15,2))'
+            )
+            ->limit($this->batchLimit);
+
+        unset($money);
+
+        if (Schema::hasColumn('payment', 'status')) {
+            $query->where(function ($q) {
+                $q->whereNull('payment.status')
+                  ->orWhereNotIn('payment.status', ['paid', 'Paid', 'cancelled', 'Cancelled']);
+            });
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Ask ICTCore for a contact group to hold this run's recipients.
+     */
+    protected function createIctcoreGroup(ICTCoreController $ict, $integration)
+    {
+        $configured = ! empty($integration->ictcore_url)
+            && ! empty($integration->ictcore_user)
+            && ! empty($integration->ictcore_password);
+
+        if (! $configured) {
+            return null;
+        }
+
+        return $ict->ictcore_api('groups', 'POST', [
+            'name' => 'Patient payment reminder',
+            'description' => 'Outstanding patient payments, created by the ICTHospital cron job',
+        ]);
+    }
+
+    /**
+     * Build the message and hand the group to ICTCore or Telenor.
+     */
+    protected function sendCampaign(ICTCoreController $ict, $integration, $notification, $groupId, $telenor)
+    {
+        $message = $this->reminderMessage();
+
+        if ($telenor) {
+            $settings = Ictcore_fees::first();
+
+            return $ict->telenor_apis(
+                'campaign_create',
+                $groupId,
+                '',
+                $message,
+                $settings ? $settings->telenor_file_id : '',
+                $notification->type
+            );
+        }
+
+        $settings = Ictcore_fees::first();
+        $programId = $settings ? $settings->ictcore_program_id : null;
+
+        if ($notification->type === 'sms' || empty($programId)) {
+            $textId = $ict->ictcore_api('messages/texts', 'POST', [
+                'name' => 'payment_reminder',
+                'data' => $message,
+                'type' => 'utf-8',
+                'description' => '',
+            ]);
+
+            $programId = $ict->ictcore_api('programs/sendsms', 'POST', [
+                'name' => 'payment_reminder',
+                'text_id' => $textId,
+            ]);
+        }
+
+        if (empty($programId)) {
+            return null;
+        }
+
+        return $ict->ictcore_api('campaigns', 'POST', [
+            'program_id' => $programId,
+            'group_id' => $groupId,
+            'delay' => '',
+            'try_allowed' => '',
+            'account_id' => isset($integration->ictcore_account_id) ? $integration->ictcore_account_id : 1,
+        ]);
+    }
+
+    /**
+     * Operator supplied text, or a sane default.
+     */
+    protected function reminderMessage()
+    {
+        $settings = Ictcore_fees::first();
+
+        if ($settings && ! empty($settings->description)) {
+            return $settings->description;
+        }
+
+        return 'You have an outstanding balance at our hospital. Please contact reception to settle it.';
+    }
+
+    /**
+     * Turn a stored number into something the gateway will accept, or null.
+     */
+    protected function normalisePhone($phone)
+    {
+        $phone = trim((string) $phone);
+
+        if ($phone === '') {
+            return null;
+        }
+
+        if (preg_match('~^0\d+$~', $phone)) {
+            $phone = $this->countryCode . substr($phone, 1);
+        }
+
+        $digits = preg_replace('/\D/', '', $phone);
+
+        return strlen($digits) >= 10 ? $digits : null;
     }
 }

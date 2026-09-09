@@ -38,25 +38,11 @@
                                     <div class="input-group col-md-6">
                                         <select name="role" id="role" class="form-control" >
                                              <option value="">Select Users Type</option>
-                                             <option value="student">Student</option>
-                                             <option value="teacher">Teacher</option>
-                                             <!--<option value="parent">Parent</option>-->
-                                             <option value="all_student">All Student</option>
+                                             <option value="patient">Patient</option>
+                                             <option value="doctor">Doctor</option>
+                                             
+                                             <option value="all_patient">All Patients</option>
                                              <option value="testing">Testing</option>
-                                        </select>
-                                    </div>
-                                </div>
-                             <div id="studen" >
-                                <div class="form-group col-md-12 row" id="class" >
-                                    <label for="name"  class="col-sm-2 col-form-label">Class</label>
-                                    <div class="input-group col-md-6">
-                                        <!--<select  name="class" id="class" class="form-control selectpicker" multiple="" data-hide-disabled="true"  data-actions-box="true" data-size="5" tabindex="-98">-->
-                                        <select  name="class" id="classa" class="form-control">
-
-                                            <option value="">Select Classes</option>
-                                        @foreach($classes as $class)
-                                            <option value="{{$class->code}}">{{$class->name }}</option>
-                                        @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -151,25 +137,13 @@
                                     <div class="input-group col-md-6">
                                         <select name="role" id="role1" class="form-control" tabindex="-1">
                                             <option value="">Select Users Type</option>
-                                            <option value="student">Student</option>
-                                            <option value="teacher">Teacher</option>
-                                             <option value="all_student">All Student</option>
+                                            <option value="patient">Patient</option>
+                                            <option value="doctor">Doctor</option>
+                                             <option value="all_patient">All Patients</option>
                                              <option value="testing">Testing</option>
                                         </select>
                                     </div>
                                 </div>
-                                 <div id="studen1" >
-                                    <div class="form-group col-md-12 row" id="class" >
-                                        <label for="name"  class="col-sm-2 col-form-label">Class</label>
-                                        <div class="input-group col-md-6">
-                                            <select  name="class" id="class1" class="form-control" >
-                                                <option value="">Select Classes</option>
-                                              @foreach($classes as $class)
-                                                <option value="{{$class->code}}">{{$class->name }}</option>
-                                              @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="form-group col-md-12 row" id="class" >
                                         <label for="name"  class="col-sm-2 col-form-label">Section</label>
                                         <div class="input-group col-md-6">
@@ -244,7 +218,6 @@ $(document).ready(function()
 });
 
    $("#upload").hide();
-   $("#studen").hide();
     $("#testing").hide();
     $("#testing1").hide();
 
@@ -254,18 +227,13 @@ $(document).ready(function()
         //var dataString = 'id='+ id;
        // alert(id);
          if(id=='teacher'){
-            $("#studen").hide();
             $("#testing").hide();
         }else if(id=='student') {
-         $("#studen").show();
          $("#testing").hide();
         }else if(id=='all_student') {
-          $("#studen").hide();
           // $("#testing").show();
         }else{
-           $("#studen").hide();
            $("#testing").show();
-            //$("#studen").hide();
         }
 
 
@@ -280,7 +248,6 @@ $(document).ready(function()
            
          }else{
           $("#upload").hide();
-            //$("#studen").hide();
         }
 
 
@@ -292,18 +259,13 @@ $(document).ready(function()
         //var dataString = 'id='+ id;
        // alert(id);
          if(id=='teacher'){
-            $("#studen1").hide();
             $("#testing1").hide();
         }else if(id=='student') {
-         $("#studen1").show();
          $("#testing1").hide();
          }else if(id=='all_student') {
-          $("#studen1").hide();
           // $("#testing").show();
         }else{
-           $("#studen1").hide();
            $("#testing1").show();
-            //$("#studen").hide();
         }
 
 
@@ -318,93 +280,9 @@ $('#textarea').keyup(function() {
 
     $('#textarea_feedback').html(text_remaining + ' characters remaining');
 });
-
-    $('#classa').on('change',function() {
-    getsections();
-  });
-  $('#class1').on('change',function() {
-    getsections1();
-  });
 });
 
-function getsections()
-{
-    var aclass = $('#classa').val();
-    //alert(aclass);
-    $.ajax({
-      url: "{{url('/section/getList')}}"+'/'+aclass,
-      data: {
-        format: 'json'
-      },
-      error: function(error) {
-        alert("Please fill all inputs correctly!");
-      },
-      dataType: 'json',
-      success: function(data) {
-        $('#section').empty();
-       //$('#section').append($('<option>').text("--Select Section--").attr('value',""));
-       var options = [];
-        $.each(data, function(i, section) {
-          //console.log(student);
-         
-          
-            var opt ="<option value='"+section.id+"'>"+section.name + " </option>"
 
-        
-          //console.log(opt);
-       //  var data = $('#section').append(opt);
-         
-         options.push(opt);
-          
-        
-          //alert(786);
-
-        });
-          $("#section").html(options).selectpicker('refresh');
-        //console.log(data);
-
-      },
-      type: 'GET'
-    });
-};
-
-function getsections1()
-{
-    var aclass = $('#class1').val();
-    //alert(aclass);
-    $.ajax({
-      url: "{{url('/section/getList')}}"+'/'+aclass,
-      data: {
-        format: 'json'
-      },
-      error: function(error) {
-        alert("Please fill all inputs correctly!");
-      },
-      dataType: 'json',
-      success: function(data) {
-        $('#section1').empty();
-       //$('#section').append($('<option>').text("--Select Section--").attr('value',""));
-       var options1 = [];
-        $.each(data, function(i, section) {
-          //console.log(student);
-         
-          
-            var opt="<option value='"+section.id+"'>"+section.name + " </option>"
-            
-            options1.push(opt);
-
-        
-          //console.log(opt);
-        //  $('#section1').append(opt);
-
-        });
-        $("#section1").html(options1).selectpicker('refresh');
-        //console.log(data);
-
-      },
-      type: 'GET'
-    });
-};
 </script>
 @stop
 
