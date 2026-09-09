@@ -114,6 +114,23 @@ clean the data and run it again. On a clean database it converts 41 date columns
 The same work runs from a migration, so `php artisan migrate` upgrades an existing
 install. Read the report before applying it to live data, and take a backup.
 
+### The school tables are gone
+
+Thirty-three tables came across with the fork and describe a school rather than a
+hospital: students, classes, sections, subjects, exams, marks, GPA rules, timetables,
+admissions, library books, dormitories, and the family fee voucher chain. Their
+migrations have been removed, so a fresh install never creates them, and a migration
+drops them from a database that already has them.
+
+```bash
+php artisan hospital:remove-school-tables           # report only
+php artisan hospital:remove-school-tables --apply   # drop the empty ones
+```
+
+A table is only dropped when it is empty. Anything holding rows is left alone and
+reported, so no migration quietly deletes data. Add `--force` if you want them gone
+regardless. A clean install is 84 tables, down from 117.
+
 ## Communications
 
 SMS and voice run through [ICTCore](https://github.com/ictinnovations/ictcore), our own
