@@ -23,6 +23,8 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BedController;
 use App\Http\Controllers\AdmissionController;
+use App\Http\Controllers\MedicineController;
+use App\Http\Controllers\PrescriptionController;
 
 
 
@@ -326,4 +328,28 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admissions', [AdmissionController::class, 'store']);
     Route::get('/admissions/{id}', [AdmissionController::class, 'show'])->whereNumber('id');
     Route::post('/admissions/{id}/discharge', [AdmissionController::class, 'discharge'])->whereNumber('id');
+});
+
+
+// Medicine catalogue and prescriptions. Prescribed drugs are rows in
+// prescription_medicine rather than a packed string in prescription.medicine,
+// which is what makes "who is on this drug" answerable at all.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/medicines', [MedicineController::class, 'index']);
+    Route::get('/medicines/create', [MedicineController::class, 'create']);
+    Route::post('/medicines', [MedicineController::class, 'store']);
+    Route::get('/medicines/categories', [MedicineController::class, 'categories']);
+    Route::post('/medicines/categories', [MedicineController::class, 'storeCategory']);
+    Route::delete('/medicines/categories/{id}', [MedicineController::class, 'destroyCategory'])->whereNumber('id');
+    Route::get('/medicines/{id}/edit', [MedicineController::class, 'edit'])->whereNumber('id');
+    Route::put('/medicines/{id}', [MedicineController::class, 'update'])->whereNumber('id');
+    Route::delete('/medicines/{id}', [MedicineController::class, 'destroy'])->whereNumber('id');
+
+    Route::get('/prescriptions', [PrescriptionController::class, 'index']);
+    Route::get('/prescriptions/create', [PrescriptionController::class, 'create']);
+    Route::post('/prescriptions', [PrescriptionController::class, 'store']);
+    Route::get('/prescriptions/{id}', [PrescriptionController::class, 'show'])->whereNumber('id');
+    Route::get('/prescriptions/{id}/edit', [PrescriptionController::class, 'edit'])->whereNumber('id');
+    Route::put('/prescriptions/{id}', [PrescriptionController::class, 'update'])->whereNumber('id');
+    Route::delete('/prescriptions/{id}', [PrescriptionController::class, 'destroy'])->whereNumber('id');
 });
