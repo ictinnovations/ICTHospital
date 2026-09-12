@@ -19,6 +19,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\CronjobController;
+use App\Http\Controllers\PatientController;
 
 
 
@@ -275,3 +276,16 @@ Route::middleware(['super_admin'])->group(function () {
 
 
 Route::get('/cronjob/payment-reminder', [CronjobController::class, 'paymentReminder']);
+
+
+// Patient records. The front desk entry point: admissions, prescriptions, lab
+// requests and invoices all key on a patient row, so this module lands first.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/patients', [PatientController::class, 'index']);
+    Route::get('/patients/create', [PatientController::class, 'create']);
+    Route::post('/patients', [PatientController::class, 'store']);
+    Route::get('/patients/{id}', [PatientController::class, 'show'])->whereNumber('id');
+    Route::get('/patients/{id}/edit', [PatientController::class, 'edit'])->whereNumber('id');
+    Route::put('/patients/{id}', [PatientController::class, 'update'])->whereNumber('id');
+    Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->whereNumber('id');
+});

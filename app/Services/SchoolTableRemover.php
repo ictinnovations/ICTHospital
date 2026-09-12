@@ -139,8 +139,21 @@ class SchoolTableRemover
         return $this->log;
     }
 
+    /**
+     * Does this table exist?
+     *
+     * information_schema is queried directly on MySQL and MariaDB because the
+     * check has to be case sensitive there: the school and hospital schemas both
+     * carry tables whose names differ only in case. Every other driver answers
+     * through the Schema facade, which keeps this usable on sqlite, where the
+     * test suite and CI run.
+     */
     protected function tableExists($table)
     {
+        if (! in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true)) {
+            return Schema::hasTable($table);
+        }
+
         return count(DB::select(
             'select 1 from information_schema.tables
               where table_schema = database() and table_name = ? limit 1',

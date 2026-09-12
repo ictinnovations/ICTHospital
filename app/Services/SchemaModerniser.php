@@ -87,9 +87,36 @@ class SchemaModerniser
     /**
      * Look at everything and, if $apply is true, change what is safe to change.
      */
+    /**
+     * Drivers this can introspect.
+     *
+     * Column types are read out of information_schema, which sqlite and the other
+     * drivers do not have. A fresh sqlite database also has none of the legacy
+     * varchar dates this exists to fix, so skipping is the correct answer rather
+     * than a workaround: there is nothing to modernise.
+     */
+    protected const SUPPORTED_DRIVERS = ['mysql', 'mariadb'];
+
+    public function supported()
+    {
+        return in_array(DB::connection()->getDriverName(), self::SUPPORTED_DRIVERS, true);
+    }
+
     public function run($apply = false)
     {
         $this->log = [];
+
+        if (! $this->supported()) {
+            $this->log[] = [
+                'status' => 'skip',
+                'target' => 'schema',
+                'detail' => 'driver ' . DB::connection()->getDriverName()
+                    . ' cannot be introspected, nothing to modernise',
+            ];
+
+            return $this->log;
+        }
+
         $this->dates($apply);
         $this->relations($apply);
 
