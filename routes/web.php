@@ -20,6 +20,7 @@ use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\CronjobController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\AppointmentController;
 
 
 
@@ -288,4 +289,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/patients/{id}/edit', [PatientController::class, 'edit'])->whereNumber('id');
     Route::put('/patients/{id}', [PatientController::class, 'update'])->whereNumber('id');
     Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->whereNumber('id');
+});
+
+
+// Appointment booking. The day view is the front desk screen; the clash check
+// lives in the controller because two clerks can book the same slot at once.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/appointments', [AppointmentController::class, 'index']);
+    Route::get('/appointments/create', [AppointmentController::class, 'create']);
+    Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::get('/appointments/{id}', [AppointmentController::class, 'show'])->whereNumber('id');
+    Route::get('/appointments/{id}/edit', [AppointmentController::class, 'edit'])->whereNumber('id');
+    Route::put('/appointments/{id}', [AppointmentController::class, 'update'])->whereNumber('id');
+    Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy'])->whereNumber('id');
 });
