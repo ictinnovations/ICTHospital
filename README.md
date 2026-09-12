@@ -71,6 +71,27 @@ Names and prices are copied onto each line rather than only referenced. A prescr
 a lab result and an invoice are records of what was written, measured and charged on a
 given day, and they must not change when a catalogue or price list is next edited.
 
+**What is not finished**
+
+Three gaps matter enough to name, and the first one blocks a fresh install:
+
+- **There is no screen for adding doctors, or for the billing service and price list.**
+  Appointments, prescriptions, lab requests and invoices all choose from those lists, and
+  both are populated only by seeding or direct database access today. `DoctorController`
+  and a payment category screen are the next thing to write.
+- **The permission catalogue is not enforced on the clinical screens.** All 90 permissions
+  across Admin, Doctor, Nurse and Accountant are defined and editable, but the new
+  controllers only check that somebody is signed in. Anyone with an account can reach any
+  clinical screen.
+- **There is no reporting across the new tables.** The data is now queryable, which was
+  the point of the schema change, but nothing reports on it yet.
+
+Smaller, and not blocking: staff records for nurses, pharmacists, laboratory technicians,
+receptionists and accountants have tables and models but no screens; medical history,
+patient deposits and theatre payments are the same; and only the appointment and
+admission checks take a database lock, so other concurrent writes rely on validation
+alone.
+
 **Before deploying**
 
 The clinical screens are new and have automated coverage rather than production miles.
