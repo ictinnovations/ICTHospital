@@ -27,6 +27,7 @@ use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\LabController;
 use App\Http\Controllers\LabCategoryController;
+use App\Http\Controllers\PharmacyController;
 
 
 
@@ -371,4 +372,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/lab/{id}', [LabController::class, 'show'])->whereNumber('id');
     Route::post('/lab/{id}/results', [LabController::class, 'saveResults'])->whereNumber('id');
     Route::delete('/lab/{id}', [LabController::class, 'destroy'])->whereNumber('id');
+});
+
+
+// Pharmacy dispensing. Line items are rows, and the stock decrement happens in
+// the same transaction as the sale, so medicine.quantity follows what was handed
+// over instead of being typed in by hand.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/pharmacy', [PharmacyController::class, 'index']);
+    Route::get('/pharmacy/create', [PharmacyController::class, 'create']);
+    Route::post('/pharmacy', [PharmacyController::class, 'store']);
+    Route::get('/pharmacy/{id}', [PharmacyController::class, 'show'])->whereNumber('id');
+    Route::delete('/pharmacy/{id}', [PharmacyController::class, 'destroy'])->whereNumber('id');
 });

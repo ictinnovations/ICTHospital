@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PharmacyPayment extends Model
 {
@@ -31,4 +32,16 @@ class PharmacyPayment extends Model
         'amount_received',
         'status',
     ];
+
+    /**
+     * What was dispensed on this sale.
+     *
+     * category_name and category_amount on this table are the legacy packed
+     * columns, kept in step for anything still reading them. These rows are the
+     * record, and they are what stock movement is calculated from.
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(PharmacySaleItem::class, 'pharmacy_payment_id');
+    }
 }
