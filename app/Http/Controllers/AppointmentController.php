@@ -22,6 +22,7 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class AppointmentController extends BaseController
@@ -78,8 +79,11 @@ class AppointmentController extends BaseController
 
     public function store(Request $request)
     {
-        $data = $this->validated($request);
-        $appointment = Appointment::create($data);
+        // The clash check and the insert share one transaction so two clerks
+        // booking the same slot at the same moment cannot both get through.
+        $appointment = DB::transaction(function () use ($request) {
+            return Appointment::create($this->validated($request));
+        });
 
         return redirect('/appointments?date=' . $appointment->date)
             ->with('success', 'Appointment booked.');
@@ -104,7 +108,10 @@ class AppointmentController extends BaseController
     public function update(Request $request, $id)
     {
         $appointment = Appointment::findOrFail($id);
-        $appointment->update($this->validated($request, $appointment->id));
+
+        DB::transaction(function () use ($request, $appointment) {
+            $appointment->update($this->validated($request, $appointment->id));
+        });
 
         return redirect('/appointments/' . $appointment->id)->with('success', 'Appointment updated.');
     }
@@ -174,10 +181,15 @@ class AppointmentController extends BaseController
      * Cancelled and no-show appointments are ignored, since the slot is free
      * again. Touching ends do not count as a clash: 09:00-09:15 and 09:15-09:30
      * are back to back, which is the normal way a clinic runs.
+     *
+     * Callers run this inside the transaction that writes the row, and the read
+     * takes a lock, so two clerks booking the same slot at once cannot both pass
+     * the check before either insert lands.
      */
     private function assertNoClash($doctorId, Carbon $start, Carbon $end, $ignoreId = null)
     {
         $clash = Appointment::query()
+            ->lockForUpdate()
             ->where('doctor', $doctorId)
             ->whereNotIn('status', ['cancelled', 'no show'])
             ->when($ignoreId, fn ($q) => $q->where('id', '<>', $ignoreId))
