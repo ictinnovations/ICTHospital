@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Advisories land after a merge, not during one, so re-check weekly.
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  security:
+    name: Dependency advisories
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: bcmath, ctype, curl, dom, fileinfo, gd, intl, mbstring, openssl, pdo, pdo_mysql, tokenizer, xml, zip
+          coverage: none
+
+      - name: Validate composer files
+        run: composer validate --strict --no-check-publish
+
+      # Reads composer.lock only, so it does not need a working install.
+      - name: Audit dependencies
+        run: composer audit --locked --no-interaction
+
+  tests:
+    name: Install and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: bcmath, ctype, curl, dom, fileinfo, gd, intl, mbstring, openssl, pdo, pdo_mysql, tokenizer, xml, zip
+          coverage: none
+
+      - name: Cache composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env || true
+          php artisan key:generate --ansi
+
+      - name: Run tests
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+        run: php artisan test
