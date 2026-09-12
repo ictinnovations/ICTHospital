@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lab extends Model
 {
@@ -31,4 +32,16 @@ class Lab extends Model
         'cnic',
         'token_no',
     ];
+
+    /**
+     * The tests on this request.
+     *
+     * `category_name` and `report` on this table are the legacy packed summaries
+     * and are kept in step for anything still reading them, but these rows are
+     * the record.
+     */
+    public function tests(): HasMany
+    {
+        return $this->hasMany(LabTest::class, 'lab_id');
+    }
 }

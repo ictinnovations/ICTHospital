@@ -25,6 +25,8 @@ use App\Http\Controllers\BedController;
 use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PrescriptionController;
+use App\Http\Controllers\LabController;
+use App\Http\Controllers\LabCategoryController;
 
 
 
@@ -352,4 +354,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/prescriptions/{id}/edit', [PrescriptionController::class, 'edit'])->whereNumber('id');
     Route::put('/prescriptions/{id}', [PrescriptionController::class, 'update'])->whereNumber('id');
     Route::delete('/prescriptions/{id}', [PrescriptionController::class, 'destroy'])->whereNumber('id');
+});
+
+
+// Laboratory. Tests are rows in lab_test with their own result and status, which
+// is what lets a request be part reported: bloods back, culture still growing.
+// The catalogue routes come before /lab/{id} so "catalogue" is never read as an id.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/lab', [LabController::class, 'index']);
+    Route::get('/lab/create', [LabController::class, 'create']);
+    Route::post('/lab', [LabController::class, 'store']);
+    Route::get('/lab/catalogue', [LabCategoryController::class, 'index']);
+    Route::post('/lab/catalogue', [LabCategoryController::class, 'store']);
+    Route::put('/lab/catalogue/{id}', [LabCategoryController::class, 'update'])->whereNumber('id');
+    Route::delete('/lab/catalogue/{id}', [LabCategoryController::class, 'destroy'])->whereNumber('id');
+    Route::get('/lab/{id}', [LabController::class, 'show'])->whereNumber('id');
+    Route::post('/lab/{id}/results', [LabController::class, 'saveResults'])->whereNumber('id');
+    Route::delete('/lab/{id}', [LabController::class, 'destroy'])->whereNumber('id');
 });
