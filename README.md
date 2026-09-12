@@ -39,16 +39,44 @@ the application is being rebuilt on **Laravel 11**, sharing a foundation with ou
 - Settings, hospital information, branches, barcode generation and an activity log
 - A schema moderniser, described below
 
-**What is not finished**
+**Clinical and front desk**
 
-The administrative and communication half of the system runs. The clinical and front
-desk screens do not exist yet: patient registration, appointment booking, admissions and
-bed allocation, prescriptions, laboratory, pharmacy dispensing and invoicing. The tables
-are there, the migrations are there, and the Eloquent models are there waiting for them.
-Writing those controllers and views is the next body of work.
+- Patient registration, search and records. Only a name is required, so a walk-in is
+  registerable, and age is derived from the date of birth rather than typed
+- Appointment booking, as a day view by doctor and status, refusing to double book a
+  doctor while allowing back to back slots
+- Beds, wards and admissions. A bed is free when no admission points at it with an open
+  discharge time, so the ward board cannot disagree with the records
+- Prescriptions, with the drugs as rows rather than a packed string, so "which patients
+  are on this drug" is answerable
+- Laboratory requests and results, per test, so a request can be part reported while a
+  culture is still growing
+- Pharmacy dispensing, which takes stock out of the catalogue in the same transaction as
+  the sale and refuses to go negative
+- Patient invoicing with part payment, where the settlement state is derived from the
+  payments rather than typed
 
-If you are evaluating ICTHospital for production use today, please
-[get in touch](https://www.icthospital.com) rather than deploying from this branch.
+**What changed in the schema**
+
+The original tables packed repeating data into single columns: every drug on a
+prescription in one varchar, every test on a lab request in another, every charge on an
+invoice in a third with the prices in a fourth, matched by position. Four child tables
+replace those, and each legacy column is still written with a readable summary so
+anything reading it keeps working:
+
+`prescription_medicine`, `lab_test`, `pharmacy_sale_item`, and `invoice_item` with
+`invoice_payment` alongside it.
+
+Names and prices are copied onto each line rather than only referenced. A prescription,
+a lab result and an invoice are records of what was written, measured and charged on a
+given day, and they must not change when a catalogue or price list is next edited.
+
+**Before deploying**
+
+The clinical screens are new and have automated coverage rather than production miles.
+If you are evaluating ICTHospital for production use, please
+[get in touch](https://www.icthospital.com) so we can talk about your data and your
+migration.
 
 ---
 
