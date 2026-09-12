@@ -21,6 +21,8 @@ use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\CronjobController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\BedController;
+use App\Http\Controllers\AdmissionController;
 
 
 
@@ -302,4 +304,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/appointments/{id}/edit', [AppointmentController::class, 'edit'])->whereNumber('id');
     Route::put('/appointments/{id}', [AppointmentController::class, 'update'])->whereNumber('id');
     Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy'])->whereNumber('id');
+});
+
+
+// Beds and admissions. A bed is free when no admission row points at it with a
+// null discharge time, so the ward board and the admission form read the same
+// source rather than the bed.status column, which is only a copy.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/beds', [BedController::class, 'index']);
+    Route::get('/beds/create', [BedController::class, 'create']);
+    Route::post('/beds', [BedController::class, 'store']);
+    Route::get('/beds/categories', [BedController::class, 'categories']);
+    Route::post('/beds/categories', [BedController::class, 'storeCategory']);
+    Route::delete('/beds/categories/{id}', [BedController::class, 'destroyCategory'])->whereNumber('id');
+    Route::get('/beds/{id}/edit', [BedController::class, 'edit'])->whereNumber('id');
+    Route::put('/beds/{id}', [BedController::class, 'update'])->whereNumber('id');
+    Route::delete('/beds/{id}', [BedController::class, 'destroy'])->whereNumber('id');
+
+    Route::get('/admissions', [AdmissionController::class, 'index']);
+    Route::get('/admissions/create', [AdmissionController::class, 'create']);
+    Route::post('/admissions', [AdmissionController::class, 'store']);
+    Route::get('/admissions/{id}', [AdmissionController::class, 'show'])->whereNumber('id');
+    Route::post('/admissions/{id}/discharge', [AdmissionController::class, 'discharge'])->whereNumber('id');
 });
