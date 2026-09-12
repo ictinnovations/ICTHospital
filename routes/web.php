@@ -28,6 +28,7 @@ use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\LabController;
 use App\Http\Controllers\LabCategoryController;
 use App\Http\Controllers\PharmacyController;
+use App\Http\Controllers\InvoiceController;
 
 
 
@@ -384,4 +385,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pharmacy', [PharmacyController::class, 'store']);
     Route::get('/pharmacy/{id}', [PharmacyController::class, 'show'])->whereNumber('id');
     Route::delete('/pharmacy/{id}', [PharmacyController::class, 'destroy'])->whereNumber('id');
+});
+
+
+// Patient invoicing. Charges are rows in invoice_item and payments are rows in
+// invoice_payment, so a deposit now and the balance later is expressible. The
+// settlement state is derived from the payment rows, never typed.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/invoices', [InvoiceController::class, 'index']);
+    Route::get('/invoices/create', [InvoiceController::class, 'create']);
+    Route::post('/invoices', [InvoiceController::class, 'store']);
+    Route::get('/invoices/{id}', [InvoiceController::class, 'show'])->whereNumber('id');
+    Route::post('/invoices/{id}/pay', [InvoiceController::class, 'pay'])->whereNumber('id');
+    Route::delete('/invoices/{id}', [InvoiceController::class, 'destroy'])->whereNumber('id');
 });
