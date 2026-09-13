@@ -95,17 +95,26 @@ php artisan hospital:sync-permissions --prune  # also clear the school leftovers
 
 It never re-grants a right that was deliberately taken away, so it is safe to re-run.
 
+**Concurrency**
+
+Every check that guards a write now holds a row lock for the life of the transaction
+that does the writing: appointment slots, bed occupancy, pharmacy stock, invoice
+balances and patient id allocation. Two people pressing the same button at the same
+moment get one success and one refusal rather than two successes.
+
+The test suite runs on sqlite, where row locks are a no-op, so it cannot demonstrate the
+races themselves. It covers the transaction boundaries and the arithmetic around them;
+the locks are exercised by MySQL and MariaDB.
+
 **What is not finished**
 
-- Staff records for nurses, pharmacists, laboratory technicians, receptionists and
-  accountants have tables and models but no screens. So do medical history, patient
-  deposits, theatre payments and departments. Doctors are the only staff type with a
-  screen today
-- Only the appointment and admission checks take a database lock. Other concurrent
-  writes rely on validation alone, so two simultaneous submits can still both pass
-- The doctor and hospital commission percentages on the price list are recorded and not
-  applied to anything. They are carried over from the legacy schema
-- Reporting covers four questions. Anything else still means querying the database
+- Medical history, patient deposits, theatre payments and payment gateways have tables
+  and models but no screens
+- The doctor and hospital commission percentages on the price list are recorded and
+  applied to nothing. They are carried over from the legacy schema, and how a split
+  should actually work is a decision rather than a missing screen
+- Reporting covers four questions: outstanding lab work, drug usage, debtors and bed
+  occupancy. Anything else still means querying the database
 
 **Before deploying**
 
