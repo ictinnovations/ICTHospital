@@ -59,6 +59,13 @@ $active = function ($prefixes) use ($here) {
       </a>
     </li>
     @endif
+    @if ($may('patient_medical_history'))
+    <li>
+      <a class="{{ $active('history') ? 'active' : '' }}" href="{{ url('/history') }}">
+        <i class="glyphicon glyphicon-folder-open"></i><span class="hidden-tablet"> Medical History</span>
+      </a>
+    </li>
+    @endif
     @if ($may('doctor_view'))
     <li>
       <a class="{{ $active('doctors') ? 'active' : '' }}" href="{{ url('/doctors') }}">
@@ -240,6 +247,7 @@ $active = function ($prefixes) use ($here) {
         <li><a href="{{ url('/institute') }}"><i class="glyphicon glyphicon-tower"></i> Hospital Information</a></li>
         <li><a href="{{ url('/branches') }}"><i class="glyphicon glyphicon-map-marker"></i> Branches</a></li>
         <li><a href="{{ url('/settings') }}"><i class="glyphicon glyphicon-wrench"></i> General Settings</a></li>
+        <li><a href="{{ url('/gateways') }}"><i class="glyphicon glyphicon-credit-card"></i> Payment Gateways</a></li>
         <li><a href="{{ url('/schedule') }}"><i class="glyphicon glyphicon-time"></i> Schedule</a></li>
         <li><a href="{{ url('/barcode') }}"><i class="glyphicon glyphicon-barcode"></i> Barcode</a></li>
       </ul>

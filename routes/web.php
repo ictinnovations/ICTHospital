@@ -33,6 +33,8 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentCategoryController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\MedicalHistoryController;
+use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\DepartmentController;
 
 
@@ -469,4 +471,42 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/staff/{type}/{id}/edit', [StaffController::class, 'edit'])->whereNumber('id');
     Route::put('/staff/{type}/{id}', [StaffController::class, 'update'])->whereNumber('id');
     Route::delete('/staff/{type}/{id}', [StaffController::class, 'destroy'])->whereNumber('id');
+});
+
+
+// Patient medical history. Allergies, past operations and chronic conditions, with
+// an optional scan attached. /history/create is registered before /history/{id} so
+// "create" is never read as an id.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/history', [MedicalHistoryController::class, 'index'])
+        ->middleware('checkPermission:patient_medical_history');
+    Route::get('/history/create', [MedicalHistoryController::class, 'create'])
+        ->middleware('checkPermission:patient_medical_history');
+    Route::post('/history', [MedicalHistoryController::class, 'store'])
+        ->middleware('checkPermission:patient_medical_history');
+    Route::get('/history/{id}/edit', [MedicalHistoryController::class, 'edit'])->whereNumber('id')
+        ->middleware('checkPermission:patient_medical_history');
+    Route::put('/history/{id}', [MedicalHistoryController::class, 'update'])->whereNumber('id')
+        ->middleware('checkPermission:patient_medical_history');
+    Route::delete('/history/{id}', [MedicalHistoryController::class, 'destroy'])->whereNumber('id')
+        ->middleware('checkPermission:patient_medical_history');
+});
+
+
+// Payment gateway credentials. Nothing in this release charges a card; the settings
+// are stored ready for the online payment work still to come. Secrets are write only,
+// so the screen never renders one back.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/gateways', [PaymentGatewayController::class, 'index'])
+        ->middleware('checkPermission:payment_view');
+    Route::post('/gateways', [PaymentGatewayController::class, 'store'])
+        ->middleware('checkPermission:payment_add');
+    Route::put('/gateways/{id}', [PaymentGatewayController::class, 'update'])->whereNumber('id')
+        ->middleware('checkPermission:payment_update');
+    Route::post('/gateways/{id}/enable', [PaymentGatewayController::class, 'enable'])->whereNumber('id')
+        ->middleware('checkPermission:payment_update');
+    Route::post('/gateways/{id}/disable', [PaymentGatewayController::class, 'disable'])->whereNumber('id')
+        ->middleware('checkPermission:payment_update');
+    Route::delete('/gateways/{id}', [PaymentGatewayController::class, 'destroy'])->whereNumber('id')
+        ->middleware('checkPermission:payment_delete');
 });
