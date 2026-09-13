@@ -18,6 +18,7 @@ namespace App\Http\Controllers;
 use App\Models\Doctor;
 use App\Models\Patient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PatientController extends BaseController
@@ -69,7 +70,6 @@ class PatientController extends BaseController
     {
         $data = $this->validated($request);
 
-        $data['patient_id'] = $this->nextPatientId();
         $data['add_date'] = now()->toDateString();
         $data['registration_time'] = now();
         $data['how_added'] = 'front desk';
@@ -80,7 +80,14 @@ class PatientController extends BaseController
         // empty string when a patient had no login, so that convention is kept.
         $data['ion_user_id'] = '';
 
-        $patient = Patient::create($data);
+        // The id is derived from the highest one already issued, so reading it and
+        // inserting have to be one atomic step. Two clerks registering a walk-in at
+        // the same moment would otherwise both read the same number and both use it.
+        $patient = DB::transaction(function () use ($data) {
+            $data['patient_id'] = $this->nextPatientId();
+
+            return Patient::create($data);
+        });
 
         return redirect('/patients/' . $patient->id)
             ->with('success', 'Patient ' . $patient->patient_id . ' registered.');
@@ -176,10 +183,14 @@ class PatientController extends BaseController
      *
      * Derived from the highest existing numeric ID rather than a row count, so
      * deleting a record cannot hand the next patient a number already in use.
+     *
+     * Must be called inside a transaction. The read takes a lock so a second
+     * registration waits rather than reading the same highest value.
      */
     private function nextPatientId()
     {
         $highest = Patient::query()
+            ->lockForUpdate()
             ->selectRaw('MAX(CAST(patient_id AS UNSIGNED)) AS n')
             ->value('n');
 

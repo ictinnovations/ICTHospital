@@ -135,13 +135,22 @@ class InvoiceController extends BaseController
 
         $amount = round((float) $data['amount'], 2);
 
-        if ($amount > $invoice->balance() + 0.004) {
-            throw ValidationException::withMessages([
-                'amount' => sprintf('Only %s is outstanding on this invoice.', number_format($invoice->balance(), 2)),
-            ]);
-        }
-
+        // The balance check and the insert have to be one atomic step. Checking
+        // first and writing afterwards let two part payments both see the same
+        // outstanding figure and both be accepted, overpaying the invoice.
         DB::transaction(function () use ($invoice, $data, $amount) {
+            $invoice->newQuery()->whereKey($invoice->id)->lockForUpdate()->first();
+            $current = $invoice->fresh('payments');
+
+            if ($amount > $current->balance() + 0.004) {
+                throw ValidationException::withMessages([
+                    'amount' => sprintf(
+                        'Only %s is outstanding on this invoice.',
+                        number_format($current->balance(), 2)
+                    ),
+                ]);
+            }
+
             $invoice->payments()->create([
                 'amount' => number_format($amount, 2, '.', ''),
                 'method' => $data['method'] ?? null,

@@ -191,6 +191,13 @@ class PharmacyController extends BaseController
      * two is small but real, which is why the decrement is a database level
      * operation rather than a read, subtract and write.
      */
+    /**
+     * Turns the posted rows into sale lines, checking stock as it goes.
+     *
+     * Must be called inside a transaction: it takes a row lock on each medicine so
+     * the stock check and the decrement that follows cannot be interleaved with
+     * another sale.
+     */
     private function buildLines(array $rows)
     {
         $lines = [];
@@ -200,7 +207,10 @@ class PharmacyController extends BaseController
             $id = $row['medicine_id'] ?? null;
             $quantity = (int) ($row['quantity'] ?? 0);
             $name = trim((string) ($row['name'] ?? ''));
-            $medicine = $id ? Medicine::find($id) : null;
+            // Locked for the life of the transaction the caller opened. Without
+            // this, two sales of the last few units both read the same quantity,
+            // both pass the check below, and both decrement: stock goes negative.
+            $medicine = $id ? Medicine::whereKey($id)->lockForUpdate()->first() : null;
 
             if ($medicine) {
                 $name = $medicine->name;
