@@ -141,6 +141,37 @@ $active = function ($prefixes) use ($here) {
       </a>
     </li>
 
+    <li class="nav-header">People</li>
+
+    @if ($may('department_view'))
+    <li>
+      <a class="{{ $active('departments') ? 'active' : '' }}" href="{{ url('/departments') }}">
+        <i class="glyphicon glyphicon-tower"></i><span class="hidden-tablet"> Departments</span>
+      </a>
+    </li>
+    @endif
+    @if ($may('nurse_view'))
+    <li>
+      <a class="{{ $active('staff/nurse') ? 'active' : '' }}" href="{{ url('/staff/nurse') }}">
+        <i class="glyphicon glyphicon-heart"></i><span class="hidden-tablet"> Nurses</span>
+      </a>
+    </li>
+    @endif
+    @if ($may('staff_view'))
+    <li>
+      <a class="dropmenu {{ $active('staff') ? 'active' : '' }}" href="#">
+        <i class="glyphicon glyphicon-user"></i><span class="hidden-tablet"> Other Staff</span>
+        <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
+      </a>
+      <ul style="{{ $active('staff') ? '' : 'display:none;' }}">
+        <li><a href="{{ url('/staff/pharmacist') }}"><i class="glyphicon glyphicon-shopping-cart"></i> Pharmacists</a></li>
+        <li><a href="{{ url('/staff/laboratorist') }}"><i class="glyphicon glyphicon-tint"></i> Laboratory Staff</a></li>
+        <li><a href="{{ url('/staff/receptionist') }}"><i class="glyphicon glyphicon-bell"></i> Receptionists</a></li>
+        <li><a href="{{ url('/staff/accountant') }}"><i class="glyphicon glyphicon-usd"></i> Accountants</a></li>
+      </ul>
+    </li>
+    @endif
+
     <li class="nav-header">Money</li>
 
     <li>

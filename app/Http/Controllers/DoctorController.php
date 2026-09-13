@@ -7,10 +7,12 @@
  * had an empty doctor list, so every one of those screens offered an empty select
  * and the clinical modules could not be used at all without seeding rows by hand.
  *
- * Department is free text with a suggestion list built from the doctors already
- * on file, rather than a foreign key. The department table exists but has no
- * screen of its own, and forcing a lookup that cannot be filled in would recreate
- * the problem this controller is here to solve.
+ * Department is stored as text with a suggestion list, rather than a foreign key.
+ * The legacy column is a varchar and every report and export in the wild reads it
+ * that way. The list comes from the department table, merged with any department
+ * that only exists as text on a doctor record, so nothing vanishes from the box on
+ * an install that predates the department screen. Renaming a department carries its
+ * doctors with it; see DepartmentController.
  *
  * Copyright (c) ICT Innovations <https://www.ictinnovations.com>
  * Part of ICTHospital <https://www.icthospital.com>
@@ -20,6 +22,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Patient;
 use Illuminate\Http\Request;
@@ -193,15 +196,25 @@ class DoctorController extends BaseController
         return $data;
     }
 
-    /** Departments already in use, for the form's suggestion list. */
+    /**
+     * Departments for the form's suggestion list.
+     *
+     * The department table is the real list, but on an install that predates that
+     * screen every department lives only as text on a doctor record, so both are
+     * merged. Dropping the second half would make names vanish from the box while
+     * still being stored against doctors.
+     */
     private function departments()
     {
-        return Doctor::query()
+        $listed = Department::orderBy('name')->pluck('name');
+
+        $inUse = Doctor::query()
             ->whereNotNull('department')
             ->where('department', '<>', '')
             ->distinct()
-            ->orderBy('department')
             ->pluck('department');
+
+        return $listed->merge($inUse)->unique()->sort()->values();
     }
 
     /** Stores an uploaded photo and returns its public path, or null if none was sent. */

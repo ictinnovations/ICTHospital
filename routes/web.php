@@ -32,6 +32,8 @@ use App\Http\Controllers\PharmacyController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentCategoryController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\DepartmentController;
 
 
 
@@ -435,4 +437,36 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('checkPermission:view_payment_reports');
     Route::get('/reports/occupancy', [ReportController::class, 'occupancy'])
         ->middleware('checkPermission:bed_view');
+});
+
+
+// Departments. The doctor form offers this list; renaming an entry carries its
+// doctors with it, because the doctor record stores the department as text rather
+// than a foreign key. /departments/adopt comes before /departments/{id}.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/departments', [DepartmentController::class, 'index'])
+        ->middleware('checkPermission:department_view');
+    Route::post('/departments', [DepartmentController::class, 'store'])
+        ->middleware('checkPermission:department_add');
+    Route::post('/departments/adopt', [DepartmentController::class, 'adopt'])
+        ->middleware('checkPermission:department_add');
+    Route::put('/departments/{id}', [DepartmentController::class, 'update'])->whereNumber('id')
+        ->middleware('checkPermission:department_update');
+    Route::delete('/departments/{id}', [DepartmentController::class, 'destroy'])->whereNumber('id')
+        ->middleware('checkPermission:department_delete');
+});
+
+
+// Nurses, pharmacists, laboratory staff, receptionists and accountants. Five tables
+// of the same shape behind one controller, driven by config/hospital_staff.php. The
+// permission prefix comes from that config too: the catalogue has a dedicated Nurse
+// set and a general Staff set, so the check is resolved per type rather than hard
+// coded on the route.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/staff/{type}', [StaffController::class, 'index']);
+    Route::get('/staff/{type}/create', [StaffController::class, 'create']);
+    Route::post('/staff/{type}', [StaffController::class, 'store']);
+    Route::get('/staff/{type}/{id}/edit', [StaffController::class, 'edit'])->whereNumber('id');
+    Route::put('/staff/{type}/{id}', [StaffController::class, 'update'])->whereNumber('id');
+    Route::delete('/staff/{type}/{id}', [StaffController::class, 'destroy'])->whereNumber('id');
 });
