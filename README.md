@@ -11,14 +11,28 @@ Product site: **[www.icthospital.com](https://www.icthospital.com)**
 
 ---
 
-## Status: active rebuild
+## Status: the core system works
 
-This repository holds a **rebuild in progress**, not a finished release.
+Every screen a hospital needs day to day is built, tested and documented. If you want to
+see it rather than read about it, there is a
+**[user guide with screenshots of every screen](docs/USER-GUIDE.md)**.
 
 ICTHospital previously ran on CodeIgniter 2.2.2, which reached end of life in 2017 and
 will not run on PHP 8. Rather than patch an unsupported framework carrying patient data,
-the application is being rebuilt on **Laravel 11**, sharing a foundation with our
+the application was rebuilt on **Laravel 12**, sharing a foundation with our
 [ICTSchool](https://github.com/ictinnovations/ICTSchool) platform.
+
+Where it stands:
+
+- **Ready to try.** Install it, load the demonstration data, and the whole workflow runs
+  end to end: register a patient, book them in, admit them, prescribe, order bloods,
+  dispense, bill, and read the reports
+- **Tested.** 153 feature tests covering the clinical modules, the permission rules and
+  the writes that used to race. CI runs them on every push, alongside a dependency
+  advisory check
+- **Not yet proven in production.** The screens are new and have automated coverage
+  rather than years of use behind them. Read the two sections near the end of this file
+  before you put real patients in it
 
 **What works today**
 
@@ -60,6 +74,15 @@ the application is being rebuilt on **Laravel 11**, sharing a foundation with ou
 - Reports over the new tables: outstanding lab work, prescribed against dispensed, aged
   debtors, and bed occupancy with length of stay. Every figure is derived when the report
   is opened, so none of it can drift out of step with the records
+- Staff records for nurses, pharmacists, laboratory staff, receptionists and accountants,
+  and a department list. Renaming a department carries its doctors with it, because the
+  doctor record stores the department as text rather than a foreign key
+- Patient medical history: allergies, past operations and chronic conditions, with a scan
+  or report attached where you have one
+- Payment gateway credentials, stored ready for the online payment work still to come.
+  Nothing in this release charges a card, and the screen says so
+- A demonstration data seeder, so an evaluator sees a working hospital rather than empty
+  tables: `php artisan db:seed --class=DemoDataSeeder`
 
 **What changed in the schema**
 
@@ -108,22 +131,26 @@ the locks are exercised by MySQL and MariaDB.
 
 **What is not finished**
 
-- Medical history, patient deposits, theatre payments and payment gateways have tables
-  and models but no screens
+- Patient deposits and operation theatre payments have tables and models but no screens.
+  Both are planned
 - The doctor and hospital commission percentages on the price list are recorded and
-  applied to nothing. They are carried over from the legacy schema, and how a split
-  should actually work is a decision rather than a missing screen
+  applied to nothing. They come from the legacy schema, and how a split should actually
+  work is a decision rather than a missing screen
 - Reporting covers four questions: outstanding lab work, drug usage, debtors and bed
   occupancy. Anything else still means querying the database
 
-**Before deploying**
+**Before you put real patients in it**
 
-The clinical screens are new and have automated coverage rather than production miles.
-If you are evaluating ICTHospital for production use, please
+The clinical screens are new. They have automated coverage rather than production miles,
+and a hospital system is not the place to find out what that difference is worth. If you
+are weighing ICTHospital up for live use, please
 [get in touch](https://www.icthospital.com) so we can talk about your data and your
 migration.
 
----
+Two practical things to do first. Change the `admin` password, which ships as `123456`.
+And if you are upgrading an install that came from ICTSchool, run
+`php artisan hospital:sync-permissions` after migrating, or every role including Admin
+will be locked out of every screen.
 
 ## Requirements
 
@@ -250,3 +277,7 @@ Full list: [ictinnovations.com/projects](https://ictinnovations.com/projects/)
 GNU General Public License v3.0 - see [LICENSE](LICENSE).
 
 Copyright (c) ICT Innovations.
+
+---
+
+Developed by Tahir Almas, [ICT Innovations](https://www.ictinnovations.com).

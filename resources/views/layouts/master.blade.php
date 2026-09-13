@@ -341,6 +341,22 @@ table i {
     <link rel="shortcut icon" href="{{ URL::asset('img/favicon.ico')}}">
     <link href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.dataTables.min.css" rel="stylesheet">
 }
+
+  {{-- ICTHospital: keep the content clear of the fixed sidebar.
+
+       theme.css offsets .page-container2 by the sidebar width, but @yield('content')
+       renders inside .main-content, which is in a different branch of this layout and
+       never got the offset. The sidebar is position:fixed at z-index 1000, so on any
+       screen at the lg breakpoint or wider it was painted over the first 300px of the
+       page and buried the leftmost table column.
+
+       The breakpoint matches the sidebar's own d-none d-lg-block, so nothing changes
+       on tablet and phone where the sidebar is off canvas. --}}
+  <style id="icthospital-content-offset">
+    @media (min-width: 992px) {
+      .main-content { padding-left: 300px; }
+    }
+  </style>
 </head>
 
 <body @if(Request::is('student/create-file')) @else class="animsition" @endif>
