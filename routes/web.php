@@ -30,6 +30,7 @@ use App\Http\Controllers\LabController;
 use App\Http\Controllers\LabCategoryController;
 use App\Http\Controllers\PharmacyController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PaymentCategoryController;
 
 
 
@@ -414,4 +415,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoices/{id}', [InvoiceController::class, 'show'])->whereNumber('id');
     Route::post('/invoices/{id}/pay', [InvoiceController::class, 'pay'])->whereNumber('id');
     Route::delete('/invoices/{id}', [InvoiceController::class, 'destroy'])->whereNumber('id');
+});
+
+
+// Billable services and the price list. Invoice lines are raised against these,
+// so like the doctor register this has to be fillable before invoicing works on
+// a clean install. It sits at /services rather than under /invoices so it can
+// never collide with /invoices/{id}.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/services', [PaymentCategoryController::class, 'index']);
+    Route::post('/services', [PaymentCategoryController::class, 'store']);
+    Route::put('/services/{id}', [PaymentCategoryController::class, 'update'])->whereNumber('id');
+    Route::delete('/services/{id}', [PaymentCategoryController::class, 'destroy'])->whereNumber('id');
 });

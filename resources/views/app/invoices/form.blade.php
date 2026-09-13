@@ -70,6 +70,13 @@
                         </div>
 
                         <h4>Charges <span class="text-danger">*</span></h4>
+                        @if ($services->isEmpty())
+                            <p class="text-muted">
+                                Nothing is on the price list yet, so every line has to be typed by hand.
+                                <a href="{{ url('/services') }}">Add your services and prices</a> and they
+                                appear in the select with their price filled in.
+                            </p>
+                        @endif
                         <table class="table table-bordered" id="invoice-rows">
                             <thead>
                                 <tr>

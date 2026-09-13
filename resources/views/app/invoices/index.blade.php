@@ -34,6 +34,9 @@
                         <a href="{{ url('/invoices/create') }}" class="btn btn-primary btn-sm">
                             <i class="glyphicon glyphicon-plus"></i> Raise invoice
                         </a>
+                        <a href="{{ url('/services') }}" class="btn btn-default btn-sm">
+                            <i class="glyphicon glyphicon-tags"></i> Services and prices
+                        </a>
                     </div>
                 </div>
                 <div class="box-content">

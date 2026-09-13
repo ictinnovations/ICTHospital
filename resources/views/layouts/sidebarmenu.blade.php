@@ -92,6 +92,11 @@ $active = function ($prefixes) use ($here) {
       </a>
     </li>
     <li>
+      <a class="{{ $active('services') ? 'active' : '' }}" href="{{ url('/services') }}">
+        <i class="glyphicon glyphicon-tags"></i><span class="hidden-tablet"> Services and Prices</span>
+      </a>
+    </li>
+    <li>
       <a class="{{ $active('search') ? 'active' : '' }}" href="{{ url('/search') }}">
         <i class="glyphicon glyphicon-search"></i><span class="hidden-tablet"> Search Patients</span>
       </a>
