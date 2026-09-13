@@ -20,6 +20,7 @@ use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\CronjobController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BedController;
 use App\Http\Controllers\AdmissionController;
@@ -285,6 +286,21 @@ Route::middleware(['super_admin'])->group(function () {
 
 
 Route::get('/cronjob/payment-reminder', [CronjobController::class, 'paymentReminder']);
+
+
+// The doctor register. Appointments, prescriptions, lab requests and invoices all
+// pick a doctor from this table, so on a clean install nothing clinical works
+// until there is a row in it. /doctors/create comes before /doctors/{id} so the
+// word "create" is never read as an id.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/doctors', [DoctorController::class, 'index']);
+    Route::get('/doctors/create', [DoctorController::class, 'create']);
+    Route::post('/doctors', [DoctorController::class, 'store']);
+    Route::get('/doctors/{id}', [DoctorController::class, 'show'])->whereNumber('id');
+    Route::get('/doctors/{id}/edit', [DoctorController::class, 'edit'])->whereNumber('id');
+    Route::put('/doctors/{id}', [DoctorController::class, 'update'])->whereNumber('id');
+    Route::delete('/doctors/{id}', [DoctorController::class, 'destroy'])->whereNumber('id');
+});
 
 
 // Patient records. The front desk entry point: admissions, prescriptions, lab
