@@ -31,6 +31,7 @@ use App\Http\Controllers\LabCategoryController;
 use App\Http\Controllers\PharmacyController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentCategoryController;
+use App\Http\Controllers\ReportController;
 
 
 
@@ -413,4 +414,25 @@ Route::middleware(['auth'])->group(function () {
 // redirected to the page that explains the denial and denied again.
 Route::middleware(['auth'])->get('/no-permission', function () {
     return view('app.nopermission');
+});
+
+
+// Reports over the child tables the rebuild introduced. Replacing the packed
+// varchar columns with rows is what makes any of these answerable; until now
+// nothing queried them. Every figure is derived at read time, so there is no
+// summary table that can fall out of step.
+//
+// The index is behind auth alone and hides the cards a role cannot open, since
+// gating it on one permission would hide the menu from someone entitled to read
+// a different report on it.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/reports', [ReportController::class, 'index']);
+    Route::get('/reports/lab', [ReportController::class, 'lab'])
+        ->middleware('checkPermission:lab_test_view');
+    Route::get('/reports/drug-usage', [ReportController::class, 'drugUsage'])
+        ->middleware('checkPermission:view_pharmacy_reports');
+    Route::get('/reports/debtors', [ReportController::class, 'debtors'])
+        ->middleware('checkPermission:view_payment_reports');
+    Route::get('/reports/occupancy', [ReportController::class, 'occupancy'])
+        ->middleware('checkPermission:bed_view');
 });
