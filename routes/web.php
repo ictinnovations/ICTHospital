@@ -89,31 +89,9 @@ Route::group(['middleware' => ['auth', 'activity']], function () {
 Route::group(['middleware' => ['web', 'activity']], function () {
 });
 
-// Students Routes
-Route::middleware(['auth', 'activity'])->group(function() {
-
-    Route::middleware('checkPermission:student_add')->group(function() {
-    });
-
-    Route::middleware('checkPermission:student_view')->group(function() {
-    });
-
-    Route::middleware('checkPermission:student_info')->group(function() {
-    });
-
-    Route::middleware('checkPermission:student_student_portal_access')->group(function() {
-    });
-
-    Route::middleware('checkPermission:student_update')->group(function() {
-    });
-
-    Route::middleware('checkPermission:student_delete')->group(function() {
-    });
-
-    Route::middleware('checkPermission:student_student_bulk_add')->group(function() {
-    });
-
-});
+// The ICTSchool student route groups stood here. Every one was empty after the
+// rebuild and the student_* permissions they named are no longer in the
+// catalogue, so they were removed rather than left as dead scaffolding.
 
 
 Route::group(['middleware' => ['web', 'activity']], function () {
@@ -294,39 +272,39 @@ Route::get('/cronjob/payment-reminder', [CronjobController::class, 'paymentRemin
 // until there is a row in it. /doctors/create comes before /doctors/{id} so the
 // word "create" is never read as an id.
 Route::middleware(['auth'])->group(function () {
-    Route::get('/doctors', [DoctorController::class, 'index']);
-    Route::get('/doctors/create', [DoctorController::class, 'create']);
-    Route::post('/doctors', [DoctorController::class, 'store']);
-    Route::get('/doctors/{id}', [DoctorController::class, 'show'])->whereNumber('id');
-    Route::get('/doctors/{id}/edit', [DoctorController::class, 'edit'])->whereNumber('id');
-    Route::put('/doctors/{id}', [DoctorController::class, 'update'])->whereNumber('id');
-    Route::delete('/doctors/{id}', [DoctorController::class, 'destroy'])->whereNumber('id');
+    Route::get('/doctors', [DoctorController::class, 'index'])->middleware('checkPermission:doctor_view');
+    Route::get('/doctors/create', [DoctorController::class, 'create'])->middleware('checkPermission:doctor_add');
+    Route::post('/doctors', [DoctorController::class, 'store'])->middleware('checkPermission:doctor_add');
+    Route::get('/doctors/{id}', [DoctorController::class, 'show'])->whereNumber('id')->middleware('checkPermission:doctor_view');
+    Route::get('/doctors/{id}/edit', [DoctorController::class, 'edit'])->whereNumber('id')->middleware('checkPermission:doctor_update');
+    Route::put('/doctors/{id}', [DoctorController::class, 'update'])->whereNumber('id')->middleware('checkPermission:doctor_update');
+    Route::delete('/doctors/{id}', [DoctorController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:doctor_delete');
 });
 
 
 // Patient records. The front desk entry point: admissions, prescriptions, lab
 // requests and invoices all key on a patient row, so this module lands first.
 Route::middleware(['auth'])->group(function () {
-    Route::get('/patients', [PatientController::class, 'index']);
-    Route::get('/patients/create', [PatientController::class, 'create']);
-    Route::post('/patients', [PatientController::class, 'store']);
-    Route::get('/patients/{id}', [PatientController::class, 'show'])->whereNumber('id');
-    Route::get('/patients/{id}/edit', [PatientController::class, 'edit'])->whereNumber('id');
-    Route::put('/patients/{id}', [PatientController::class, 'update'])->whereNumber('id');
-    Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->whereNumber('id');
+    Route::get('/patients', [PatientController::class, 'index'])->middleware('checkPermission:patient_view');
+    Route::get('/patients/create', [PatientController::class, 'create'])->middleware('checkPermission:patient_add');
+    Route::post('/patients', [PatientController::class, 'store'])->middleware('checkPermission:patient_add');
+    Route::get('/patients/{id}', [PatientController::class, 'show'])->whereNumber('id')->middleware('checkPermission:patient_view');
+    Route::get('/patients/{id}/edit', [PatientController::class, 'edit'])->whereNumber('id')->middleware('checkPermission:patient_update');
+    Route::put('/patients/{id}', [PatientController::class, 'update'])->whereNumber('id')->middleware('checkPermission:patient_update');
+    Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:patient_delete');
 });
 
 
 // Appointment booking. The day view is the front desk screen; the clash check
 // lives in the controller because two clerks can book the same slot at once.
 Route::middleware(['auth'])->group(function () {
-    Route::get('/appointments', [AppointmentController::class, 'index']);
-    Route::get('/appointments/create', [AppointmentController::class, 'create']);
-    Route::post('/appointments', [AppointmentController::class, 'store']);
-    Route::get('/appointments/{id}', [AppointmentController::class, 'show'])->whereNumber('id');
-    Route::get('/appointments/{id}/edit', [AppointmentController::class, 'edit'])->whereNumber('id');
-    Route::put('/appointments/{id}', [AppointmentController::class, 'update'])->whereNumber('id');
-    Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy'])->whereNumber('id');
+    Route::get('/appointments', [AppointmentController::class, 'index'])->middleware('checkPermission:appointment_view');
+    Route::get('/appointments/create', [AppointmentController::class, 'create'])->middleware('checkPermission:appointment_add');
+    Route::post('/appointments', [AppointmentController::class, 'store'])->middleware('checkPermission:appointment_add');
+    Route::get('/appointments/{id}', [AppointmentController::class, 'show'])->whereNumber('id')->middleware('checkPermission:appointment_view');
+    Route::get('/appointments/{id}/edit', [AppointmentController::class, 'edit'])->whereNumber('id')->middleware('checkPermission:appointment_update');
+    Route::put('/appointments/{id}', [AppointmentController::class, 'update'])->whereNumber('id')->middleware('checkPermission:appointment_update');
+    Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:appointment_cancel');
 });
 
 
@@ -334,21 +312,21 @@ Route::middleware(['auth'])->group(function () {
 // null discharge time, so the ward board and the admission form read the same
 // source rather than the bed.status column, which is only a copy.
 Route::middleware(['auth'])->group(function () {
-    Route::get('/beds', [BedController::class, 'index']);
-    Route::get('/beds/create', [BedController::class, 'create']);
-    Route::post('/beds', [BedController::class, 'store']);
-    Route::get('/beds/categories', [BedController::class, 'categories']);
-    Route::post('/beds/categories', [BedController::class, 'storeCategory']);
-    Route::delete('/beds/categories/{id}', [BedController::class, 'destroyCategory'])->whereNumber('id');
-    Route::get('/beds/{id}/edit', [BedController::class, 'edit'])->whereNumber('id');
-    Route::put('/beds/{id}', [BedController::class, 'update'])->whereNumber('id');
-    Route::delete('/beds/{id}', [BedController::class, 'destroy'])->whereNumber('id');
+    Route::get('/beds', [BedController::class, 'index'])->middleware('checkPermission:bed_view');
+    Route::get('/beds/create', [BedController::class, 'create'])->middleware('checkPermission:ward_add');
+    Route::post('/beds', [BedController::class, 'store'])->middleware('checkPermission:ward_add');
+    Route::get('/beds/categories', [BedController::class, 'categories'])->middleware('checkPermission:ward_view');
+    Route::post('/beds/categories', [BedController::class, 'storeCategory'])->middleware('checkPermission:ward_add');
+    Route::delete('/beds/categories/{id}', [BedController::class, 'destroyCategory'])->whereNumber('id')->middleware('checkPermission:ward_delete');
+    Route::get('/beds/{id}/edit', [BedController::class, 'edit'])->whereNumber('id')->middleware('checkPermission:ward_update');
+    Route::put('/beds/{id}', [BedController::class, 'update'])->whereNumber('id')->middleware('checkPermission:ward_update');
+    Route::delete('/beds/{id}', [BedController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:ward_delete');
 
-    Route::get('/admissions', [AdmissionController::class, 'index']);
-    Route::get('/admissions/create', [AdmissionController::class, 'create']);
-    Route::post('/admissions', [AdmissionController::class, 'store']);
-    Route::get('/admissions/{id}', [AdmissionController::class, 'show'])->whereNumber('id');
-    Route::post('/admissions/{id}/discharge', [AdmissionController::class, 'discharge'])->whereNumber('id');
+    Route::get('/admissions', [AdmissionController::class, 'index'])->middleware('checkPermission:admission_view');
+    Route::get('/admissions/create', [AdmissionController::class, 'create'])->middleware('checkPermission:admission_add');
+    Route::post('/admissions', [AdmissionController::class, 'store'])->middleware('checkPermission:admission_add');
+    Route::get('/admissions/{id}', [AdmissionController::class, 'show'])->whereNumber('id')->middleware('checkPermission:admission_view');
+    Route::post('/admissions/{id}/discharge', [AdmissionController::class, 'discharge'])->whereNumber('id')->middleware('checkPermission:admission_discharge');
 });
 
 
@@ -356,23 +334,23 @@ Route::middleware(['auth'])->group(function () {
 // prescription_medicine rather than a packed string in prescription.medicine,
 // which is what makes "who is on this drug" answerable at all.
 Route::middleware(['auth'])->group(function () {
-    Route::get('/medicines', [MedicineController::class, 'index']);
-    Route::get('/medicines/create', [MedicineController::class, 'create']);
-    Route::post('/medicines', [MedicineController::class, 'store']);
-    Route::get('/medicines/categories', [MedicineController::class, 'categories']);
-    Route::post('/medicines/categories', [MedicineController::class, 'storeCategory']);
-    Route::delete('/medicines/categories/{id}', [MedicineController::class, 'destroyCategory'])->whereNumber('id');
-    Route::get('/medicines/{id}/edit', [MedicineController::class, 'edit'])->whereNumber('id');
-    Route::put('/medicines/{id}', [MedicineController::class, 'update'])->whereNumber('id');
-    Route::delete('/medicines/{id}', [MedicineController::class, 'destroy'])->whereNumber('id');
+    Route::get('/medicines', [MedicineController::class, 'index'])->middleware('checkPermission:medicine_view');
+    Route::get('/medicines/create', [MedicineController::class, 'create'])->middleware('checkPermission:medicine_add');
+    Route::post('/medicines', [MedicineController::class, 'store'])->middleware('checkPermission:medicine_add');
+    Route::get('/medicines/categories', [MedicineController::class, 'categories'])->middleware('checkPermission:medicine_view');
+    Route::post('/medicines/categories', [MedicineController::class, 'storeCategory'])->middleware('checkPermission:medicine_add');
+    Route::delete('/medicines/categories/{id}', [MedicineController::class, 'destroyCategory'])->whereNumber('id')->middleware('checkPermission:medicine_delete');
+    Route::get('/medicines/{id}/edit', [MedicineController::class, 'edit'])->whereNumber('id')->middleware('checkPermission:medicine_update');
+    Route::put('/medicines/{id}', [MedicineController::class, 'update'])->whereNumber('id')->middleware('checkPermission:medicine_update');
+    Route::delete('/medicines/{id}', [MedicineController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:medicine_delete');
 
-    Route::get('/prescriptions', [PrescriptionController::class, 'index']);
-    Route::get('/prescriptions/create', [PrescriptionController::class, 'create']);
-    Route::post('/prescriptions', [PrescriptionController::class, 'store']);
-    Route::get('/prescriptions/{id}', [PrescriptionController::class, 'show'])->whereNumber('id');
-    Route::get('/prescriptions/{id}/edit', [PrescriptionController::class, 'edit'])->whereNumber('id');
-    Route::put('/prescriptions/{id}', [PrescriptionController::class, 'update'])->whereNumber('id');
-    Route::delete('/prescriptions/{id}', [PrescriptionController::class, 'destroy'])->whereNumber('id');
+    Route::get('/prescriptions', [PrescriptionController::class, 'index'])->middleware('checkPermission:prescription_view');
+    Route::get('/prescriptions/create', [PrescriptionController::class, 'create'])->middleware('checkPermission:prescription_add');
+    Route::post('/prescriptions', [PrescriptionController::class, 'store'])->middleware('checkPermission:prescription_add');
+    Route::get('/prescriptions/{id}', [PrescriptionController::class, 'show'])->whereNumber('id')->middleware('checkPermission:prescription_view');
+    Route::get('/prescriptions/{id}/edit', [PrescriptionController::class, 'edit'])->whereNumber('id')->middleware('checkPermission:prescription_update');
+    Route::put('/prescriptions/{id}', [PrescriptionController::class, 'update'])->whereNumber('id')->middleware('checkPermission:prescription_update');
+    Route::delete('/prescriptions/{id}', [PrescriptionController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:prescription_delete');
 });
 
 
@@ -380,16 +358,16 @@ Route::middleware(['auth'])->group(function () {
 // is what lets a request be part reported: bloods back, culture still growing.
 // The catalogue routes come before /lab/{id} so "catalogue" is never read as an id.
 Route::middleware(['auth'])->group(function () {
-    Route::get('/lab', [LabController::class, 'index']);
-    Route::get('/lab/create', [LabController::class, 'create']);
-    Route::post('/lab', [LabController::class, 'store']);
-    Route::get('/lab/catalogue', [LabCategoryController::class, 'index']);
-    Route::post('/lab/catalogue', [LabCategoryController::class, 'store']);
-    Route::put('/lab/catalogue/{id}', [LabCategoryController::class, 'update'])->whereNumber('id');
-    Route::delete('/lab/catalogue/{id}', [LabCategoryController::class, 'destroy'])->whereNumber('id');
-    Route::get('/lab/{id}', [LabController::class, 'show'])->whereNumber('id');
-    Route::post('/lab/{id}/results', [LabController::class, 'saveResults'])->whereNumber('id');
-    Route::delete('/lab/{id}', [LabController::class, 'destroy'])->whereNumber('id');
+    Route::get('/lab', [LabController::class, 'index'])->middleware('checkPermission:lab_test_view');
+    Route::get('/lab/create', [LabController::class, 'create'])->middleware('checkPermission:lab_test_add');
+    Route::post('/lab', [LabController::class, 'store'])->middleware('checkPermission:lab_test_add');
+    Route::get('/lab/catalogue', [LabCategoryController::class, 'index'])->middleware('checkPermission:lab_test_view');
+    Route::post('/lab/catalogue', [LabCategoryController::class, 'store'])->middleware('checkPermission:lab_test_add');
+    Route::put('/lab/catalogue/{id}', [LabCategoryController::class, 'update'])->whereNumber('id')->middleware('checkPermission:lab_test_update');
+    Route::delete('/lab/catalogue/{id}', [LabCategoryController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:lab_test_delete');
+    Route::get('/lab/{id}', [LabController::class, 'show'])->whereNumber('id')->middleware('checkPermission:lab_test_view');
+    Route::post('/lab/{id}/results', [LabController::class, 'saveResults'])->whereNumber('id')->middleware('checkPermission:lab_test_update');
+    Route::delete('/lab/{id}', [LabController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:lab_test_delete');
 });
 
 
@@ -397,11 +375,11 @@ Route::middleware(['auth'])->group(function () {
 // the same transaction as the sale, so medicine.quantity follows what was handed
 // over instead of being typed in by hand.
 Route::middleware(['auth'])->group(function () {
-    Route::get('/pharmacy', [PharmacyController::class, 'index']);
-    Route::get('/pharmacy/create', [PharmacyController::class, 'create']);
-    Route::post('/pharmacy', [PharmacyController::class, 'store']);
-    Route::get('/pharmacy/{id}', [PharmacyController::class, 'show'])->whereNumber('id');
-    Route::delete('/pharmacy/{id}', [PharmacyController::class, 'destroy'])->whereNumber('id');
+    Route::get('/pharmacy', [PharmacyController::class, 'index'])->middleware('checkPermission:pharmacy_stock_view');
+    Route::get('/pharmacy/create', [PharmacyController::class, 'create'])->middleware('checkPermission:pharmacy_sale');
+    Route::post('/pharmacy', [PharmacyController::class, 'store'])->middleware('checkPermission:pharmacy_sale');
+    Route::get('/pharmacy/{id}', [PharmacyController::class, 'show'])->whereNumber('id')->middleware('checkPermission:pharmacy_stock_view');
+    Route::delete('/pharmacy/{id}', [PharmacyController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:pharmacy_sale');
 });
 
 
@@ -409,12 +387,12 @@ Route::middleware(['auth'])->group(function () {
 // invoice_payment, so a deposit now and the balance later is expressible. The
 // settlement state is derived from the payment rows, never typed.
 Route::middleware(['auth'])->group(function () {
-    Route::get('/invoices', [InvoiceController::class, 'index']);
-    Route::get('/invoices/create', [InvoiceController::class, 'create']);
-    Route::post('/invoices', [InvoiceController::class, 'store']);
-    Route::get('/invoices/{id}', [InvoiceController::class, 'show'])->whereNumber('id');
-    Route::post('/invoices/{id}/pay', [InvoiceController::class, 'pay'])->whereNumber('id');
-    Route::delete('/invoices/{id}', [InvoiceController::class, 'destroy'])->whereNumber('id');
+    Route::get('/invoices', [InvoiceController::class, 'index'])->middleware('checkPermission:invoice_view');
+    Route::get('/invoices/create', [InvoiceController::class, 'create'])->middleware('checkPermission:payment_add');
+    Route::post('/invoices', [InvoiceController::class, 'store'])->middleware('checkPermission:payment_add');
+    Route::get('/invoices/{id}', [InvoiceController::class, 'show'])->whereNumber('id')->middleware('checkPermission:invoice_view');
+    Route::post('/invoices/{id}/pay', [InvoiceController::class, 'pay'])->whereNumber('id')->middleware('checkPermission:payment_add');
+    Route::delete('/invoices/{id}', [InvoiceController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:payment_delete');
 });
 
 
@@ -423,8 +401,16 @@ Route::middleware(['auth'])->group(function () {
 // a clean install. It sits at /services rather than under /invoices so it can
 // never collide with /invoices/{id}.
 Route::middleware(['auth'])->group(function () {
-    Route::get('/services', [PaymentCategoryController::class, 'index']);
-    Route::post('/services', [PaymentCategoryController::class, 'store']);
-    Route::put('/services/{id}', [PaymentCategoryController::class, 'update'])->whereNumber('id');
-    Route::delete('/services/{id}', [PaymentCategoryController::class, 'destroy'])->whereNumber('id');
+    Route::get('/services', [PaymentCategoryController::class, 'index'])->middleware('checkPermission:service_view');
+    Route::post('/services', [PaymentCategoryController::class, 'store'])->middleware('checkPermission:service_add');
+    Route::put('/services/{id}', [PaymentCategoryController::class, 'update'])->whereNumber('id')->middleware('checkPermission:service_update');
+    Route::delete('/services/{id}', [PaymentCategoryController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:service_delete');
+});
+
+
+// Where checkPermission sends a user whose role is missing the right a screen
+// needs. It only requires a session, not a permission, or a denied user would be
+// redirected to the page that explains the denial and denied again.
+Route::middleware(['auth'])->get('/no-permission', function () {
+    return view('app.nopermission');
 });

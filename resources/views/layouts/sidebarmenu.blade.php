@@ -17,6 +17,17 @@
 <?php
 $here = request()->path();
 
+/**
+ * Hide what the signed in role cannot open.
+ *
+ * Without this the menu lists every clinical screen to everyone and a role that
+ * is missing the permission finds out by being redirected, which reads as a
+ * broken link rather than as a deliberate restriction.
+ */
+$may = function ($permission) {
+    return \App\Support\Permissions::allows($permission);
+};
+
 /** Mark the open branch so the right group starts expanded. */
 $active = function ($prefixes) use ($here) {
     foreach ((array) $prefixes as $p) {
@@ -41,61 +52,83 @@ $active = function ($prefixes) use ($here) {
 
     <li class="nav-header">Clinical</li>
 
+    @if ($may('patient_view'))
     <li>
       <a class="{{ $active('patients') ? 'active' : '' }}" href="{{ url('/patients') }}">
         <i class="glyphicon glyphicon-user"></i><span class="hidden-tablet"> Patients</span>
       </a>
     </li>
+    @endif
+    @if ($may('doctor_view'))
     <li>
       <a class="{{ $active('doctors') ? 'active' : '' }}" href="{{ url('/doctors') }}">
         <i class="glyphicon glyphicon-briefcase"></i><span class="hidden-tablet"> Doctors</span>
       </a>
     </li>
+    @endif
+    @if ($may('appointment_view'))
     <li>
       <a class="{{ $active('appointments') ? 'active' : '' }}" href="{{ url('/appointments') }}">
         <i class="glyphicon glyphicon-calendar"></i><span class="hidden-tablet"> Appointments</span>
       </a>
     </li>
+    @endif
+    @if ($may('admission_view'))
     <li>
       <a class="{{ $active('admissions') ? 'active' : '' }}" href="{{ url('/admissions') }}">
         <i class="glyphicon glyphicon-log-in"></i><span class="hidden-tablet"> Admissions</span>
       </a>
     </li>
+    @endif
+    @if ($may('bed_view'))
     <li>
       <a class="{{ $active('beds') ? 'active' : '' }}" href="{{ url('/beds') }}">
         <i class="glyphicon glyphicon-th"></i><span class="hidden-tablet"> Beds</span>
       </a>
     </li>
+    @endif
+    @if ($may('prescription_view'))
     <li>
       <a class="{{ $active('prescriptions') ? 'active' : '' }}" href="{{ url('/prescriptions') }}">
         <i class="glyphicon glyphicon-list-alt"></i><span class="hidden-tablet"> Prescriptions</span>
       </a>
     </li>
+    @endif
+    @if ($may('medicine_view'))
     <li>
       <a class="{{ $active('medicines') ? 'active' : '' }}" href="{{ url('/medicines') }}">
         <i class="glyphicon glyphicon-plus-sign"></i><span class="hidden-tablet"> Medicines</span>
       </a>
     </li>
+    @endif
+    @if ($may('lab_test_view'))
     <li>
       <a class="{{ $active('lab') ? 'active' : '' }}" href="{{ url('/lab') }}">
         <i class="glyphicon glyphicon-tint"></i><span class="hidden-tablet"> Laboratory</span>
       </a>
     </li>
+    @endif
+    @if ($may('pharmacy_stock_view'))
     <li>
       <a class="{{ $active('pharmacy') ? 'active' : '' }}" href="{{ url('/pharmacy') }}">
         <i class="glyphicon glyphicon-shopping-cart"></i><span class="hidden-tablet"> Pharmacy</span>
       </a>
     </li>
+    @endif
+    @if ($may('invoice_view'))
     <li>
       <a class="{{ $active('invoices') ? 'active' : '' }}" href="{{ url('/invoices') }}">
         <i class="glyphicon glyphicon-usd"></i><span class="hidden-tablet"> Invoices</span>
       </a>
     </li>
+    @endif
+    @if ($may('service_view'))
     <li>
       <a class="{{ $active('services') ? 'active' : '' }}" href="{{ url('/services') }}">
         <i class="glyphicon glyphicon-tags"></i><span class="hidden-tablet"> Services and Prices</span>
       </a>
     </li>
+    @endif
     <li>
       <a class="{{ $active('search') ? 'active' : '' }}" href="{{ url('/search') }}">
         <i class="glyphicon glyphicon-search"></i><span class="hidden-tablet"> Search Patients</span>
