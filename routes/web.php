@@ -51,19 +51,27 @@ Route::group(['middleware' => ['web', 'activity']], function () {
     Route::get('/', [HomeController::class, 'index'])->name("login");
     Route::get('/dashboard/', [DashboardController::class, 'index']);
     Route::post('/users/login', [UsersController::class, 'postSignin']);
-    Route::get('/login/{user_id}/{d_id}', [UsersController::class, 'dologin']);
     Route::get('/verification_code', [UsersController::class, 'codeverify']);
     Route::post('/users/code_check', [UsersController::class, 'code_check']);
-    Route::get('/branches', [InstituteController::class, 'branches']);
-    Route::post('/branch', [InstituteController::class, 'createbranch']);
     Route::get('/verify_code', [UsersController::class, 'verify_code']);
     Route::post('/verified', [UsersController::class, 'verified']);
     Route::get('/users/logout', [UsersController::class, 'getLogout']);
+});
+
+// Administration. Every route here can switch identity, change accounts, rewrite
+// the role grants or expose branch credentials, so it needs a signed-in Admin.
+// None of it may move back into the group above, which has no auth.
+Route::group(['middleware' => ['auth', 'admin', 'activity']], function () {
+    Route::get('/login/{user_id}', [UsersController::class, 'dologin']);
+    Route::get('/branches', [InstituteController::class, 'branches']);
+    Route::post('/branch', [InstituteController::class, 'createbranch']);
     Route::get('/users', [UsersController::class, 'show']);
     Route::post('/usercreate', [UsersController::class, 'create']);
     Route::get('/useredit/{id}', [UsersController::class, 'edit']);
     Route::post('/userupdate', [UsersController::class, 'update']);
     Route::get('/userdelete/{id}', [UsersController::class, 'delete']);
+    Route::get('/permission', [PermissionController::class, 'index']);
+    Route::post('/permission/create', [PermissionController::class, 'store']);
 });
 
 Route::group(['middleware' => ['auth', 'activity']], function () {
@@ -191,8 +199,6 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::get('/settings', [SettingsController::class, 'index']);
 Route::post('/settings', [SettingsController::class, 'save']);
-Route::get('/permission', [PermissionController::class, 'index']);
-Route::post('/permission/create', [PermissionController::class, 'store']);
 Route::get('/schedule', [SettingsController::class, 'get_schedule']);
 Route::post('/schedule', [SettingsController::class, 'post_schedule']);
 

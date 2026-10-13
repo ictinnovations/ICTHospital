@@ -27,7 +27,7 @@ class UsersController extends BaseController
     $this->beforeFilter('userAccess',array('only'=> array('show','create','edit','update','delete')));*/
     //5.5
     //$this->middleware('csrf', array('on'=>'post'));
-    $this->middleware('auth', array('only' => array('show', 'create', 'edit', 'update')));
+    $this->middleware('auth', array('only' => array('show', 'create', 'edit', 'update', 'delete', 'dologin')));
   }
   /**
    * Display a listing of the resource.
@@ -251,14 +251,28 @@ class UsersController extends BaseController
     \Auth::logout();
     return redirect('/')->with('message', 'Your are now logged out!');
   }
-  public function dologin($id, $usr_id)
+  public function dologin($id)
   {
+    // Only a signed-in administrator may assume another identity. Without these
+    // checks this route is an unauthenticated login-as-anyone bypass.
+    if (!Auth::check() || Auth::user()->group !== 'Admin') {
+      abort(403);
+    }
+
     $user = User::find($id);
+    if (!$user) {
+      abort(404);
+    }
+
+    // The account to return to is the real signed-in admin, never a value
+    // supplied in the URL: getLogout() passes it back to Auth::loginUsingId().
+    $adminId = Auth::id();
+
     request()->session()->forget('isAdmin');
     request()->session()->forget('adminID');
     request()->session()->forget('surl');
     request()->session()->put('isAdmin', 1);
-    request()->session()->put('adminID', $usr_id);
+    request()->session()->put('adminID', $adminId);
 
     // echo request()->root();
     //echo "<pre>rr".request()->session()->get('adminID')."tt";print_r($user);
