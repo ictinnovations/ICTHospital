@@ -22,6 +22,7 @@
 namespace Database\Seeders;
 
 use App\Models\AllotedBed;
+use App\Models\Appointment;
 use App\Models\Bed;
 use App\Models\BedCategory;
 use App\Models\Department;
@@ -56,6 +57,7 @@ class DemoDataSeeder extends Seeder
         $services = $this->services();
         $patients = $this->patients($doctors);
         $this->history($patients);
+        $this->appointments($patients, $doctors);
         $this->wards($patients);
         $medicines = $this->medicines();
         $this->prescriptions($patients, $doctors, $medicines);
@@ -166,6 +168,51 @@ class DemoDataSeeder extends Seeder
         }
 
         return $made;
+    }
+
+    /**
+     * A working OPD day: this morning's patients already seen, with their vitals, some
+     * waiting, some booked for the afternoon, plus earlier visits and one tomorrow, so
+     * the day list, the patient chart and the dashboard all have something to show.
+     * Times are relative to the day the seeder runs and never overlap for a doctor.
+     */
+    private function appointments(array $patients, array $doctors): void
+    {
+        $rows = [
+            // [patient, doctor, days from today, start, minutes, status, remarks, bp, pulse, temp, weight]
+            [0, 0, -14, '10:00', 20, 'completed', 'Chest tightness on exertion. ECG advised.', '140/90', '84', '98.4', '82'],
+            [2, 3, -6, '11:30', 15, 'completed', 'Persistent cough, two weeks.', '130/85', '76', '99.1', '74'],
+            [3, 2, -2, '09:30', 15, 'completed', 'Fever and sore throat.', '100/65', '102', '101.2', '24'],
+            [0, 0, 0, '09:00', 20, 'completed', 'Follow-up on ECG. Blood pressure better.', '132/84', '78', '98.2', '81'],
+            [1, 3, 0, '09:30', 15, 'completed', 'Seasonal allergy, sneezing.', '118/76', '72', '98.6', '58'],
+            [3, 2, 0, '10:00', 15, 'arrived', 'Review after fever.', '98/64', '96', '99.0', '24'],
+            [4, 1, 0, '10:30', 30, 'arrived', 'Knee pain after a fall.', '124/80', '80', '98.4', '77'],
+            [2, 3, 0, '14:00', 15, 'scheduled', 'Cough review.', null, null, null, null],
+            [1, 0, 0, '15:00', 20, 'scheduled', 'Palpitations, referred by GP.', null, null, null, null],
+            [4, 1, 1, '11:00', 20, 'scheduled', 'Knee X-ray review.', null, null, null, null],
+        ];
+
+        foreach ($rows as [$p, $d, $days, $time, $minutes, $status, $remarks, $bp, $pulse, $temp, $weight]) {
+            $start = now()->startOfDay()->addDays($days)->setTimeFromTimeString($time);
+            $end = (clone $start)->addMinutes($minutes);
+
+            Appointment::firstOrCreate(
+                ['doctor' => $doctors[$d]->id, 's_time' => $start->toDateTimeString()],
+                [
+                    'patient' => $patients[$p]->id,
+                    'date' => $start->toDateString(),
+                    'time_slot' => $start->format('H:i') . ' - ' . $end->format('H:i'),
+                    'e_time' => $end->toDateTimeString(),
+                    's_time_key' => $start->format('YmdHi'),
+                    'status' => $status,
+                    'remarks' => $remarks,
+                    'b_p' => $bp, 'pulse' => $pulse, 'temprature' => $temp, 'weight' => $weight,
+                    'add_date' => now()->toDateString(),
+                    'registration_time' => now()->toDateTimeString(),
+                    'user' => '', 'request' => '',
+                ]
+            );
+        }
     }
 
     private function history(array $patients): void
