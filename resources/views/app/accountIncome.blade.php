@@ -91,7 +91,7 @@
 
                            @else
                                 <div class="alert alert-warning">
-                                    <strong>Whoops!</strong> There are no income sector created yet!.<br><br>
+                                    <strong>Whoops!</strong> There are no income sectors yet.<br><br>
                                     <strong><a href="/accounting/sectors">Create Here</a></strong>
                                 </div>
 

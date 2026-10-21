@@ -48,7 +48,11 @@ class DashboardController extends BaseController
 
         // ---- beds ------------------------------------------------------------
         $totalBeds    = $this->count('bed');
-        $occupiedBeds = $this->count('alloted_bed');
+        // alloted_bed keeps every stay, discharged ones included; a bed is occupied
+        // only while its admission has no discharge time (same rule as the reports).
+        $occupiedBeds = Schema::hasTable('alloted_bed')
+            ? (int) DB::table('alloted_bed')->whereNull('d_time')->count()
+            : 0;
         $freeBeds     = max($totalBeds - $occupiedBeds, 0);
         $occupancy    = $totalBeds > 0 ? round(($occupiedBeds / $totalBeds) * 100) : 0;
 
@@ -63,8 +67,11 @@ class DashboardController extends BaseController
         $totalMedicines     = $this->count('medicine');
 
         // ---- money -----------------------------------------------------------
-        $income   = $this->sum('payment', 'amount_received');
-        $expenses = $this->sum('expense', 'amount');
+        // Patient payments, plus income and expenses entered in Accounting (the
+        // accounting table, type Income / Expence). The legacy expense table has no
+        // screen any more but is still counted in case an older install holds data.
+        $income   = $this->sum('payment', 'amount_received') + $this->accountingTotal('Income');
+        $expenses = $this->sum('expense', 'amount') + $this->accountingTotal('Expence');
         $balance  = $income - $expenses;
 
         // ---- recent activity -------------------------------------------------
@@ -90,6 +97,15 @@ class DashboardController extends BaseController
     }
 
     // ---- helpers -------------------------------------------------------------
+
+    private function accountingTotal(string $type): float
+    {
+        if (! Schema::hasTable('accounting')) {
+            return 0.0;
+        }
+
+        return (float) DB::table('accounting')->where('type', $type)->sum('amount');
+    }
 
     private function count(string $table): int
     {

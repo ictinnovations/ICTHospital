@@ -71,7 +71,7 @@ return View('app.accounting', compact('accounting'));
 			$accountingsetting->password   = $request->input('password');
 			$accountingsetting->save();
 
-			return Redirect::to('/accounting')->with("success", "Accounting Setting Saved Succesfully.");
+			return Redirect::to('/accounting')->with("success", "Accounting Setting Saved successfully.");
 		}
 	}
 	public function sectors()
@@ -103,7 +103,7 @@ return View('app.accounting', compact('accounting'));
 			$sector->name = $request->input('name');
 			$sector->type = $request->input('type');
 			$sector->save();
-			return Redirect::to('/accounting/sectors')->with("success", "Accounting Sector Created Succesfully.");
+			return Redirect::to('/accounting/sectors')->with("success", "Accounting Sector Created successfully.");
 		}
 	}
 
@@ -143,7 +143,7 @@ return View('app.accounting', compact('accounting'));
 			$sector->name = $request->input('name');
 			$sector->type = $request->input('type');
 			$sector->save();
-			return Redirect::to('/accounting/sectors')->with("success", "Accounting Sector Updated Succesfully.");
+			return Redirect::to('/accounting/sectors')->with("success", "Accounting Sector Updated successfully.");
 		}
 	}
 
@@ -158,7 +158,7 @@ return View('app.accounting', compact('accounting'));
 	{
 		$sector = AccountSector::find($id);
 		$sector->delete();
-		return Redirect::to('/accounting/sectors')->with("success", "Accounting Sector Deleted Succesfully.");
+		return Redirect::to('/accounting/sectors')->with("success", "Accounting Sector Deleted successfully.");
 	}
 
 
@@ -219,7 +219,7 @@ return View('app.accounting', compact('accounting'));
 			}
 
 
-			return Redirect::to('/accounting/income')->with("success", $counter . "'s income saved Succesfully.");
+			return Redirect::to('/accounting/income')->with("success", $counter . ($counter == 1 ? " income entry" : " income entries") . " saved.");
 		}
 	}
 	public  function incomeList(Request $request)
@@ -290,14 +290,14 @@ return View('app.accounting', compact('accounting'));
 			$income->date = $this->parseAppDate($request->input('date'));
 			$income->save();
 
-			return Redirect::to('/accounting/incomelist?year=' . $request->input('year') . '&month=' . $request->input('month'))->with("success", "Income Updated Succesfully.");
+			return Redirect::to('/accounting/incomelist?year=' . $request->input('year') . '&month=' . $request->input('month'))->with("success", "Income Updated successfully.");
 		}
 	}
 	public function incomeDelete(Request $request, $id)
 	{
 		$income = Accounting::find($id);
 		$income->delete();
-		return Redirect::to('/accounting/incomelist?year=' . $request->input('year') . '&month=' . $request->input('month'))->with("success", "Income Deleted Succesfully.");
+		return Redirect::to('/accounting/incomelist?year=' . $request->input('year') . '&month=' . $request->input('month'))->with("success", "Income Deleted successfully.");
 	}
 
 	public function  expence()
@@ -358,7 +358,7 @@ return View('app.accounting', compact('accounting'));
 			}
 
 
-			return Redirect::to('/accounting/expence')->with("success", $counter . "'s Expence saved Succesfully.");
+			return Redirect::to('/accounting/expence')->with("success", $counter . ($counter == 1 ? " expense entry" : " expense entries") . " saved.");
 		}
 	}
 	public  function expenceList(Request $request)
@@ -424,14 +424,14 @@ return View('app.accounting', compact('accounting'));
 			$income->date = $this->parseAppDate($request->input('date'));
 			$income->save();
 
-			return Redirect::to('/accounting/expencelist?year=' . $request->input('year') . '&month=' . $request->input('month'))->with("success", "Expence Updated Succesfully.");
+			return Redirect::to('/accounting/expencelist?year=' . $request->input('year') . '&month=' . $request->input('month'))->with("success", "Expence Updated successfully.");
 		}
 	}
 	public function expenceDelete(Request $request, $id)
 	{
 		$income = Accounting::find($id);
 		$income->delete();
-		return Redirect::to('/accounting/expencelist?year=' . $request->input('year') . '&month=' . $request->input('month'))->with("success", "Expence Deleted Succesfully.");
+		return Redirect::to('/accounting/expencelist?year=' . $request->input('year') . '&month=' . $request->input('month'))->with("success", "Expence Deleted successfully.");
 	}
 
 	public  function getReport()
