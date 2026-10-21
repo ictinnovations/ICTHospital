@@ -89,11 +89,11 @@
                                         </td>
                                         <td>{{ $appointment->remarks }}</td>
                                         <td>
-                                            <a class="btn btn-default btn-sm" href="{{ url('/appointments/' . $appointment->id) }}">
+                                            <a class="btn btn-default btn-sm" href="{{ url('/appointments/' . $appointment->id) }}" title="Open">
                                                 <i class="glyphicon glyphicon-eye-open"></i>
                                             </a>
-                                            <a class="btn btn-default btn-sm" href="{{ url('/appointments/' . $appointment->id . '/edit') }}">
-                                                <i class="glyphicon glyphicon-edit"></i>
+                                            <a class="btn btn-default btn-sm" href="{{ url('/appointments/' . $appointment->id . '/edit') }}" title="Record vitals or change the appointment">
+                                                <i class="glyphicon glyphicon-heart"></i> Vitals
                                             </a>
                                             <form action="{{ url('/appointments/' . $appointment->id) }}" method="post"
                                                   style="display:inline"

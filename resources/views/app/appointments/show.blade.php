@@ -27,7 +27,7 @@
                     </h2>
                     <div class="box-icon">
                         <a href="{{ url('/appointments/' . $appointment->id . '/edit') }}" class="btn btn-default btn-sm">
-                            <i class="glyphicon glyphicon-edit"></i> Edit
+                            <i class="glyphicon glyphicon-heart"></i> Record vitals / edit
                         </a>
                         <a href="{{ url('/appointments?date=' . $appointment->date) }}" class="btn btn-default btn-sm">
                             Back to day view

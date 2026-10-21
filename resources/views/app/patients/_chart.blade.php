@@ -11,6 +11,7 @@
 --}}
 @php($onWard = $admissions->firstWhere('d_time', null))
 @php($pid = $patient->id)
+@php($may = fn ($p) => \App\Support\Permissions::allows($p))
 <style>.patient-chart-section { margin-top: 22px; } .patient-chart-section h4 { border-bottom: 1px solid #e5e5e5; padding-bottom: 6px; }</style>
 
 <div class="row" style="margin-top:15px">
@@ -34,7 +35,7 @@
 {{-- Medical history --}}
 <div class="patient-chart-section" id="chart-history">
     <h4><i class="glyphicon glyphicon-folder-open"></i> Medical history
-        <a href="{{ url('/history/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">Add note</a></h4>
+        @if ($may('patient_medical_history'))<a href="{{ url('/history/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">Add note</a>@endif</h4>
     @if ($history->isEmpty())
         <p class="text-muted">No history notes yet.</p>
     @else
@@ -57,9 +58,9 @@
 {{-- OPD visits --}}
 <div class="patient-chart-section" id="chart-visits">
     <h4><i class="glyphicon glyphicon-calendar"></i> OPD visits and vitals
-        <a href="{{ url('/appointments/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">Book appointment</a></h4>
+        @if ($may('appointment_add'))<a href="{{ url('/appointments/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">Book appointment</a>@endif</h4>
     @if ($appointments->isEmpty())
-        <p class="text-muted">No appointments yet.</p>
+        <p class="text-muted">No appointments yet. Vitals are recorded on each visit, so they appear here once an appointment is booked.</p>
     @else
         <table class="table table-condensed table-striped">
             <thead><tr><th>Date</th><th>Time</th><th>Doctor</th><th>Status</th><th>BP</th><th>Pulse</th><th>Temp</th><th>Weight</th><th>Remarks</th><th></th></tr></thead>
@@ -75,7 +76,10 @@
                     <td>{{ $visit->temprature ?: '-' }}</td>
                     <td>{{ $visit->weight ?: '-' }}</td>
                     <td>{{ \Illuminate\Support\Str::limit((string) $visit->remarks, 80) }}</td>
-                    <td><a href="{{ url('/appointments/' . $visit->id) }}">Open</a></td>
+                    <td style="white-space:nowrap">
+                        @if ($may('appointment_update'))<a href="{{ url('/appointments/' . $visit->id . '/edit') }}">{{ $visit->b_p || $visit->pulse || $visit->temprature || $visit->weight ? 'Edit vitals' : 'Record vitals' }}</a> &middot; @endif
+                        <a href="{{ url('/appointments/' . $visit->id) }}">Open</a>
+                    </td>
                 </tr>
             @endforeach
             </tbody>
@@ -86,7 +90,7 @@
 {{-- Prescriptions --}}
 <div class="patient-chart-section" id="chart-prescriptions">
     <h4><i class="glyphicon glyphicon-list-alt"></i> Prescriptions
-        <a href="{{ url('/prescriptions/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">New prescription</a></h4>
+        @if ($may('prescription_add'))<a href="{{ url('/prescriptions/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">New prescription</a>@endif</h4>
     @if ($prescriptions->isEmpty())
         <p class="text-muted">No prescriptions yet.</p>
     @else
@@ -116,7 +120,7 @@
 {{-- Laboratory --}}
 <div class="patient-chart-section" id="chart-lab">
     <h4><i class="glyphicon glyphicon-tint"></i> Lab results
-        <a href="{{ url('/lab/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">Request tests</a></h4>
+        @if ($may('lab_test_add'))<a href="{{ url('/lab/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">Request tests</a>@endif</h4>
     @if ($labs->isEmpty())
         <p class="text-muted">No lab requests yet.</p>
     @else
@@ -143,9 +147,9 @@
 {{-- IPD --}}
 <div class="patient-chart-section" id="chart-admissions">
     <h4><i class="glyphicon glyphicon-bed"></i> Admissions (IPD)
-        @unless ($onWard)
+        @if (! $onWard && $may('admission_add'))
             <a href="{{ url('/admissions/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">Admit</a>
-        @endunless</h4>
+        @endif</h4>
     @if ($admissions->isEmpty())
         <p class="text-muted">No admissions yet.</p>
     @else
@@ -172,7 +176,7 @@
 {{-- Billing --}}
 <div class="patient-chart-section" id="chart-billing">
     <h4><i class="glyphicon glyphicon-usd"></i> Billing and payments
-        <a href="{{ url('/invoices/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">New invoice</a></h4>
+        @if ($may('payment_add'))<a href="{{ url('/invoices/create?patient=' . $pid) }}" class="btn btn-default btn-xs pull-right">New invoice</a>@endif</h4>
     @if ($invoices->isEmpty())
         <p class="text-muted">No invoices yet.</p>
     @else

@@ -131,6 +131,34 @@ class PatientChartTest extends TestCase
         $response->assertSee('Paid')->assertSee('Unpaid');
     }
 
+    public function test_a_doctor_is_pointed_to_record_vitals_and_sees_only_allowed_actions(): void
+    {
+        $this->post('/appointments', [
+            'patient' => $this->patient->id, 'doctor' => $this->doctor->id, 'date' => '2026-10-01',
+            'start' => '09:00', 'minutes' => 15, 'status' => 'arrived',
+        ])->assertSessionHasNoErrors();
+
+        foreach (['patient_view', 'appointment_view', 'appointment_update', 'prescription_add'] as $key) {
+            \Illuminate\Support\Facades\DB::table('permission')
+                ->where(['permission_group' => 'doctor', 'permission_name' => $key])
+                ->update(['permission_type' => 'yes']);
+        }
+        \App\Support\Permissions::flush();
+        $this->actingAs(User::create([
+            'firstname' => 'Rehan', 'lastname' => 'Ali', 'login' => 'drrehan',
+            'email' => 'rehan@example.test', 'desc' => '', 'group' => 'Doctor',
+            'password' => bcrypt('secret'),
+        ]));
+        $this->flushSession();
+
+        $this->get('/patients/' . $this->patient->id)
+            ->assertOk()
+            ->assertSee('Record vitals')
+            ->assertSee('New prescription')
+            ->assertDontSee('Book appointment')
+            ->assertDontSee('New invoice');
+    }
+
     public function test_another_patients_records_never_appear(): void
     {
         $this->post('/history', [
