@@ -135,10 +135,10 @@
         <tbody>
         @foreach($recentAppointments as $a)
           <tr>
-            <td>{{ $a->patient ?? '-' }}</td>
-            <td>{{ $a->doctor ?? '-' }}</td>
-            <td>{{ $a->date ?? '-' }}</td>
-            <td>{{ $a->status ?? '-' }}</td>
+            <td>@if (isset($patientNames[$a->patient]))<a href="{{ url('/patients/' . $a->patient) }}">{{ $patientNames[$a->patient] }}</a>@else - @endif</td>
+            <td>{{ $doctorNames[$a->doctor] ?? '-' }}</td>
+            <td>{{ $a->date ?? '-' }} {{ $a->time_slot ? '(' . substr($a->time_slot, 0, 5) . ')' : '' }}</td>
+            <td>{{ $a->status ? ucfirst($a->status) : '-' }}</td>
           </tr>
         @endforeach
         </tbody>

@@ -71,7 +71,14 @@ class DashboardController extends BaseController
         $recentPatients     = $this->latest('patient', ['id', 'name', 'phone', 'sex', 'age', 'add_date']);
         $recentAppointments = $this->latest('appointment', ['id', 'patient', 'doctor', 'date', 'time_slot', 'status']);
 
+        // appointment.patient and appointment.doctor hold row ids, not names
+        $patientNames = $recentAppointments->isEmpty() ? collect()
+            : DB::table('patient')->whereIn('id', $recentAppointments->pluck('patient'))->pluck('name', 'id');
+        $doctorNames = $recentAppointments->isEmpty() ? collect()
+            : DB::table('doctor')->whereIn('id', $recentAppointments->pluck('doctor'))->pluck('name', 'id');
+
         return view('dashboard', compact(
+            'patientNames', 'doctorNames',
             'error', 'success',
             'totalPatients', 'totalDoctors', 'totalNurses', 'totalStaff',
             'totalBeds', 'occupiedBeds', 'freeBeds', 'occupancy',
