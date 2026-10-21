@@ -29,6 +29,9 @@ return [
         'doctor' => 'Doctors',
         'nurse' => 'Nurses',
         'accountant' => 'Accountants',
+        // The front desk: registration, appointments, admissions and taking payments.
+        // Existing installs pick up the column with `php artisan hospital:sync-permissions`.
+        'receptionist' => 'Receptionists',
     ],
 
     'permissions' => [

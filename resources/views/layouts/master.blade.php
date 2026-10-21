@@ -362,6 +362,13 @@ table i {
     .main-menu.nav > li > a { display: block; }
     /* charisma-app.css sizes .box-icon links as 5px icon slots; real buttons there overlapped. */
     .box-icon a.btn { width: auto; height: auto; margin-top: -3px; }
+    /* On phones, wide tables scroll inside their own box instead of pushing the whole
+       page sideways. */
+    @media (max-width: 991px) {
+      .box-content, .ich-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .box-header { height: auto; min-height: 35px; }
+      .box-header h2 { white-space: normal; }
+    }
   </style>
 </head>
 

@@ -89,7 +89,10 @@
 
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="glyphicon glyphicon-info-sign blue"></i></span>
-                                                {{ Form::select('group',['Director'=>'Director','Admin'=>'Admin','Doctor'=>'Doctor','Nurse'=>'Nurse','Receptionist'=>'Receptionist','Accountant'=>'Accountant','Staff'=>'Staff'],$user->group,['class'=>'form-control','required'=>'true'])}}
+                                                {{-- Roles come from the permission catalogue, so every group offered can be granted rights. A legacy group on an existing user is kept as an option rather than silently changed. --}}
+                                                @php($roleOptions = collect(array_keys(config('hospital_permissions.groups', [])))->mapWithKeys(fn ($g) => [ucfirst($g) => ucfirst($g)])->all())
+                                                @php($roleOptions = $user->group && ! isset($roleOptions[$user->group]) ? [$user->group => $user->group . ' (no permissions)'] + $roleOptions : $roleOptions)
+                                                {{ Form::select('group', $roleOptions, $user->group, ['class'=>'form-control','required'=>'true']) }}
 
 
                                             </div>
@@ -175,13 +178,9 @@
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="glyphicon glyphicon-info-sign blue"></i></span>
                                                 <select name="group"  required="true" class="form-control" >
-                                                     <option value="Director">Director</option>
-                                                     <option value="Admin">Admin</option>
-                                                     <option value="Doctor">Doctor</option>
-                                                     <option value="Nurse">Nurse</option>
-                                                     <option value="Receptionist">Receptionist</option>
-                                                     <option value="Accountant">Accountant</option>
-                                                     <option value="Staff">Staff</option>
+                                                     @foreach (array_keys(config('hospital_permissions.groups', [])) as $role)
+                                                     <option value="{{ ucfirst($role) }}">{{ ucfirst($role) }}</option>
+                                                     @endforeach
                                                 </select>
 
                                             </div>

@@ -64,11 +64,64 @@ class DemoDataSeeder extends Seeder
         $this->laboratory($patients, $doctors);
         $this->pharmacy($medicines);
         $this->invoices($patients, $doctors, $services);
+        $this->staffLogins();
 
         $this->command->info(sprintf(
             'Demo data ready: %d departments, %d doctors, %d patients.',
             count($departments), count($doctors), count($patients)
         ));
+    }
+
+    /**
+     * A login per role with sensible rights, so an evaluator can see what a doctor,
+     * a nurse, the front desk and the accounts office each get. A real install grants
+     * nothing to these roles until an administrator ticks the boxes; this is demo only.
+     * Every account shares one demo password, printed when the seeder runs.
+     */
+    private function staffLogins(): void
+    {
+        $grants = [
+            'doctor' => ['patient_view', 'patient_medical_history', 'appointment_view', 'appointment_update',
+                'appointment_calendar', 'admission_view', 'bed_view', 'ward_view', 'prescription_view',
+                'prescription_add', 'prescription_update', 'lab_test_view', 'lab_test_add', 'lab_test_update',
+                'diagnostic_report_view', 'diagnostic_report_add', 'medicine_view', 'doctor_view', 'department_view'],
+            'nurse' => ['patient_view', 'patient_medical_history', 'appointment_view', 'appointment_update',
+                'admission_view', 'admission_add', 'admission_discharge', 'bed_view', 'bed_allot', 'bed_release',
+                'ward_view', 'prescription_view', 'lab_test_view', 'lab_test_update', 'medicine_view', 'nurse_view'],
+            'receptionist' => ['patient_view', 'patient_add', 'patient_update', 'appointment_view', 'appointment_add',
+                'appointment_update', 'appointment_cancel', 'appointment_calendar', 'admission_view', 'admission_add',
+                'admission_discharge', 'bed_view', 'bed_allot', 'bed_release', 'ward_view', 'doctor_view',
+                'department_view', 'payment_view', 'payment_add', 'invoice_view', 'invoice_print', 'service_view'],
+            'accountant' => ['patient_view', 'payment_view', 'payment_add', 'payment_update', 'patient_deposit',
+                'invoice_view', 'invoice_print', 'expense_view', 'expense_add', 'expense_update',
+                'view_payment_reports', 'accounting', 'service_view'],
+        ];
+
+        foreach ($grants as $group => $keys) {
+            foreach ($keys as $key) {
+                \Illuminate\Support\Facades\DB::table('permission')->updateOrInsert(
+                    ['permission_name' => $key, 'permission_group' => $group],
+                    ['permission_type' => 'yes']
+                );
+            }
+        }
+
+        $password = 'Demo@2026';
+        $people = [
+            ['doctor', 'Rehan', 'Ali', 'Doctor'],
+            ['nurse', 'Nadia', 'Parveen', 'Nurse'],
+            ['reception', 'Front', 'Desk', 'Receptionist'],
+            ['accounts', 'Accounts', 'Office', 'Accountant'],
+        ];
+        foreach ($people as [$login, $first, $last, $group]) {
+            \App\Models\User::firstOrCreate(['login' => $login], [
+                'firstname' => $first, 'lastname' => $last, 'email' => $login . '@demo.icthospital.test',
+                'group' => $group, 'desc' => 'Demo login (' . strtolower($group) . ')',
+                'password' => \Illuminate\Support\Facades\Hash::make($password),
+            ]);
+        }
+
+        $this->command->info('Demo staff logins: doctor, nurse, reception, accounts (password ' . $password . ').');
     }
 
     private function departments(): array
