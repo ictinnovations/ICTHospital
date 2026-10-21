@@ -11,6 +11,7 @@
 --}}
 @php($onWard = $admissions->firstWhere('d_time', null))
 @php($pid = $patient->id)
+<style>.patient-chart-section { margin-top: 22px; } .patient-chart-section h4 { border-bottom: 1px solid #e5e5e5; padding-bottom: 6px; }</style>
 
 <div class="row" style="margin-top:15px">
     <div class="col-sm-3"><div class="well well-sm text-center">
@@ -66,7 +67,7 @@
             @foreach ($appointments as $visit)
                 <tr>
                     <td>{{ $visit->date }}</td>
-                    <td>{{ $visit->s_time }}</td>
+                    <td>{{ $visit->s_time ? substr((string) $visit->s_time, 11, 5) : '-' }}</td>
                     <td>{{ $doctorNames[$visit->doctor] ?? '-' }}</td>
                     <td>{{ ucfirst((string) $visit->status) }}</td>
                     <td>{{ $visit->b_p ?: '-' }}</td>
