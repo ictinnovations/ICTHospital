@@ -58,11 +58,10 @@
                                     <tr><th>Registered via</th><td>{{ $patient->how_added ?: '-' }}</td></tr>
                                 </tbody>
                             </table>
-                    <a href="{{ url('/history?patient=' . $patient->id) }}" class="btn btn-default btn-sm">
-                        <i class="glyphicon glyphicon-folder-open"></i> Medical history
-                    </a>
                         </div>
                     </div>
+
+                    @include('app.patients._chart')
 
                 </div>
             </div>

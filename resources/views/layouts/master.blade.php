@@ -340,7 +340,6 @@ table i {
     <!-- The fav icon -->
     <link rel="shortcut icon" href="{{ URL::asset('img/favicon.ico')}}">
     <link href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.dataTables.min.css" rel="stylesheet">
-}
 
   {{-- ICTHospital: keep the content clear of the fixed sidebar.
 
@@ -356,6 +355,13 @@ table i {
     @media (min-width: 992px) {
       .main-content { padding-left: 300px; }
     }
+    /* The sidebar is Bootstrap 3 "nav-stacked" markup on Bootstrap 4, which dropped
+       that class, so the menu wrapped into rows of pills. Stack it again. */
+    .main-menu.nav { flex-direction: column; flex-wrap: nowrap; }
+    .main-menu.nav > li { width: 100%; }
+    .main-menu.nav > li > a { display: block; }
+    /* charisma-app.css sizes .box-icon links as 5px icon slots; real buttons there overlapped. */
+    .box-icon a.btn { width: auto; height: auto; margin-top: -3px; }
   </style>
 </head>
 

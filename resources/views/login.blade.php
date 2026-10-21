@@ -104,7 +104,6 @@
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
 
-<script src="js/charisma.js"></script>
 
 
 </body>

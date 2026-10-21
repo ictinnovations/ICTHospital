@@ -15,8 +15,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AllotedBed;
+use App\Models\Appointment;
+use App\Models\Bed;
+use App\Models\BedCategory;
 use App\Models\Doctor;
+use App\Models\Lab;
+use App\Models\MedicalHistory;
 use App\Models\Patient;
+use App\Models\Payment;
+use App\Models\Prescription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -93,11 +101,56 @@ class PatientController extends BaseController
             ->with('success', 'Patient ' . $patient->patient_id . ' registered.');
     }
 
+    /**
+     * The patient chart: demographics plus everything recorded against this patient.
+     *
+     * Each module keeps its own screens, but a doctor seeing a patient needs the whole
+     * record in one place: past visits with vitals, prescriptions, lab results, stays
+     * on the ward, history notes and what is still owed. Every list is read live from
+     * its own table, so the chart can never disagree with the module that owns the data.
+     */
     public function show($id)
     {
         $patient = Patient::findOrFail($id);
 
-        return view('app.patients.show', compact('patient'));
+        $doctorNames = Doctor::pluck('name', 'id');
+
+        $appointments = Appointment::where('patient', $patient->id)
+            ->orderByDesc('date')->orderByDesc('s_time')->get();
+
+        $prescriptions = Prescription::with('items')->where('patient', $patient->id)
+            ->orderByDesc('date')->orderByDesc('id')->get();
+
+        $labs = Lab::with('tests')->where('patient', $patient->id)
+            ->orderByDesc('date')->orderByDesc('id')->get();
+
+        $admissions = AllotedBed::where('patient', $patient->id)
+            ->orderByDesc('a_time')->orderByDesc('id')->get();
+
+        $history = MedicalHistory::where('patient_id', $patient->id)
+            ->orderByDesc('date')->orderByDesc('id')->get();
+
+        $invoices = Payment::with('payments')->where('patient', $patient->id)
+            ->orderByDesc('date')->orderByDesc('id')->get();
+
+        $billed = round((float) $invoices->sum('gross_total'), 2);
+        $paid = round((float) $invoices->sum(fn ($invoice) => $invoice->payments->sum('amount')), 2);
+
+        return view('app.patients.show', [
+            'patient' => $patient,
+            'doctorNames' => $doctorNames,
+            'appointments' => $appointments,
+            'prescriptions' => $prescriptions,
+            'labs' => $labs,
+            'admissions' => $admissions,
+            'beds' => Bed::whereIn('id', $admissions->pluck('bed_id')->filter())->get()->keyBy('id'),
+            'bedCategories' => BedCategory::pluck('category', 'id'),
+            'history' => $history,
+            'invoices' => $invoices,
+            'billed' => $billed,
+            'paid' => $paid,
+            'outstanding' => round($billed - $paid, 2),
+        ]);
     }
 
     public function edit($id)

@@ -113,7 +113,7 @@
 
  var checkBox = document.getElementById("myCheck");
     // document.getElementById("myForm").reset();
-    if (checkBox.checked == true){
+    if (checkBox && checkBox.checked == true){
       //alert('hello');
         $("#ictcore").show();
     }else{
@@ -124,7 +124,7 @@
   {
   
 var checkBox = document.getElementById("myCheck");
-    if (checkBox.checked == true){
+    if (checkBox && checkBox.checked == true){
       //alert('hello');
         $("#ictcore").show();
         var method = 'ictcore';
