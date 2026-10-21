@@ -95,15 +95,17 @@
                                             <a class="btn btn-default btn-sm" href="{{ url('/appointments/' . $appointment->id . '/edit') }}" title="Record vitals or change the appointment">
                                                 <i class="glyphicon glyphicon-heart"></i> Vitals
                                             </a>
+                                            @if (\App\Support\Permissions::allows('appointment_cancel'))
                                             <form action="{{ url('/appointments/' . $appointment->id) }}" method="post"
                                                   style="display:inline"
                                                   onsubmit="return confirm('Remove this appointment?');">
                                                 {{ csrf_field() }}
                                                 <input type="hidden" name="_method" value="DELETE">
-                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                <button type="submit" class="btn btn-danger btn-sm" title="Remove">
                                                     <i class="glyphicon glyphicon-trash"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
