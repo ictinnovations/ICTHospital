@@ -29,7 +29,7 @@ class MedicineController extends BaseController
     public function index(Request $request)
     {
         $term = trim((string) $request->input('q', ''));
-        $categoryId = $request->input('category', '');
+        $categoryId = (string) $request->input('category', '');
 
         $medicines = Medicine::query()
             ->when($term !== '', function ($q) use ($term) {

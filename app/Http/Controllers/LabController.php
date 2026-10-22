@@ -37,7 +37,7 @@ class LabController extends BaseController
     public function index(Request $request)
     {
         $status = $request->input('status', 'pending');
-        $patientId = $request->input('patient', '');
+        $patientId = (string) $request->input('patient', '');
 
         $requests = Lab::query()
             ->with('tests')

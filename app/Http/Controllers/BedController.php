@@ -35,7 +35,7 @@ class BedController extends BaseController
     /** The ward board: every bed, which are free, and who is in the rest. */
     public function index(Request $request)
     {
-        $categoryId = $request->input('category', '');
+        $categoryId = (string) $request->input('category', '');
 
         $beds = Bed::query()
             ->when($categoryId !== '', fn ($q) => $q->where('category', $categoryId))

@@ -34,8 +34,8 @@ class PrescriptionController extends BaseController
 
     public function index(Request $request)
     {
-        $patientId = $request->input('patient', '');
-        $doctorId = $request->input('doctor', '');
+        $patientId = (string) $request->input('patient', '');
+        $doctorId = (string) $request->input('doctor', '');
         $drug = trim((string) $request->input('drug', ''));
 
         $prescriptions = Prescription::query()

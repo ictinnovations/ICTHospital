@@ -36,7 +36,7 @@ class InvoiceController extends BaseController
     public function index(Request $request)
     {
         $show = $request->input('show', 'outstanding');
-        $patientId = $request->input('patient', '');
+        $patientId = (string) $request->input('patient', '');
 
         $invoices = Payment::query()
             ->with(['items', 'payments'])

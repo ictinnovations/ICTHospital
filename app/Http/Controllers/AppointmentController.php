@@ -44,9 +44,11 @@ class AppointmentController extends BaseController
      */
     public function index(Request $request)
     {
-        $date = $request->input('date', now()->toDateString());
-        $doctorId = $request->input('doctor', '');
-        $status = $request->input('status', '');
+        // A submitted filter form sends blank fields, which Laravel turns into null. A
+        // blank date means today; a blank doctor or status means all of them.
+        $date = (string) ($request->input('date') ?: now()->toDateString());
+        $doctorId = (string) $request->input('doctor', '');
+        $status = (string) $request->input('status', '');
 
         $appointments = Appointment::query()
             ->when($date !== '', fn ($q) => $q->whereDate('date', $date))
