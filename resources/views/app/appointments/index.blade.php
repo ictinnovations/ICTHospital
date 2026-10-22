@@ -22,11 +22,13 @@
             <div class="box-inner">
                 <div data-original-title="" class="box-header well">
                     <h2><i class="glyphicon glyphicon-calendar"></i> Appointments</h2>
+                    @if (\App\Support\Permissions::allows('appointment_add'))
                     <div class="box-icon">
                         <a href="{{ url('/appointments/create?date=' . $date) }}" class="btn btn-primary btn-sm">
                             <i class="glyphicon glyphicon-plus"></i> Book appointment
                         </a>
                     </div>
+                    @endif
                 </div>
                 <div class="box-content">
 

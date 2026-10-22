@@ -62,32 +62,24 @@ $sections = [
       </div>
 
       <div class="box-content">
-        <div class="container">
+        {{-- container-fluid: the fixed-width .container was wider than the space beside the
+             sidebar, so with seven roles the last ones and the Get List button fell off the edge. --}}
+        <div class="container-fluid">
 
           <form role="form">
-            <div class="row">
-              <div class="col-md-12">
-                @foreach($groups as $key => $label)
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label class="control-label" for="group_{{ $key }}">{{ $label }}</label>
-                    <div class="input-group">
-                      <span class="input-group-addon"><i class="glyphicon glyphicon-user blue"></i></span>
-                      <input type="checkbox" id="group_{{ $key }}" name="{{ $key }}" class="form-control"
-                             style="margin-top: -35px;" @if(($selected[$key] ?? '') === 'yes') checked @endif>
-                    </div>
-                  </div>
-                </div>
-                @endforeach
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-12">
-                <button class="btn btn-primary pull-right" type="submit">
-                  <i class="glyphicon glyphicon-th"></i>Get List
-                </button>
-              </div>
+            <p class="text-muted" style="margin-bottom:8px">Roles to show:</p>
+            <div style="display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-bottom:14px">
+              @foreach($groups as $key => $label)
+              <label for="group_{{ $key }}" style="display:flex;align-items:center;gap:8px;margin:0;font-weight:600;
+                     border:1px solid #d7e2ea;border-radius:4px;padding:8px 12px;background:#fff;cursor:pointer">
+                <input type="checkbox" id="group_{{ $key }}" name="{{ $key }}" style="margin:0;width:16px;height:16px"
+                       @if(($selected[$key] ?? '') === 'yes') checked @endif>
+                {{ $label }}
+              </label>
+              @endforeach
+              <button class="btn btn-primary" type="submit">
+                <i class="glyphicon glyphicon-th"></i> Get List
+              </button>
             </div>
             <br>
           </form>
