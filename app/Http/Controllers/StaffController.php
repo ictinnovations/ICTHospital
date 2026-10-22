@@ -18,6 +18,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\StaffLogin;
 use App\Support\Permissions;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
@@ -67,12 +68,14 @@ class StaffController extends BaseController
     {
         $meta = $this->guard($type, 'add');
         $data = $this->validated($request, $meta);
+        $login = StaffLogin::validate($request, null);
         $data['img_url'] = $this->storePhoto($request, $type) ?? '';
 
         $person = $meta['model']::create($data);
+        $note = StaffLogin::apply($person, $meta['group'], $login);
 
         return redirect('/staff/' . $type)
-            ->with('success', $person->name . ' added.');
+            ->with('success', trim($person->name . ' added. ' . $note));
     }
 
     public function edit($type, $id)
@@ -91,6 +94,9 @@ class StaffController extends BaseController
         $meta = $this->guard($type, 'update');
         $person = $meta['model']::findOrFail($id);
         $data = $this->validated($request, $meta, $person->id);
+        $login = StaffLogin::validate($request, $person);
+        // Keep the link to the person's login; the form does not carry it.
+        unset($data['ion_user_id']);
 
         $photo = $this->storePhoto($request, $type);
         if ($photo !== null) {
@@ -98,8 +104,9 @@ class StaffController extends BaseController
         }
 
         $person->update($data);
+        $note = StaffLogin::apply($person, $meta['group'], $login);
 
-        return redirect('/staff/' . $type)->with('success', $person->name . ' updated.');
+        return redirect('/staff/' . $type)->with('success', trim($person->name . ' updated. ' . $note));
     }
 
     /**

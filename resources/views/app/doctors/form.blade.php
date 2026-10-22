@@ -104,6 +104,8 @@
                             </div>
                         </div>
 
+                        @include('app.partials._login_fields', ['person' => $doctor, 'roleLabel' => 'Doctor'])
+
                         <button type="submit" class="btn btn-primary">
                             {{ $editing ? 'Save changes' : 'Add doctor' }}
                         </button>

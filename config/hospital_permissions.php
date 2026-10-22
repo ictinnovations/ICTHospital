@@ -32,6 +32,10 @@ return [
         // The front desk: registration, appointments, admissions and taking payments.
         // Existing installs pick up the column with `php artisan hospital:sync-permissions`.
         'receptionist' => 'Receptionists',
+        // Their own columns so a pharmacist or laboratory login can be granted access.
+        // Nothing is granted by default; set it under Users and Roles, Permissions.
+        'pharmacist' => 'Pharmacists',
+        'laboratorist' => 'Laboratory Staff',
     ],
 
     'permissions' => [

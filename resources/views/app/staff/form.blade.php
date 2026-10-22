@@ -73,6 +73,8 @@
                             @endif
                         </div>
 
+                        @include('app.partials._login_fields', ['person' => $person, 'roleLabel' => $meta['group']])
+
                         <button type="submit" class="btn btn-primary">
                             {{ $editing ? 'Save changes' : 'Add ' . $meta['singular'] }}
                         </button>

@@ -153,7 +153,8 @@ Route::group(['middleware' => ['auth', 'activity']], function () {
 // GPA Routes
 
 
-Route::group(['middleware' => 'auth'], function () {
+// The SMS and voice log lists every message sent to patients, so it is for Admin.
+Route::group(['middleware' => ['auth', 'admin']], function () {
 
     Route::get('/smslog', [SmsController::class, 'getsmsLog']);
     Route::post('/smslog', [SmsController::class, 'postsmsLog']);
@@ -168,12 +169,18 @@ Route::group(['middleware' => 'auth'], function () {
 Route::group(['middleware' => 'auth'], function () {
 });
 
-    //tabulation sheet
+// Your own profile (/settings) is open to every signed-in role.
 Route::group(['middleware' => 'auth'], function () {
-
-    // Settings
     Route::get('/settings', [SettingsController::class, 'index']);
     Route::post('/settings', [SettingsController::class, 'save']);
+});
+
+// Hospital information, the ICTCore link, message templates, bulk messaging and the
+// reminder schedule change how the whole hospital talks to patients: Admin only.
+// They used to sit behind a bare login, so any role could open them by URL.
+Route::group(['middleware' => ['auth', 'admin']], function () {
+    Route::get('/schedule', [SettingsController::class, 'get_schedule']);
+    Route::post('/schedule', [SettingsController::class, 'post_schedule']);
     Route::get('/institute', [InstituteController::class, 'index']);
     Route::post('/institute', [InstituteController::class, 'save']);
     Route::get('/ictcore', [ICTCoreController::class, 'index']);
@@ -196,11 +203,19 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/message', [MessageController::class, 'create']);
 });
 
-
-Route::get('/settings', [SettingsController::class, 'index']);
-Route::post('/settings', [SettingsController::class, 'save']);
-Route::get('/schedule', [SettingsController::class, 'get_schedule']);
-Route::post('/schedule', [SettingsController::class, 'post_schedule']);
+// Activity log. The package's own routes only ask for a login (see
+// config/laravel-logger.php, disableRoutes), so they are registered here for Admin.
+Route::group(['prefix' => 'activity', 'namespace' => 'jeremykenedy\LaravelLogger\App\Http\Controllers', 'middleware' => ['web', 'auth', 'admin', 'activity']], function () {
+    Route::get('/', 'LaravelLoggerController@showAccessLog')->name('activity');
+    Route::get('/cleared', ['uses' => 'LaravelLoggerController@showClearedActivityLog'])->name('cleared');
+    Route::get('/log/{id}', 'LaravelLoggerController@showAccessLogEntry');
+    Route::get('/cleared/log/{id}', 'LaravelLoggerController@showClearedAccessLogEntry');
+    Route::delete('/clear-activity', ['uses' => 'LaravelLoggerController@clearActivityLog'])->name('clear-activity');
+    Route::delete('/destroy-activity', ['uses' => 'LaravelLoggerController@destroyActivityLog'])->name('destroy-activity');
+    Route::post('/restore-log', ['uses' => 'LaravelLoggerController@restoreClearedActivityLog'])->name('restore-activity');
+    Route::post('/live-search', ['uses' => 'LaravelLoggerController@liveSearch'])->name('liveSearch');
+    Route::get('/export', ['uses' => 'LaravelLoggerController@exportActivityLog'])->name('export-activity');
+});
 
     // Accounting
 Route::group(['middleware' => 'auth'], function () {
@@ -495,6 +510,9 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/history/{id}', [MedicalHistoryController::class, 'update'])->whereNumber('id')
         ->middleware('checkPermission:patient_medical_history');
     Route::delete('/history/{id}', [MedicalHistoryController::class, 'destroy'])->whereNumber('id')
+        ->middleware('checkPermission:patient_medical_history');
+    // Attached reports are private files; this is the only way to open one.
+    Route::get('/history/{id}/attachment', [MedicalHistoryController::class, 'attachment'])->whereNumber('id')
         ->middleware('checkPermission:patient_medical_history');
 });
 

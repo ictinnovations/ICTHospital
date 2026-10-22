@@ -21,6 +21,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\StaffLogin;
 use App\Models\Appointment;
 use App\Models\Department;
 use App\Models\Doctor;
@@ -75,12 +76,14 @@ class DoctorController extends BaseController
     public function store(Request $request)
     {
         $data = $this->validated($request);
+        $login = StaffLogin::validate($request, null);
         $data['img_url'] = $this->storePhoto($request) ?? '';
 
         $doctor = Doctor::create($data);
+        $note = StaffLogin::apply($doctor, 'Doctor', $login);
 
         return redirect('/doctors/' . $doctor->id)
-            ->with('success', $doctor->name . ' added to the register.');
+            ->with('success', trim($doctor->name . ' added to the register. ' . $note));
     }
 
     public function show($id)
@@ -112,6 +115,9 @@ class DoctorController extends BaseController
     {
         $doctor = Doctor::findOrFail($id);
         $data = $this->validated($request, $doctor->id);
+        $login = StaffLogin::validate($request, $doctor);
+        // Keep the link to the doctor's login; the form does not carry it.
+        unset($data['ion_user_id']);
 
         $photo = $this->storePhoto($request);
         if ($photo !== null) {
@@ -119,8 +125,9 @@ class DoctorController extends BaseController
         }
 
         $doctor->update($data);
+        $note = StaffLogin::apply($doctor, 'Doctor', $login);
 
-        return redirect('/doctors/' . $doctor->id)->with('success', 'Doctor record updated.');
+        return redirect('/doctors/' . $doctor->id)->with('success', trim('Doctor record updated. ' . $note));
     }
 
     /**

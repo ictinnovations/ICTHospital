@@ -84,7 +84,7 @@
                             <input type="file" name="attachment" accept="image/*">
                             @if ($entry->img_url)
                                 <span class="help-block">
-                                    <a href="{{ asset('storage/' . $entry->img_url) }}" target="_blank">A file is already attached.</a>
+                                    <a href="{{ url('/history/' . $entry->id . '/attachment') }}" target="_blank">A file is already attached.</a>
                                     Uploading replaces it.
                                 </span>
                             @else

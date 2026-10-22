@@ -22,6 +22,8 @@
 return [
 
     'nurse' => [
+        // users.group for this type's logins (the permission column).
+        'group' => 'Nurse',
         'model' => \App\Models\Nurse::class,
         'label' => 'Nurses',
         'singular' => 'nurse',
@@ -30,6 +32,8 @@ return [
     ],
 
     'pharmacist' => [
+        // users.group for this type's logins (the permission column).
+        'group' => 'Pharmacist',
         'model' => \App\Models\Pharmacist::class,
         'label' => 'Pharmacists',
         'singular' => 'pharmacist',
@@ -38,6 +42,8 @@ return [
     ],
 
     'laboratorist' => [
+        // users.group for this type's logins (the permission column).
+        'group' => 'Laboratorist',
         'model' => \App\Models\Laboratorist::class,
         'label' => 'Laboratory staff',
         'singular' => 'laboratory technician',
@@ -46,6 +52,8 @@ return [
     ],
 
     'receptionist' => [
+        // users.group for this type's logins (the permission column).
+        'group' => 'Receptionist',
         'model' => \App\Models\Receptionist::class,
         'label' => 'Receptionists',
         'singular' => 'receptionist',
@@ -54,6 +62,8 @@ return [
     ],
 
     'accountant' => [
+        // users.group for this type's logins (the permission column).
+        'group' => 'Accountant',
         'model' => \App\Models\Accountant::class,
         'label' => 'Accountants',
         'singular' => 'accountant',

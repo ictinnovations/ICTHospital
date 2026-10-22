@@ -28,6 +28,9 @@ $may = function ($permission) {
     return \App\Support\Permissions::allows($permission);
 };
 
+/** Same rule as the admin middleware on those routes. */
+$isAdmin = optional(auth()->user())->group === 'Admin';
+
 /** Mark the open branch so the right group starts expanded. */
 $active = function ($prefixes) use ($here) {
     foreach ((array) $prefixes as $p) {
@@ -179,6 +182,7 @@ $active = function ($prefixes) use ($here) {
     </li>
     @endif
 
+    @if ($may('accounting'))
     <li class="nav-header">Money</li>
 
     <li>
@@ -196,7 +200,9 @@ $active = function ($prefixes) use ($here) {
         <li><a href="{{ url('/accounting/reportsum') }}"><i class="glyphicon glyphicon-stats"></i> Summary Report</a></li>
       </ul>
     </li>
+    @endif
 
+    @if ($isAdmin)
     <li class="nav-header">Communication</li>
 
     <li>
@@ -239,14 +245,13 @@ $active = function ($prefixes) use ($here) {
     </li>
 
     <li>
-      <a class="dropmenu {{ $active(['settings', 'institute', 'branches', 'schedule', 'barcode']) ? 'active' : '' }}" href="#">
+      <a class="dropmenu {{ $active(['institute', 'branches', 'schedule', 'barcode', 'gateways']) ? 'active' : '' }}" href="#">
         <i class="glyphicon glyphicon-cog"></i><span class="hidden-tablet"> Settings</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
-      <ul style="{{ $active(['settings', 'institute', 'branches', 'schedule', 'barcode']) ? '' : 'display:none;' }}">
+      <ul style="{{ $active(['institute', 'branches', 'schedule', 'barcode', 'gateways']) ? '' : 'display:none;' }}">
         <li><a href="{{ url('/institute') }}"><i class="glyphicon glyphicon-tower"></i> Hospital Information</a></li>
         <li><a href="{{ url('/branches') }}"><i class="glyphicon glyphicon-map-marker"></i> Branches</a></li>
-        <li><a href="{{ url('/settings') }}"><i class="glyphicon glyphicon-wrench"></i> General Settings</a></li>
         <li><a href="{{ url('/gateways') }}"><i class="glyphicon glyphicon-credit-card"></i> Payment Gateways</a></li>
         <li><a href="{{ url('/schedule') }}"><i class="glyphicon glyphicon-time"></i> Schedule</a></li>
         <li><a href="{{ url('/barcode') }}"><i class="glyphicon glyphicon-barcode"></i> Barcode</a></li>
@@ -258,6 +263,15 @@ $active = function ($prefixes) use ($here) {
         <i class="glyphicon glyphicon-list-alt"></i><span class="hidden-tablet"> Activity Log</span>
       </a>
     </li>
+    @endif
+
+    <li class="nav-header">Account</li>
+
+    <li>
+      <a class="{{ $active('settings') ? 'active' : '' }}" href="{{ url('/settings') }}">
+        <i class="glyphicon glyphicon-wrench"></i><span class="hidden-tablet"> My Profile</span>
+      </a>
+    </li>
 
     <li>
       <a href="{{ url('/users/logout') }}">
@@ -267,3 +281,14 @@ $active = function ($prefixes) use ($here) {
 
   </ul>
 </div>
+<script>
+  // Fold-out groups (Other Staff, Accounting, Messaging...). The theme script only opens
+  // menus marked .accordion, so these links did nothing when clicked.
+  (function ($) {
+    if (!$) return;
+    $(document).off('click.ichMenu').on('click.ichMenu', 'ul.main-menu a.dropmenu', function (e) {
+      e.preventDefault();
+      $(this).siblings('ul').stop(true, true).slideToggle(150);
+    });
+  })(window.jQuery);
+</script>

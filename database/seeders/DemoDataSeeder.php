@@ -81,7 +81,7 @@ class DemoDataSeeder extends Seeder
     private function staffLogins(): void
     {
         $grants = [
-            'doctor' => ['patient_view', 'patient_medical_history', 'appointment_view', 'appointment_update',
+            'doctor' => ['patient_view', 'patient_add', 'patient_update', 'patient_medical_history', 'appointment_view', 'appointment_update',
                 'appointment_calendar', 'admission_view', 'bed_view', 'ward_view', 'prescription_view',
                 'prescription_add', 'prescription_update', 'lab_test_view', 'lab_test_add', 'lab_test_update',
                 'diagnostic_report_view', 'diagnostic_report_add', 'medicine_view', 'doctor_view', 'department_view'],

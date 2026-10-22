@@ -144,12 +144,49 @@ class MedicalHistoryController extends BaseController
         return $data;
     }
 
+    /**
+     * Open an attached report, for signed-in staff with the medical history permission.
+     *
+     * Reports are kept on the private disk. Uploads from before that change sit on the
+     * public disk, where anyone with the link could open them; one is moved across the
+     * first time it is opened (hospital:secure-attachments moves them all at once).
+     */
+    public function attachment($id)
+    {
+        $entry = MedicalHistory::findOrFail($id);
+        $path = (string) $entry->img_url;
+        abort_if($path === '', 404);
+
+        if (! Storage::disk('local')->exists($path) && Storage::disk('public')->exists($path)) {
+            self::makePrivate($path);
+        }
+        abort_unless(Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->response($path, basename($path), [
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
+    /** Move one attachment from the public disk to the private one. */
+    public static function makePrivate(string $path): bool
+    {
+        if (! Storage::disk('public')->exists($path)) {
+            return false;
+        }
+        Storage::disk('local')->put($path, Storage::disk('public')->get($path));
+        Storage::disk('public')->delete($path);
+
+        return true;
+    }
+
     private function storeAttachment(Request $request)
     {
         if (! $request->hasFile('attachment')) {
             return null;
         }
 
-        return Storage::disk('public')->put('history', $request->file('attachment'));
+        // Private disk: served only through attachment() above, never by URL.
+        return Storage::disk('local')->put('history', $request->file('attachment'));
     }
 }

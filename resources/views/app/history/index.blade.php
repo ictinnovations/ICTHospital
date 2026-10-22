@@ -94,7 +94,7 @@
                                         <td>{{ \Illuminate\Support\Str::limit($entry->description, 160) }}</td>
                                         <td>
                                             @if ($entry->img_url)
-                                                <a href="{{ asset('storage/' . $entry->img_url) }}" target="_blank">View</a>
+                                                <a href="{{ url('/history/' . $entry->id . '/attachment') }}" target="_blank">View</a>
                                             @else
                                                 <span class="text-muted">None</span>
                                             @endif
