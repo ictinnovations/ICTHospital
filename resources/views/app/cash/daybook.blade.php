@@ -57,6 +57,10 @@
                         </div>
                     </div>
 
+                    @if (! empty($kind_summary))
+                        <h4>By kind of service</h4>
+                        <p>@foreach ($kind_summary as $k => $v)<span class="label label-default" style="margin-right:6px;font-size:12px">{{ \App\Support\ServiceKinds::label($k) }}: {{ number_format($v, 2) }}</span>@endforeach</p>
+                    @endif
                     <h4>Services consultation wise</h4>
                     <div class="table-responsive">
                     <table class="table table-striped table-bordered table-condensed">

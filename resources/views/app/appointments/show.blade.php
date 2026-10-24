@@ -26,6 +26,7 @@
                         <small>{{ $appointment->date }} {{ $appointment->time_slot }}</small>
                     </h2>
                     <div class="box-icon">
+                        @if ($appointment->mode === 'video' && $appointment->video_room)<a href="{{ \App\Support\Telemedicine::url($appointment) }}" target="_blank" rel="noopener" class="btn btn-success btn-sm"><i class="glyphicon glyphicon-facetime-video"></i> Start video call</a>@endif
                         @if (\App\Support\Permissions::allows('consultation_add'))<a href="{{ url('/consultations/visit/' . $appointment->id) }}" class="btn btn-info btn-sm"><i class="glyphicon glyphicon-heart"></i> Consultation</a>@endif
                         <a href="{{ url('/appointments/' . $appointment->id . '/edit') }}" class="btn btn-default btn-sm">
                             <i class="glyphicon glyphicon-heart"></i> Record vitals / edit
@@ -36,6 +37,9 @@
                     </div>
                 </div>
                 <div class="box-content">
+                    @if ($appointment->mode === 'video' && $appointment->video_room)
+                        <div class="alert alert-info">Video consultation. Patient link: <input readonly class="form-control input-sm" style="display:inline-block;width:60%" value="{{ \App\Support\Telemedicine::url($appointment) }}" onclick="this.select()"> Send it to the patient by SMS or WhatsApp.</div>
+                    @endif
 
                     <table class="table table-striped">
                         <tbody>

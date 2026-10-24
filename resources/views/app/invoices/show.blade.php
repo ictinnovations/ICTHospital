@@ -88,6 +88,11 @@
                                     <td class="text-right">{{ number_format((float) $item->unit_price, 2) }}</td>
                                     <td class="text-right">{{ number_format((float) $item->line_total, 2) }}</td>
                                 </tr>
+                                @php($pkg = $item->payment_category_id ? \App\Models\ServicePackageItem::where('package_id', $item->payment_category_id)->get() : collect())
+                                @if ($pkg->isNotEmpty())
+                                    @php($pkgNames = \App\Models\PaymentCategory::whereIn('id', $pkg->pluck('component_id'))->pluck('category', 'id'))
+                                    <tr><td colspan="4" class="text-muted small" style="padding-left:24px">Includes: {{ $pkg->map(fn ($c) => ($pkgNames[$c->component_id] ?? '') . ($c->quantity > 1 ? ' x' . $c->quantity : ''))->implode(', ') }}</td></tr>
+                                @endif
                             @endforeach
                         </tbody>
                         <tfoot>

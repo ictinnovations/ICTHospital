@@ -42,6 +42,8 @@ use App\Http\Controllers\CashController;
 use App\Http\Controllers\OpdController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\RadiologyController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\PackageController;
 
 
 
@@ -632,4 +634,21 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/radiology/{id}', [RadiologyController::class, 'update'])->whereNumber('id')->middleware('checkPermission:diagnostic_report_add');
     Route::post('/radiology/{id}/bill', [RadiologyController::class, 'bill'])->whereNumber('id')->middleware('checkPermission:payment_add');
     Route::get('/radiology/{id}/print', [RadiologyController::class, 'printout'])->whereNumber('id')->middleware('checkPermission:diagnostic_report_view');
+});
+
+
+// Hospital branches (sites), user assignment and the session branch switch.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/hospital-branches', [BranchController::class, 'index'])->middleware('checkPermission:branch_view');
+    Route::post('/hospital-branches', [BranchController::class, 'store'])->middleware('checkPermission:branch_add');
+    Route::put('/hospital-branches/{id}', [BranchController::class, 'update'])->whereNumber('id')->middleware('checkPermission:branch_update');
+    Route::post('/hospital-branches/{id}/users', [BranchController::class, 'assign'])->whereNumber('id')->middleware('checkPermission:branch_update');
+    Route::post('/branch/switch', [BranchController::class, 'switch']);
+});
+
+// Service packages: what a package price covers.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/services/{id}/package', [PackageController::class, 'show'])->whereNumber('id')->middleware('checkPermission:service_view');
+    Route::post('/services/{id}/package', [PackageController::class, 'store'])->whereNumber('id')->middleware('checkPermission:service_update');
+    Route::delete('/package-items/{id}', [PackageController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:service_update');
 });

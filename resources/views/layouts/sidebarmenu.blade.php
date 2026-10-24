@@ -292,13 +292,13 @@ $active = function ($prefixes) use ($here) {
     </li>
 
     <li>
-      <a class="dropmenu {{ $active(['institute', 'branches', 'schedule', 'barcode', 'gateways']) ? 'active' : '' }}" href="#">
+      <a class="dropmenu {{ $active(['institute', 'branches', 'hospital-branches', 'schedule', 'barcode', 'gateways']) ? 'active' : '' }}" href="#">
         <i class="glyphicon glyphicon-cog"></i><span class="hidden-tablet"> Settings</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
-      <ul style="{{ $active(['institute', 'branches', 'schedule', 'barcode', 'gateways']) ? '' : 'display:none;' }}">
+      <ul style="{{ $active(['institute', 'branches', 'hospital-branches', 'schedule', 'barcode', 'gateways']) ? '' : 'display:none;' }}">
         <li><a href="{{ url('/institute') }}"><i class="glyphicon glyphicon-tower"></i> Hospital Information</a></li>
-        <li><a href="{{ url('/branches') }}"><i class="glyphicon glyphicon-map-marker"></i> Branches</a></li>
+        <li><a href="{{ url('/hospital-branches') }}"><i class="glyphicon glyphicon-map-marker"></i> Branches</a></li>
         <li><a href="{{ url('/gateways') }}"><i class="glyphicon glyphicon-credit-card"></i> Payment Gateways</a></li>
         <li><a href="{{ url('/schedule') }}"><i class="glyphicon glyphicon-time"></i> Schedule</a></li>
         <li><a href="{{ url('/barcode') }}"><i class="glyphicon glyphicon-barcode"></i> Barcode</a></li>

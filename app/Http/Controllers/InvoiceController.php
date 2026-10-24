@@ -42,7 +42,7 @@ class InvoiceController extends BaseController
         $show = $request->input('show', 'outstanding');
         $patientId = (string) $request->input('patient', '');
 
-        $invoices = Payment::query()
+        $invoices = \App\Support\Branch::scope(Payment::query())
             ->with(['items', 'payments'])
             ->when($patientId !== '', fn ($q) => $q->where('patient', $patientId))
             ->orderByDesc('id')

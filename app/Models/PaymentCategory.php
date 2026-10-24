@@ -20,5 +20,6 @@ class PaymentCategory extends Model
         'd_commission',
         'h_commission',
         'department',
+        'service_kind',
     ];
 }

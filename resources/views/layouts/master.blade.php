@@ -422,6 +422,7 @@ table i {
                                         </form>
                                     </div>
                                 </div>
+                                @include('app.partials._branch_switch')
 
 
                           <!-- Addmission dropdown starts -->

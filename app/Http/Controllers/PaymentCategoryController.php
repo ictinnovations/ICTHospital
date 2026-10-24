@@ -94,6 +94,7 @@ class PaymentCategoryController extends BaseController
             'c_price' => 'nullable|numeric|min:0',
             'type' => 'nullable|string|max:100',
             'department' => 'nullable|string|max:100',
+            'service_kind' => 'nullable|in:' . implode(',', array_keys(\App\Support\ServiceKinds::KINDS)),
             'd_commission' => 'nullable|integer|min:0|max:100',
             'h_commission' => 'nullable|integer|min:0|max:100',
         ]);
@@ -119,6 +120,7 @@ class PaymentCategoryController extends BaseController
             'c_price' => ($price === null || $price === '') ? null : number_format((float) $price, 2, '.', ''),
             'type' => $data['type'] ?? null,
             'department' => $data['department'] ?? null,
+            'service_kind' => $data['service_kind'] ?? null,
             'd_commission' => $data['d_commission'] ?? null,
             'h_commission' => $data['h_commission'] ?? null,
         ];

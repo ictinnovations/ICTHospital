@@ -52,7 +52,7 @@ class AppointmentController extends BaseController
         $doctorId = (string) $request->input('doctor', '');
         $status = (string) $request->input('status', '');
 
-        $appointments = Appointment::query()
+        $appointments = \App\Support\Branch::scope(Appointment::query())
             ->when($date !== '', fn ($q) => $q->whereDate('date', $date))
             ->when($doctorId !== '', fn ($q) => $q->where('doctor', $doctorId))
             ->when($status !== '', fn ($q) => $q->where('status', $status))
@@ -150,6 +150,7 @@ class AppointmentController extends BaseController
             'pulse' => 'nullable|string|max:100',
             'temprature' => 'nullable|string|max:100',
             'weight' => 'nullable|string|max:100',
+            'video' => 'nullable|boolean',
         ]);
 
         $minutes = (int) ($input['minutes'] ?: self::DEFAULT_MINUTES);
@@ -163,7 +164,13 @@ class AppointmentController extends BaseController
             DoctorSchedule::assertBookable($input['doctor'], $start, $end);
         }
 
+        $existing = $ignoreId ? Appointment::find($ignoreId) : null;
+        $video = ! empty($input['video']);
+
         return [
+            'mode' => $video ? 'video' : 'in_person',
+            // Keep a room once issued, so a link already sent to the patient still works.
+            'video_room' => $video ? (optional($existing)->video_room ?: \App\Support\Telemedicine::newRoom()) : null,
             'patient' => $input['patient'],
             'doctor' => $input['doctor'],
             'date' => $start->toDateString(),

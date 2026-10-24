@@ -102,6 +102,10 @@
                                         <td>
                                             <input type="text" name="type" class="form-control input-sm" list="typelist"
                                                    form="svc-save-{{ $service->id }}" value="{{ $service->type }}">
+                                            <select name="service_kind" class="form-control input-sm" style="margin-top:4px" form="svc-save-{{ $service->id }}" title="Kind, for reports">
+                                                <option value="">Kind not set</option>
+                                                @foreach (\App\Support\ServiceKinds::KINDS as $k => $l)<option value="{{ $k }}" {{ $service->service_kind === $k ? 'selected' : '' }}>{{ $l }}</option>@endforeach
+                                            </select>
                                         </td>
                                         <td>
                                             <input type="number" step="0.01" min="0" name="c_price" class="form-control input-sm"
@@ -111,6 +115,7 @@
                                         <td>
                                             <button type="submit" class="btn btn-primary btn-sm"
                                                     form="svc-save-{{ $service->id }}">Save</button>
+                                            @if ($service->service_kind === 'package')<a href="{{ url('/services/' . $service->id . '/package') }}" class="btn btn-default btn-sm" title="What the package includes"><i class="glyphicon glyphicon-gift"></i></a>@endif
                                             <button type="submit" class="btn btn-danger btn-sm"
                                                     form="svc-del-{{ $service->id }}">
                                                 <i class="glyphicon glyphicon-trash"></i>

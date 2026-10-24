@@ -38,7 +38,7 @@ class OpdController extends BaseController
         // A doctor's own login opens on their own queue.
         $doctorId = (string) ($request->has('doctor') ? $request->input('doctor', '') : (string) (Doctor::where('ion_user_id', (string) auth()->id())->value('id') ?? ''));
 
-        $visits = Appointment::whereDate('date', $date)
+        $visits = \App\Support\Branch::scope(Appointment::query())->whereDate('date', $date)
             ->when($doctorId !== '', fn ($q) => $q->where('doctor', $doctorId))
             ->whereNotIn('status', ['cancelled'])
             ->get()
@@ -160,7 +160,7 @@ class OpdController extends BaseController
         $doctorId = (string) $request->input('doctor', '');
         $status = (string) $request->input('status', '');
 
-        $visits = Appointment::whereDate('date', '>=', $from)->whereDate('date', '<=', $to)
+        $visits = \App\Support\Branch::scope(Appointment::query())->whereDate('date', '>=', $from)->whereDate('date', '<=', $to)
             ->when($doctorId !== '', fn ($q) => $q->where('doctor', $doctorId))
             ->when($status === 'active', fn ($q) => $q->where('status', '!=', 'cancelled'))
             ->when($status === 'cancelled', fn ($q) => $q->where('status', 'cancelled'))

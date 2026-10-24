@@ -36,5 +36,18 @@ class Appointment extends Model
         'checked_out_at',
         'visit_type',
         'payment_id',
+        'mode',
+        'video_room',
+        'branch_id',
     ];
+
+    /** New rows are stamped with the branch the user is working at. */
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            if (empty($model->branch_id) && \Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'branch_id')) {
+                $model->branch_id = \App\Support\Branch::current();
+            }
+        });
+    }
 }

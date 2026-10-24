@@ -76,6 +76,7 @@
                                             <button class="btn btn-default btn-xs">Bill fee</button></form>
                                     @endif
                                     @if ($v->token_no)<a href="{{ url('/opd/' . $v->id . '/token') }}" target="_blank" class="btn btn-default btn-xs">Token slip</a>@endif
+                                    @if ($v->mode === 'video' && $v->video_room)<a href="{{ \App\Support\Telemedicine::url($v) }}" target="_blank" rel="noopener" class="btn btn-success btn-xs"><i class="glyphicon glyphicon-facetime-video"></i> Video</a>@endif
                                 </td>
                             </tr>
                         @empty

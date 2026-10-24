@@ -17,11 +17,21 @@ class ShiftClose extends Model
 
     protected $fillable = [
         'user_id', 'opened_at', 'closed_at', 'payments_count', 'total', 'cash', 'bank_transfer', 'card', 'cheque', 'other',
-        'counted_cash', 'difference', 'comment', 'closed_by',
+        'counted_cash', 'difference', 'comment', 'closed_by', 'branch_id',
     ];
 
     protected $casts = [
         'total' => 'decimal:2', 'cash' => 'decimal:2', 'bank_transfer' => 'decimal:2', 'card' => 'decimal:2',
         'cheque' => 'decimal:2', 'other' => 'decimal:2', 'counted_cash' => 'decimal:2', 'difference' => 'decimal:2',
     ];
+
+    /** New rows are stamped with the branch the user is working at. */
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            if (empty($model->branch_id) && \Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'branch_id')) {
+                $model->branch_id = \App\Support\Branch::current();
+            }
+        });
+    }
 }

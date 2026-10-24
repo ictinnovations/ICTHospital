@@ -104,6 +104,10 @@
                                     <input type="time" name="start" id="appt-start" class="form-control" required value="{{ $startValue }}">
                                     <div id="free-slots" style="margin-top:6px"></div>
                                 </div>
+                                <div class="checkbox">
+                                    <label><input type="checkbox" name="video" value="1" {{ old('video', $appointment->mode === 'video') ? 'checked' : '' }}> Video consultation</label>
+                                    <span class="help-block">The patient joins from a link; the doctor starts the call from the queue.</span>
+                                </div>
                                 <div class="form-group">
                                     <label>Length</label>
                                     <input type="number" name="minutes" id="appt-minutes" class="form-control" min="5" max="480"

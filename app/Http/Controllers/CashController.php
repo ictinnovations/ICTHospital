@@ -163,7 +163,7 @@ class CashController extends BaseController
         $types = PatientType::all()->keyBy('id');
         $default = PatientType::defaultId();
 
-        $invoices = Payment::with('items')->where('date', '>=', $from)->where('date', '<=', $to)
+        $invoices = \App\Support\Branch::scope(Payment::query())->with('items')->where('date', '>=', $from)->where('date', '<=', $to)
             ->when($userId !== '', fn ($q) => $q->where('user', $userId))
             ->orderBy('date')->orderBy('id')->get();
 
@@ -172,6 +172,7 @@ class CashController extends BaseController
 
         $lines = [];
         $byDept = [];
+        $byKind = [];
         foreach ($invoices as $inv) {
             $type = $types->get($inv->patient_type_id ?: $default);
             $bucket = PatientType::bucket(optional($type)->kind);
@@ -195,6 +196,8 @@ class CashController extends BaseController
                 ];
 
                 $byDept[$dept][$bucket] = round(($byDept[$dept][$bucket] ?? 0) + $net, 2);
+                $kindKey = optional($services->get($item->payment_category_id))->service_kind ?: 'other';
+                $byKind[$kindKey] = round(($byKind[$kindKey] ?? 0) + $net, 2);
             }
         }
         ksort($byDept);
@@ -205,6 +208,7 @@ class CashController extends BaseController
         $view = [
             'lines' => $lines,
             'byDept' => $byDept,
+            'kind_summary' => $byKind,
             'collections' => $this->totals($collections),
             'filters' => compact('from', 'to', 'kind', 'userId'),
             'users' => User::orderBy('firstname')->get(['id', 'firstname', 'lastname', 'login']),

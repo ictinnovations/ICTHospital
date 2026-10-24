@@ -42,6 +42,7 @@ class Payment extends Model
         'patient_type_id',
         'care_setting',
         'referring_doctor',
+        'branch_id',
     ];
 
     /** What was charged. category_name and category_amount are the legacy copies. */
@@ -82,5 +83,15 @@ class Payment extends Model
         }
 
         return $this->balance() > 0.004 ? 'part paid' : 'paid';
+    }
+
+    /** New rows are stamped with the branch the user is working at. */
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            if (empty($model->branch_id) && \Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'branch_id')) {
+                $model->branch_id = \App\Support\Branch::current();
+            }
+        });
     }
 }
