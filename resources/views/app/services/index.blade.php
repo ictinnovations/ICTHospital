@@ -78,13 +78,11 @@
                         <table class="table table-striped table-bordered">
                             <thead>
                                 <tr>
-                                    <th style="width:19%">Service</th>
-                                    <th style="width:21%">Description</th>
-                                    <th style="width:13%">Group</th>
-                                    <th style="width:12%">Price</th>
-                                    <th style="width:9%">Doctor %</th>
-                                    <th style="width:9%">Hospital %</th>
-                                    <th style="width:7%">Invoiced</th>
+                                    <th style="width:30%">Service and description</th>
+                                    <th style="width:18%">Department</th>
+                                    <th style="width:16%">Group</th>
+                                    <th style="width:13%">List price</th>
+                                    <th style="width:8%">Invoiced</th>
                                     <th style="width:10%"></th>
                                 </tr>
                             </thead>
@@ -94,10 +92,12 @@
                                         <td>
                                             <input type="text" name="category" class="form-control input-sm" required
                                                    form="svc-save-{{ $service->id }}" value="{{ $service->category }}">
+                                            <input type="text" name="description" class="form-control input-sm" placeholder="Description" style="margin-top:4px"
+                                                   form="svc-save-{{ $service->id }}" value="{{ $service->description }}">
                                         </td>
                                         <td>
-                                            <input type="text" name="description" class="form-control input-sm"
-                                                   form="svc-save-{{ $service->id }}" value="{{ $service->description }}">
+                                            <input type="text" name="department" class="form-control input-sm" list="deptlist"
+                                                   form="svc-save-{{ $service->id }}" value="{{ $service->department }}">
                                         </td>
                                         <td>
                                             <input type="text" name="type" class="form-control input-sm" list="typelist"
@@ -106,14 +106,6 @@
                                         <td>
                                             <input type="number" step="0.01" min="0" name="c_price" class="form-control input-sm"
                                                    form="svc-save-{{ $service->id }}" value="{{ $service->c_price }}">
-                                        </td>
-                                        <td>
-                                            <input type="number" min="0" max="100" name="d_commission" class="form-control input-sm"
-                                                   form="svc-save-{{ $service->id }}" value="{{ $service->d_commission }}">
-                                        </td>
-                                        <td>
-                                            <input type="number" min="0" max="100" name="h_commission" class="form-control input-sm"
-                                                   form="svc-save-{{ $service->id }}" value="{{ $service->h_commission }}">
                                         </td>
                                         <td>{{ $usage[$service->id] ?? 0 }}</td>
                                         <td>
@@ -130,6 +122,11 @@
                         </table>
                     @endif
 
+                    <datalist id="deptlist">
+                        @foreach ($departments as $d)
+                            <option value="{{ $d }}"></option>
+                        @endforeach
+                    </datalist>
                     <datalist id="typelist">
                         @foreach ($types as $type)
                             <option value="{{ $type }}"></option>
@@ -149,7 +146,7 @@
                                        placeholder="Consultation, general" required>
                             </div>
                             <div class="col-md-3 form-group">
-                                <input type="text" name="description" class="form-control" placeholder="Description">
+                                <input type="text" name="department" class="form-control" list="deptlist" placeholder="Department">
                             </div>
                             <div class="col-md-2 form-group">
                                 <input type="text" name="type" class="form-control" list="typelist" placeholder="Group">
@@ -163,8 +160,8 @@
                             </div>
                         </div>
                         <p class="help-block">
-                            The doctor and hospital percentages are recorded against a service for reference.
-                            Nothing in this release applies them to an invoice.
+                            This is the list price. What each patient type pays, outpatient and inpatient, is set under
+                            <a href="{{ url('/pricing') }}">Pricing</a>. Doctor shares are set under <a href="{{ url('/doctor-share/policies') }}">Doctor share</a>.
                         </p>
                     </form>
 

@@ -115,12 +115,72 @@
                                 <div class="form-group">
                                     <label>Photo</label>
                                     <input type="file" name="photo" accept="image/*">
+                                    <input type="hidden" name="photo_data" id="photo_data">
+                                    <div style="margin-top:6px">
+                                        <button type="button" class="btn btn-default btn-sm" id="cam-start"><i class="glyphicon glyphicon-camera"></i> Take photo with webcam</button>
+                                        <button type="button" class="btn btn-primary btn-sm" id="cam-snap" style="display:none">Capture</button>
+                                    </div>
+                                    <video id="cam-video" autoplay playsinline style="display:none;max-width:240px;margin-top:6px;border:1px solid #ddd"></video>
+                                    <img id="cam-preview" alt="" style="display:none;max-width:240px;margin-top:6px;border:1px solid #ddd">
                                     @if ($patient->img_url)
-                                        <span class="help-block">A photo is already on file. Uploading replaces it.</span>
+                                        <span class="help-block">A photo is already on file. A new one replaces it.</span>
                                     @endif
                                 </div>
                             </div>
                         </div>
+
+                        <fieldset style="margin:10px 0 20px;padding-top:10px;border-top:1px solid #eee">
+                            <legend style="font-size:16px;border:0;margin-bottom:6px">Registration details</legend>
+                            <div class="row">
+                                <div class="col-md-3 form-group">
+                                    <label>Patient type</label>
+                                    <select name="patient_type_id" class="form-control">
+                                        @foreach ($patientTypes as $t)
+                                            <option value="{{ $t->id }}" {{ (string) old('patient_type_id', $patient->patient_type_id ?: \App\Models\PatientType::defaultId()) === (string) $t->id ? 'selected' : '' }}>{{ $t->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <span class="help-block">Decides which price list the patient's invoices use.</span>
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label>CNIC</label>
+                                    <input type="text" name="cnic" class="form-control" placeholder="12345-1234567-1" value="{{ old('cnic', $patient->cnic) }}">
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label>City</label>
+                                    <input type="text" name="city" class="form-control" value="{{ old('city', $patient->city) }}">
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label>Alternate contact</label>
+                                    <input type="text" name="alt_phone" class="form-control" value="{{ old('alt_phone', $patient->alt_phone) }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 form-group">
+                                    <label>Guardian relation</label>
+                                    <select name="guardian_relation" class="form-control">
+                                        <option value="">Not recorded</option>
+                                        @foreach (['Father', 'Mother', 'Husband', 'Wife', 'Son', 'Daughter', 'Brother', 'Sister', 'Other'] as $rel)
+                                            <option value="{{ $rel }}" {{ old('guardian_relation', $patient->guardian_relation) === $rel ? 'selected' : '' }}>{{ $rel }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label>Guardian MR number</label>
+                                    <input type="text" name="guardian_mrn" class="form-control" placeholder="If the guardian is a patient too" value="{{ old('guardian_mrn', $patient->guardian_mrn) }}">
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label>Old MR number</label>
+                                    <input type="text" name="old_mrn" class="form-control" placeholder="From a previous system" value="{{ old('old_mrn', $patient->old_mrn) }}">
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label>Employee or student no.</label>
+                                    <input type="text" name="employee_no" class="form-control" placeholder="For staff and panel patients" value="{{ old('employee_no', $patient->employee_no) }}">
+                                </div>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="mlc" value="1" {{ old('mlc', $patient->mlc) ? 'checked' : '' }}> Medico-legal case (MLC)</label>
+                            </div>
+                        </fieldset>
 
                         <button type="submit" class="btn btn-primary">
                             {{ $editing ? 'Save changes' : 'Register patient' }}
@@ -134,4 +194,28 @@
     </div>
 @stop
 @section('script')
+<script>
+// Webcam photo at the desk. Needs HTTPS (or localhost) for the browser to allow the camera.
+(function () {
+    var start = document.getElementById('cam-start'), snap = document.getElementById('cam-snap');
+    var video = document.getElementById('cam-video'), preview = document.getElementById('cam-preview');
+    var stream = null;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { start.style.display = 'none'; return; }
+    start.addEventListener('click', function () {
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function (s) {
+            stream = s; video.srcObject = s; video.style.display = 'block'; snap.style.display = 'inline-block';
+        }).catch(function () { alert('The browser did not allow the camera. Upload a photo instead.'); });
+    });
+    snap.addEventListener('click', function () {
+        var c = document.createElement('canvas');
+        c.width = video.videoWidth || 640; c.height = video.videoHeight || 480;
+        c.getContext('2d').drawImage(video, 0, 0, c.width, c.height);
+        var data = c.toDataURL('image/jpeg', 0.85);
+        document.getElementById('photo_data').value = data;
+        preview.src = data; preview.style.display = 'block';
+        video.style.display = 'none'; snap.style.display = 'none';
+        if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); }
+    });
+})();
+</script>
 @stop

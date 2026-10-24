@@ -22,6 +22,8 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Payment;
 use App\Models\PaymentCategory;
+use App\Models\PatientType;
+use App\Support\PriceList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -64,10 +66,14 @@ class InvoiceController extends BaseController
     public function create(Request $request)
     {
         return view('app.invoices.form', [
-            'invoice' => new Payment(['date' => now()->toDateString(), 'patient' => $request->input('patient')]),
-            'patients' => Patient::orderBy('name')->get(['id', 'name', 'patient_id']),
+            'invoice' => new Payment(['date' => now()->toDateString(), 'patient' => $request->input('patient'),
+                'care_setting' => $request->input('setting', 'opd')]),
+            'patients' => Patient::orderBy('name')->get(['id', 'name', 'patient_id', 'patient_type_id']),
             'doctors' => Doctor::orderBy('name')->get(['id', 'name']),
             'services' => PaymentCategory::orderBy('category')->get(),
+            'patientTypes' => PatientType::orderBy('name')->get(),
+            'priceMatrix' => PriceList::matrix(),
+            'defaultType' => PatientType::defaultId(),
         ]);
     }
 
@@ -178,6 +184,8 @@ class InvoiceController extends BaseController
             'discount' => 'nullable|numeric|min:0',
             'vat' => 'nullable|numeric|min:0',
             'remarks' => 'nullable|string|max:500',
+            'patient_type_id' => 'nullable|integer|exists:patient_type,id',
+            'care_setting' => 'nullable|in:opd,ipd',
             'items' => 'array',
             'items.*.payment_category_id' => 'nullable|integer|exists:payment_category,id',
             'items.*.name' => 'nullable|string|max:200',
@@ -185,7 +193,12 @@ class InvoiceController extends BaseController
             'items.*.unit_price' => 'nullable|numeric|min:0',
         ]);
 
-        $items = $this->buildItems($input['items'] ?? []);
+        $patientRow = Patient::find($input['patient']);
+        // The type on the invoice defaults to the patient's own type, and is copied
+        // onto the invoice so a later change of type does not rewrite old bills.
+        $typeId = $input['patient_type_id'] ?? ($patientRow->patient_type_id ?? null) ?? PatientType::defaultId();
+        $setting = $input['care_setting'] ?? 'opd';
+        $items = $this->buildItems($input['items'] ?? [], $typeId, $setting);
 
         if (empty($items)) {
             throw ValidationException::withMessages([
@@ -233,10 +246,12 @@ class InvoiceController extends BaseController
             'hospital_amount' => null,
             'doctor_amount' => null,
             'deposit_type' => null,
+            'patient_type_id' => $typeId,
+            'care_setting' => $setting,
         ], $items];
     }
 
-    private function buildItems(array $rows)
+    private function buildItems(array $rows, $typeId = null, $setting = 'opd')
     {
         $services = PaymentCategory::all()->keyBy('id');
         $items = [];
@@ -258,7 +273,7 @@ class InvoiceController extends BaseController
             $given = $row['unit_price'] ?? null;
             $unit = ($given !== null && $given !== '')
                 ? (float) $given
-                : (float) ($service->c_price ?? 0);
+                : ($service ? PriceList::priceFor($service, $typeId, $setting) : 0.0);
 
             $items[] = [
                 'payment_category_id' => $service->id ?? null,

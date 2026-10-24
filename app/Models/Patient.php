@@ -29,5 +29,14 @@ class Patient extends Model
         'registration_time',
         'how_added',
         'father_name',
+        'patient_type_id',
+        'cnic',
+        'guardian_relation',
+        'guardian_mrn',
+        'mlc',
+        'old_mrn',
+        'employee_no',
+        'alt_phone',
+        'city',
     ];
 }

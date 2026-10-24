@@ -23,6 +23,7 @@ use App\Models\Doctor;
 use App\Models\Lab;
 use App\Models\MedicalHistory;
 use App\Models\Patient;
+use App\Models\PatientType;
 use App\Models\Payment;
 use App\Models\Prescription;
 use Illuminate\Http\Request;
@@ -55,6 +56,8 @@ class PatientController extends BaseController
                 $like = '%' . $term . '%';
                 $query->where('name', 'like', $like)
                     ->orWhere('patient_id', 'like', $like)
+                    ->orWhere('cnic', 'like', $like)
+                    ->orWhere('old_mrn', 'like', $like)
                     ->orWhere('phone', 'like', $like)
                     ->orWhere('email', 'like', $like);
             })
@@ -71,6 +74,7 @@ class PatientController extends BaseController
             'patient' => new Patient(),
             'doctors' => $this->doctors(),
             'bloodGroups' => self::BLOOD_GROUPS,
+            'patientTypes' => PatientType::where('active', true)->orderBy('name')->get(),
         ]);
     }
 
@@ -159,6 +163,7 @@ class PatientController extends BaseController
             'patient' => Patient::findOrFail($id),
             'doctors' => $this->doctors(),
             'bloodGroups' => self::BLOOD_GROUPS,
+            'patientTypes' => PatientType::orderBy('name')->get(),
         ]);
     }
 
@@ -206,10 +211,33 @@ class PatientController extends BaseController
             'bloodgroup' => 'nullable|in:' . implode(',', self::BLOOD_GROUPS),
             'doctor' => 'nullable|string|max:100',
             'photo' => 'nullable|image|max:2048',
+            'photo_data' => 'nullable|string|max:3000000',
+            'patient_type_id' => 'nullable|integer|exists:patient_type,id',
+            'cnic' => ['nullable', 'regex:/^\d{5}-?\d{7}-?\d$/'],
+            'guardian_relation' => 'nullable|string|max:40',
+            'guardian_mrn' => 'nullable|string|max:20',
+            'mlc' => 'nullable|boolean',
+            'old_mrn' => 'nullable|string|max:40',
+            'employee_no' => 'nullable|string|max:40',
+            'alt_phone' => 'nullable|string|max:40',
+            'city' => 'nullable|string|max:60',
         ];
 
-        $data = $request->validate($rules);
-        unset($data['photo']);
+        $data = $request->validate($rules, [
+            'cnic.regex' => 'A CNIC is 13 digits, written 12345-1234567-1.',
+        ]);
+        unset($data['photo'], $data['photo_data']);
+
+        // Optional fields the legacy table never had: null when left blank.
+        foreach (['cnic', 'guardian_relation', 'guardian_mrn', 'old_mrn', 'employee_no', 'alt_phone', 'city'] as $key) {
+            $data[$key] = isset($data[$key]) && trim((string) $data[$key]) !== '' ? trim((string) $data[$key]) : null;
+        }
+        if ($data['cnic']) {
+            $digits = preg_replace('/\D/', '', $data['cnic']);
+            $data['cnic'] = substr($digits, 0, 5) . '-' . substr($digits, 5, 7) . '-' . substr($digits, 12, 1);
+        }
+        $data['mlc'] = (bool) ($data['mlc'] ?? false);
+        $data['patient_type_id'] = $data['patient_type_id'] ?? PatientType::defaultId();
 
         foreach (['father_name', 'email', 'phone', 'address', 'sex', 'bloodgroup', 'doctor'] as $key) {
             $data[$key] = $data[$key] ?? '';
@@ -223,6 +251,34 @@ class PatientController extends BaseController
             : '';
 
         return $data;
+    }
+
+    /**
+     * Health card: a wallet card with the MR number as a barcode, so the desk can
+     * find the patient by scanning instead of typing.
+     */
+    public function card($id)
+    {
+        $patient = Patient::findOrFail($id);
+
+        return view('app.patients.card', ['patient' => $patient, 'barcode' => $this->barcode($patient->patient_id), 'wristband' => false,
+            'type' => PatientType::find($patient->patient_type_id)]);
+    }
+
+    /** Wristband for an admitted patient: name, MR number, age, sex, blood group and barcode. */
+    public function wristband($id)
+    {
+        $patient = Patient::findOrFail($id);
+
+        return view('app.patients.card', ['patient' => $patient, 'barcode' => $this->barcode($patient->patient_id), 'wristband' => true,
+            'type' => PatientType::find($patient->patient_type_id)]);
+    }
+
+    private function barcode($code)
+    {
+        $generator = new \Picqer\Barcode\BarcodeGeneratorPNG();
+
+        return 'data:image/png;base64,' . base64_encode($generator->getBarcode((string) $code, $generator::TYPE_CODE_128, 2, 50));
     }
 
     /** Doctors for the "assigned to" select, falling back to an empty list. */
@@ -253,6 +309,18 @@ class PatientController extends BaseController
     /** Stores an uploaded photo and returns its public path, or null if none was sent. */
     private function storePhoto(Request $request)
     {
+        // A photo taken with the desk webcam arrives as a data URL from the form.
+        $shot = (string) $request->input('photo_data', '');
+        if (! $request->hasFile('photo') && preg_match('#^data:image/(jpeg|png);base64,(.+)$#', $shot, $m)) {
+            $bytes = base64_decode($m[2], true);
+            if ($bytes !== false && @imagecreatefromstring($bytes) !== false) {
+                $path = 'patients/' . bin2hex(random_bytes(16)) . '.' . ($m[1] === 'png' ? 'png' : 'jpg');
+                Storage::disk('public')->put($path, $bytes);
+
+                return $path;
+            }
+        }
+
         if (! $request->hasFile('photo')) {
             return null;
         }

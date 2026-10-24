@@ -39,6 +39,8 @@ class Payment extends Model
         'patient_address',
         'doctor_name',
         'date_string',
+        'patient_type_id',
+        'care_setting',
     ];
 
     /** What was charged. category_name and category_amount are the legacy copies. */

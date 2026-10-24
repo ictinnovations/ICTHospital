@@ -36,6 +36,7 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\MedicalHistoryController;
 use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\PricingController;
 
 
 
@@ -315,6 +316,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/patients/create', [PatientController::class, 'create'])->middleware('checkPermission:patient_add');
     Route::post('/patients', [PatientController::class, 'store'])->middleware('checkPermission:patient_add');
     Route::get('/patients/{id}', [PatientController::class, 'show'])->whereNumber('id')->middleware('checkPermission:patient_view');
+    Route::get('/patients/{id}/card', [PatientController::class, 'card'])->whereNumber('id')->middleware('checkPermission:patient_view');
+    Route::get('/patients/{id}/wristband', [PatientController::class, 'wristband'])->whereNumber('id')->middleware('checkPermission:patient_view');
     Route::get('/patients/{id}/edit', [PatientController::class, 'edit'])->whereNumber('id')->middleware('checkPermission:patient_update');
     Route::put('/patients/{id}', [PatientController::class, 'update'])->whereNumber('id')->middleware('checkPermission:patient_update');
     Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:patient_delete');
@@ -533,4 +536,19 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('checkPermission:payment_update');
     Route::delete('/gateways/{id}', [PaymentGatewayController::class, 'destroy'])->whereNumber('id')
         ->middleware('checkPermission:payment_delete');
+});
+
+
+// Patient types and the price list per type, outpatient and inpatient. Invoices are
+// priced from these; the services screen keeps the list price they fall back to.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/patient-types', [PricingController::class, 'types'])->middleware('checkPermission:service_view');
+    Route::post('/patient-types', [PricingController::class, 'storeType'])->middleware('checkPermission:service_update');
+    Route::put('/patient-types/{id}', [PricingController::class, 'updateType'])->whereNumber('id')->middleware('checkPermission:service_update');
+    Route::delete('/patient-types/{id}', [PricingController::class, 'destroyType'])->whereNumber('id')->middleware('checkPermission:service_delete');
+    Route::get('/pricing', [PricingController::class, 'index'])->middleware('checkPermission:service_view');
+    Route::post('/pricing', [PricingController::class, 'save'])->middleware('checkPermission:service_update');
+    Route::post('/pricing/copy', [PricingController::class, 'copy'])->middleware('checkPermission:service_update');
+    Route::post('/pricing/adjust', [PricingController::class, 'adjust'])->middleware('checkPermission:service_update');
+    Route::get('/pricing/export', [PricingController::class, 'export'])->middleware('checkPermission:service_view');
 });

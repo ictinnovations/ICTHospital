@@ -23,11 +23,14 @@
                 <div data-original-title="" class="box-header well">
                     <h2><i class="glyphicon glyphicon-user"></i> {{ $patient->name }}
                         <small>{{ $patient->patient_id }}</small>
+                        @if ($patient->mlc)<span class="label label-danger">MLC</span>@endif
                     </h2>
                     <div class="box-icon">
                         <a href="{{ url('/patients/' . $patient->id . '/edit') }}" class="btn btn-default btn-sm">
                             <i class="glyphicon glyphicon-edit"></i> Edit
                         </a>
+                        <a href="{{ url('/patients/' . $patient->id . '/card') }}" target="_blank" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-credit-card"></i> Health card</a>
+                        <a href="{{ url('/patients/' . $patient->id . '/wristband') }}" target="_blank" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-tag"></i> Wristband</a>
                         <a href="{{ url('/patients') }}" class="btn btn-default btn-sm">Back to list</a>
                     </div>
                 </div>
@@ -45,14 +48,19 @@
                             <table class="table table-striped">
                                 <tbody>
                                     <tr><th style="width:220px">Patient ID</th><td>{{ $patient->patient_id }}</td></tr>
-                                    <tr><th>Father or guardian</th><td>{{ $patient->father_name ?: '-' }}</td></tr>
+                                    <tr><th>Patient type</th><td>{{ optional(\App\Models\PatientType::find($patient->patient_type_id))->name ?: 'General' }}</td></tr>
+                                    <tr><th>CNIC</th><td>{{ $patient->cnic ?: '-' }}</td></tr>
+                                    <tr><th>Father or guardian</th><td>{{ $patient->father_name ?: '-' }}{{ $patient->guardian_relation ? ' (' . $patient->guardian_relation . ')' : '' }}{{ $patient->guardian_mrn ? ', MR ' . $patient->guardian_mrn : '' }}</td></tr>
                                     <tr><th>Date of birth</th><td>{{ $patient->birthdate ?: '-' }}</td></tr>
                                     <tr><th>Age</th><td>{{ $patient->age !== '' ? $patient->age : '-' }}</td></tr>
                                     <tr><th>Sex</th><td>{{ $patient->sex ? ucfirst($patient->sex) : '-' }}</td></tr>
                                     <tr><th>Blood group</th><td>{{ $patient->bloodgroup ?: '-' }}</td></tr>
                                     <tr><th>Phone</th><td>{{ $patient->phone ?: '-' }}</td></tr>
                                     <tr><th>Email</th><td>{{ $patient->email ?: '-' }}</td></tr>
-                                    <tr><th>Address</th><td>{{ $patient->address ?: '-' }}</td></tr>
+                                    <tr><th>Address</th><td>{{ $patient->address ?: '-' }}{{ $patient->city ? ', ' . $patient->city : '' }}</td></tr>
+                                    @if ($patient->alt_phone)<tr><th>Alternate contact</th><td>{{ $patient->alt_phone }}</td></tr>@endif
+                                    @if ($patient->old_mrn)<tr><th>Old MR number</th><td>{{ $patient->old_mrn }}</td></tr>@endif
+                                    @if ($patient->employee_no)<tr><th>Employee or student no.</th><td>{{ $patient->employee_no }}</td></tr>@endif
                                     <tr><th>Assigned doctor</th><td>{{ $patient->doctor ?: 'Not assigned' }}</td></tr>
                                     <tr><th>Registered</th><td>{{ $patient->registration_time ?: $patient->add_date }}</td></tr>
                                     <tr><th>Registered via</th><td>{{ $patient->how_added ?: '-' }}</td></tr>

@@ -38,6 +38,7 @@ class PaymentCategoryController extends BaseController
         return view('app.services.index', [
             'services' => $services,
             'types' => $services->pluck('type')->filter()->unique()->sort()->values(),
+            'departments' => $services->pluck('department')->merge(\App\Models\Department::pluck('name'))->filter()->unique()->sort()->values(),
             // How many invoice lines reference each service, so the person
             // editing a price can see what is already out there against it.
             'usage' => InvoiceItem::selectRaw('payment_category_id, count(*) as n')
@@ -92,6 +93,7 @@ class PaymentCategoryController extends BaseController
             'description' => 'nullable|string|max:100',
             'c_price' => 'nullable|numeric|min:0',
             'type' => 'nullable|string|max:100',
+            'department' => 'nullable|string|max:100',
             'd_commission' => 'nullable|integer|min:0|max:100',
             'h_commission' => 'nullable|integer|min:0|max:100',
         ]);
@@ -116,6 +118,7 @@ class PaymentCategoryController extends BaseController
             'description' => $data['description'] ?? null,
             'c_price' => ($price === null || $price === '') ? null : number_format((float) $price, 2, '.', ''),
             'type' => $data['type'] ?? null,
+            'department' => $data['department'] ?? null,
             'd_commission' => $data['d_commission'] ?? null,
             'h_commission' => $data['h_commission'] ?? null,
         ];

@@ -40,10 +40,10 @@
                         <div class="row">
                             <div class="col-md-4 form-group">
                                 <label>Patient <span class="text-danger">*</span></label>
-                                <select name="patient" class="form-control" required>
+                                <select name="patient" id="inv-patient" class="form-control" required>
                                     <option value="">Choose a patient</option>
                                     @foreach ($patients as $p)
-                                        <option value="{{ $p->id }}"
+                                        <option value="{{ $p->id }}" data-type="{{ $p->patient_type_id ?: $defaultType }}"
                                             {{ (string) old('patient', $invoice->patient) === (string) $p->id ? 'selected' : '' }}>
                                             {{ $p->name }} ({{ $p->patient_id }})
                                         </option>
@@ -69,6 +69,26 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-4 form-group">
+                                <label>Patient type</label>
+                                <select name="patient_type_id" id="inv-type" class="form-control">
+                                    @foreach ($patientTypes as $t)
+                                        <option value="{{ $t->id }}" {{ (string) old('patient_type_id', $defaultType) === (string) $t->id ? 'selected' : '' }}>{{ $t->name }}</option>
+                                    @endforeach
+                                </select>
+                                <span class="help-block">Follows the patient. Change it only for a one-off.</span>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Care setting</label>
+                                <select name="care_setting" id="inv-setting" class="form-control">
+                                    @foreach (\App\Support\PriceList::SETTINGS as $k => $label)
+                                        <option value="{{ $k }}" {{ old('care_setting', $invoice->care_setting ?: 'opd') === $k ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
                         <h4>Charges <span class="text-danger">*</span></h4>
                         @if ($services->isEmpty())
                             <p class="text-muted">
@@ -90,10 +110,10 @@
                                 @foreach ($rows as $i => $row)
                                     <tr>
                                         <td>
-                                            <select name="items[{{ $i }}][payment_category_id]" class="form-control">
+                                            <select name="items[{{ $i }}][payment_category_id]" class="form-control svc-pick">
                                                 <option value="">Not a listed service</option>
                                                 @foreach ($services as $s)
-                                                    <option value="{{ $s->id }}"
+                                                    <option value="{{ $s->id }}" data-list="{{ (float) $s->c_price }}"
                                                         {{ (string) ($row['payment_category_id'] ?? '') === (string) $s->id ? 'selected' : '' }}>
                                                         {{ $s->category }}{{ $s->c_price ? ' (' . $s->c_price . ')' : '' }}
                                                     </option>
@@ -105,7 +125,7 @@
                                         <td><input type="number" min="1" name="items[{{ $i }}][quantity]"
                                                    class="form-control" value="{{ $row['quantity'] ?? 1 }}"></td>
                                         <td><input type="number" step="0.01" min="0" name="items[{{ $i }}][unit_price]"
-                                                   class="form-control" placeholder="list price"
+                                                   class="form-control unit-price" placeholder="list price"
                                                    value="{{ $row['unit_price'] ?? '' }}"></td>
                                     </tr>
                                 @endforeach
@@ -168,5 +188,36 @@ document.getElementById('add-row').addEventListener('click', function () {
 
     body.appendChild(copy);
 });
+
+// Price shown for each picked service follows the patient type and care setting.
+// The server prices the line the same way if the box is left blank.
+var priceMatrix = @json($priceMatrix);
+function priceFor(serviceId, listPrice) {
+    var t = document.getElementById('inv-type').value, s = document.getElementById('inv-setting').value;
+    var byType = priceMatrix[t] && priceMatrix[t][s];
+    return (byType && byType[serviceId] !== undefined) ? byType[serviceId] : listPrice;
+}
+function refreshPrices() {
+    document.querySelectorAll('#invoice-rows tbody tr').forEach(function (tr) {
+        var sel = tr.querySelector('.svc-pick'), box = tr.querySelector('.unit-price');
+        var opt = sel.options[sel.selectedIndex];
+        if (!sel.value) { return; }
+        box.placeholder = priceFor(sel.value, parseFloat(opt.dataset.list || 0)).toFixed(2);
+    });
+}
+document.getElementById('invoice-rows').addEventListener('change', function (e) {
+    if (e.target.classList.contains('svc-pick')) { refreshPrices(); }
+});
+document.getElementById('inv-patient').addEventListener('change', function () {
+    var opt = this.options[this.selectedIndex];
+    if (opt && opt.dataset.type) { document.getElementById('inv-type').value = opt.dataset.type; }
+    refreshPrices();
+});
+['inv-type', 'inv-setting'].forEach(function (id) { document.getElementById(id).addEventListener('change', refreshPrices); });
+(function () {
+    var opt = document.getElementById('inv-patient').selectedOptions[0];
+    if (opt && opt.dataset.type && !{{ old('patient_type_id') ? 'true' : 'false' }}) { document.getElementById('inv-type').value = opt.dataset.type; }
+    refreshPrices();
+})();
 </script>
 @stop
