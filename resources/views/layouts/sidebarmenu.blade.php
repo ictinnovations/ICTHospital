@@ -83,6 +83,19 @@ $active = function ($prefixes) use ($here) {
       </a>
     </li>
     @endif
+    @if ($may('appointment_view'))
+    <li>
+      <a class="dropmenu {{ $active('opd') ? 'active' : '' }}" href="#">
+        <i class="glyphicon glyphicon-sort-by-order"></i><span class="hidden-tablet"> OPD</span>
+        <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
+      </a>
+      <ul style="{{ $active('opd') ? '' : 'display:none;' }}">
+        <li><a href="{{ url('/opd/queue') }}"><i class="glyphicon glyphicon-sort-by-order"></i> Token Queue</a></li>
+        <li><a href="{{ url('/opd/history') }}"><i class="glyphicon glyphicon-time"></i> OPD History</a></li>
+        @if ($may('service_view'))<li><a href="{{ url('/opd/visit-fees') }}"><i class="glyphicon glyphicon-usd"></i> Visit Fees</a></li>@endif
+      </ul>
+    </li>
+    @endif
     @if ($may('admission_view'))
     <li>
       <a class="{{ $active('admissions') ? 'active' : '' }}" href="{{ url('/admissions') }}">

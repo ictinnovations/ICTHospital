@@ -17,6 +17,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\DoctorSchedule;
+
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
@@ -27,7 +29,7 @@ use Illuminate\Validation\ValidationException;
 
 class AppointmentController extends BaseController
 {
-    public const STATUSES = ['scheduled', 'arrived', 'completed', 'cancelled', 'no show'];
+    public const STATUSES = ['scheduled', 'arrived', 'in consultation', 'completed', 'cancelled', 'no show'];
 
     /** Default consultation length, in minutes, when no end time is given. */
     private const DEFAULT_MINUTES = 15;
@@ -155,6 +157,11 @@ class AppointmentController extends BaseController
         $end = (clone $start)->addMinutes($minutes);
 
         $this->assertNoClash($input['doctor'], $start, $end, $ignoreId);
+        // Cancelling or marking a no-show must not be refused because the doctor's
+        // hours changed since the booking was made.
+        if (! in_array($input['status'], ['cancelled', 'no show', 'completed'], true)) {
+            DoctorSchedule::assertBookable($input['doctor'], $start, $end);
+        }
 
         return [
             'patient' => $input['patient'],

@@ -39,6 +39,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\PricingController;
 use App\Http\Controllers\DoctorShareController;
 use App\Http\Controllers\CashController;
+use App\Http\Controllers\OpdController;
 
 
 
@@ -580,4 +581,27 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/day-book', [CashController::class, 'dayBook'])->middleware('checkPermission:view_payment_reports');
     Route::get('/settlement', [CashController::class, 'settlement'])->middleware('checkPermission:payment_add');
     Route::post('/settlement/{patient}', [CashController::class, 'settle'])->whereNumber('patient')->middleware('checkPermission:payment_add');
+});
+
+
+// Outpatients: token queue, walk-ins, visit fees, OPD history and doctor booking slots.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/opd/queue', [OpdController::class, 'queue'])->middleware('checkPermission:appointment_view');
+    Route::post('/opd/walk-in', [OpdController::class, 'walkIn'])->middleware('checkPermission:appointment_add');
+    Route::post('/opd/{id}/check-in', [OpdController::class, 'checkIn'])->whereNumber('id')->middleware('checkPermission:appointment_update');
+    Route::post('/opd/{id}/call-in', [OpdController::class, 'callIn'])->whereNumber('id')->middleware('checkPermission:appointment_update');
+    Route::post('/opd/{id}/done', [OpdController::class, 'done'])->whereNumber('id')->middleware('checkPermission:appointment_update');
+    Route::post('/opd/{id}/bill', [OpdController::class, 'billVisit'])->whereNumber('id')->middleware('checkPermission:payment_add');
+    Route::get('/opd/{id}/token', [OpdController::class, 'token'])->whereNumber('id')->middleware('checkPermission:appointment_view');
+    Route::get('/opd/history', [OpdController::class, 'history'])->middleware('checkPermission:appointment_view');
+    Route::get('/opd/visit-fees', [OpdController::class, 'fees'])->middleware('checkPermission:service_view');
+    Route::post('/opd/visit-fees', [OpdController::class, 'storeFee'])->middleware('checkPermission:service_update');
+    Route::delete('/opd/visit-fees/{id}', [OpdController::class, 'destroyFee'])->whereNumber('id')->middleware('checkPermission:service_update');
+    Route::get('/opd/free-slots', [OpdController::class, 'freeSlots'])->middleware('checkPermission:appointment_add');
+    Route::get('/doctors/{id}/slots', [OpdController::class, 'slots'])->whereNumber('id')->middleware('checkPermission:doctor_schedule');
+    Route::post('/doctors/{id}/slots', [OpdController::class, 'storeSlot'])->whereNumber('id')->middleware('checkPermission:doctor_schedule');
+    Route::post('/doctors/{id}/blocks', [OpdController::class, 'storeBlock'])->whereNumber('id')->middleware('checkPermission:doctor_schedule');
+    Route::post('/slots/{id}/toggle', [OpdController::class, 'toggleSlot'])->whereNumber('id')->middleware('checkPermission:doctor_schedule');
+    Route::delete('/slots/{id}', [OpdController::class, 'destroySlot'])->whereNumber('id')->middleware('checkPermission:doctor_schedule');
+    Route::delete('/blocks/{id}', [OpdController::class, 'destroyBlock'])->whereNumber('id')->middleware('checkPermission:doctor_schedule');
 });

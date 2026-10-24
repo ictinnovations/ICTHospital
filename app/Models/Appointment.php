@@ -30,5 +30,11 @@ class Appointment extends Model
         'pulse',
         'temprature',
         'weight',
+        'token_no',
+        'checked_in_at',
+        'consult_started_at',
+        'checked_out_at',
+        'visit_type',
+        'payment_id',
     ];
 }

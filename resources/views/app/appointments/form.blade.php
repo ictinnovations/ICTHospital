@@ -69,7 +69,7 @@
 
                                 <div class="form-group">
                                     <label>Doctor <span class="text-danger">*</span></label>
-                                    <select name="doctor" class="form-control" required>
+                                    <select name="doctor" id="appt-doctor" class="form-control" required>
                                         <option value="">Choose a doctor</option>
                                         @foreach ($doctors as $doctor)
                                             <option value="{{ $doctor->id }}"
@@ -96,16 +96,17 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="date" class="form-control" required
+                                    <input type="date" name="date" id="appt-date" class="form-control" required
                                            value="{{ old('date', $appointment->date ?: now()->toDateString()) }}">
                                 </div>
                                 <div class="form-group">
                                     <label>Start time <span class="text-danger">*</span></label>
-                                    <input type="time" name="start" class="form-control" required value="{{ $startValue }}">
+                                    <input type="time" name="start" id="appt-start" class="form-control" required value="{{ $startValue }}">
+                                    <div id="free-slots" style="margin-top:6px"></div>
                                 </div>
                                 <div class="form-group">
                                     <label>Length</label>
-                                    <input type="number" name="minutes" class="form-control" min="5" max="480"
+                                    <input type="number" name="minutes" id="appt-minutes" class="form-control" min="5" max="480"
                                            value="{{ $minutesValue }}">
                                     <span class="help-block">
                                         Minutes. The end time is worked out from this, so the slot and the times cannot disagree.
@@ -152,4 +153,29 @@
     </div>
 @stop
 @section('script')
+
+<script>
+// Free booking slots for the chosen doctor and date, from the doctor's weekly clinic hours.
+(function () {
+    var doc = document.getElementById('appt-doctor'), date = document.getElementById('appt-date'), box = document.getElementById('free-slots');
+    if (!doc || !date || !box) { return; }
+    function load() {
+        box.innerHTML = '';
+        if (!doc.value || !date.value) { return; }
+        fetch('{{ url('/opd/free-slots') }}?doctor=' + doc.value + '&date=' + date.value, { credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : []; })
+            .then(function (slots) {
+                if (!slots.length) { box.innerHTML = '<span class="help-block">No clinic slots set for this day, or all are taken. Any time can be typed if the doctor has no slots set up.</span>'; return; }
+                box.innerHTML = '<span class="help-block" style="margin:0 0 4px">Free slots:</span>';
+                slots.forEach(function (s) {
+                    var b = document.createElement('button');
+                    b.type = 'button'; b.className = 'btn btn-default btn-xs'; b.style.margin = '0 4px 4px 0'; b.textContent = s.start;
+                    b.onclick = function () { document.getElementById('appt-start').value = s.start; document.getElementById('appt-minutes').value = s.minutes; };
+                    box.appendChild(b);
+                });
+            });
+    }
+    doc.addEventListener('change', load); date.addEventListener('change', load); load();
+})();
+</script>
 @stop

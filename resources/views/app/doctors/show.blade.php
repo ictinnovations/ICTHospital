@@ -23,6 +23,7 @@
                 <div data-original-title="" class="box-header well">
                     <h2><i class="glyphicon glyphicon-briefcase"></i> {{ $doctor->name }}</h2>
                     <div class="box-icon">
+                        @if (\App\Support\Permissions::allows('doctor_schedule'))<a href="{{ url('/doctors/' . $doctor->id . '/slots') }}" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-time"></i> Booking slots</a>@endif
                         <a href="{{ url('/doctors/' . $doctor->id . '/edit') }}" class="btn btn-default btn-sm">Edit</a>
                     </div>
                 </div>

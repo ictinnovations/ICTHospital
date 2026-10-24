@@ -29,7 +29,7 @@
 </style>
 </head>
 <body>
-@php($institute = \Illuminate\Support\Facades\Schema::hasTable('institute') ? \Illuminate\Support\Facades\DB::table('institute')->value('name') : null)
+@php($institute = \Illuminate\Support\Facades\Schema::hasTable('institute') && \Illuminate\Support\Facades\Schema::hasColumn('institute', 'name') ? \Illuminate\Support\Facades\DB::table('institute')->value('name') : null)
 @if ($wristband)
   <div class="band">
     <div>
