@@ -40,6 +40,7 @@ use App\Http\Controllers\PricingController;
 use App\Http\Controllers\DoctorShareController;
 use App\Http\Controllers\CashController;
 use App\Http\Controllers\OpdController;
+use App\Http\Controllers\ConsultationController;
 
 
 
@@ -604,4 +605,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/slots/{id}/toggle', [OpdController::class, 'toggleSlot'])->whereNumber('id')->middleware('checkPermission:doctor_schedule');
     Route::delete('/slots/{id}', [OpdController::class, 'destroySlot'])->whereNumber('id')->middleware('checkPermission:doctor_schedule');
     Route::delete('/blocks/{id}', [OpdController::class, 'destroyBlock'])->whereNumber('id')->middleware('checkPermission:doctor_schedule');
+});
+
+
+// OPD consultation notes.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/consultations', [ConsultationController::class, 'index'])->middleware('checkPermission:consultation_view');
+    Route::get('/consultations/visit/{id}', [ConsultationController::class, 'visit'])->whereNumber('id')->middleware('checkPermission:consultation_add');
+    Route::post('/consultations/visit/{id}', [ConsultationController::class, 'save'])->whereNumber('id')->middleware('checkPermission:consultation_add');
+    Route::get('/consultations/{id}/print', [ConsultationController::class, 'printout'])->whereNumber('id')->middleware('checkPermission:consultation_view');
+    Route::delete('/consultations/templates/{id}', [ConsultationController::class, 'destroyTemplate'])->whereNumber('id')->middleware('checkPermission:consultation_add');
 });

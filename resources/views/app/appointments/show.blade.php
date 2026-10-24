@@ -26,6 +26,7 @@
                         <small>{{ $appointment->date }} {{ $appointment->time_slot }}</small>
                     </h2>
                     <div class="box-icon">
+                        @if (\App\Support\Permissions::allows('consultation_add'))<a href="{{ url('/consultations/visit/' . $appointment->id) }}" class="btn btn-info btn-sm"><i class="glyphicon glyphicon-heart"></i> Consultation</a>@endif
                         <a href="{{ url('/appointments/' . $appointment->id . '/edit') }}" class="btn btn-default btn-sm">
                             <i class="glyphicon glyphicon-heart"></i> Record vitals / edit
                         </a>

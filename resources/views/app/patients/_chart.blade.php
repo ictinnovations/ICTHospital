@@ -9,6 +9,21 @@
   Part of ICTHospital <https://www.icthospital.com>
   Licensed under the GNU General Public License v3.0.
 --}}
+@php($consults = \App\Models\Consultation::where('patient_id', $patient->id)->orderByDesc('date')->orderByDesc('id')->get())
+@if ($consults->isNotEmpty() && \App\Support\Permissions::allows('consultation_view'))
+<h3 style="margin-top:20px">Consultations</h3>
+<table class="table table-striped table-condensed">
+    <thead><tr><th>Date</th><th>Doctor</th><th>Complaint</th><th>Diagnosis</th><th>Follow-up</th><th></th></tr></thead>
+    <tbody>
+    @foreach ($consults as $cn)
+        <tr><td>{{ $cn->date }}</td><td>{{ $doctorNames[$cn->doctor_id] ?? '' }}</td><td>{{ \Illuminate\Support\Str::limit($cn->presenting_complaint, 50) }}</td>
+            <td>{{ \Illuminate\Support\Str::limit($cn->diagnosis ?: $cn->provisional_diagnosis, 50) }}</td><td>{{ $cn->follow_up_date }}</td>
+            <td><a href="{{ url('/consultations/' . $cn->id . '/print') }}" target="_blank" class="btn btn-default btn-xs">View</a></td></tr>
+    @endforeach
+    </tbody>
+</table>
+@endif
+
 @php($onWard = $admissions->firstWhere('d_time', null))
 @php($pid = $patient->id)
 @php($may = fn ($p) => \App\Support\Permissions::allows($p))

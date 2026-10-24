@@ -89,9 +89,10 @@ $active = function ($prefixes) use ($here) {
         <i class="glyphicon glyphicon-sort-by-order"></i><span class="hidden-tablet"> OPD</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
-      <ul style="{{ $active('opd') ? '' : 'display:none;' }}">
+      <ul style="{{ $active(['opd', 'consultations']) ? '' : 'display:none;' }}">
         <li><a href="{{ url('/opd/queue') }}"><i class="glyphicon glyphicon-sort-by-order"></i> Token Queue</a></li>
         <li><a href="{{ url('/opd/history') }}"><i class="glyphicon glyphicon-time"></i> OPD History</a></li>
+        @if ($may('consultation_view'))<li><a href="{{ url('/consultations') }}"><i class="glyphicon glyphicon-heart"></i> Consultations</a></li>@endif
         @if ($may('service_view'))<li><a href="{{ url('/opd/visit-fees') }}"><i class="glyphicon glyphicon-usd"></i> Visit Fees</a></li>@endif
       </ul>
     </li>
