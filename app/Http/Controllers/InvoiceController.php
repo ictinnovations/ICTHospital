@@ -171,6 +171,7 @@ class InvoiceController extends BaseController
                 'method' => $data['method'] ?? null,
                 'reference' => $data['reference'] ?? null,
                 'paid_at' => now()->toDateTimeString(),
+                'received_by' => auth()->id(),
             ]);
 
             // The legacy columns are kept in step so old reports still read.

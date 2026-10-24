@@ -31,6 +31,8 @@ class InvoicePayment extends Model
         'method',
         'reference',
         'paid_at',
+        'received_by',
+        'shift_close_id',
     ];
 
     protected $casts = [

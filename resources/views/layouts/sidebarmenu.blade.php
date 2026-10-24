@@ -156,6 +156,19 @@ $active = function ($prefixes) use ($here) {
       </a>
     </li>
 
+    @if ($may('cash_close') || $may('view_payment_reports') || $may('payment_add'))
+    <li>
+      <a class="dropmenu {{ $active(['cash-close', 'day-book', 'settlement']) ? 'active' : '' }}" href="#">
+        <i class="glyphicon glyphicon-briefcase"></i><span class="hidden-tablet"> Front Desk Cash</span>
+        <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
+      </a>
+      <ul style="{{ $active(['cash-close', 'day-book', 'settlement']) ? '' : 'display:none;' }}">
+        @if ($may('cash_close'))<li><a href="{{ url('/cash-close') }}"><i class="glyphicon glyphicon-lock"></i> Sale Close</a></li>@endif
+        @if ($may('view_payment_reports'))<li><a href="{{ url('/day-book') }}"><i class="glyphicon glyphicon-book"></i> Day Book</a></li>@endif
+        @if ($may('payment_add'))<li><a href="{{ url('/settlement') }}"><i class="glyphicon glyphicon-check"></i> Final Settlement</a></li>@endif
+      </ul>
+    </li>
+    @endif
     @if ($may('doctor_share_view'))
     <li>
       <a class="{{ $active('doctor-share') ? 'active' : '' }}" href="{{ url('/doctor-share') }}">

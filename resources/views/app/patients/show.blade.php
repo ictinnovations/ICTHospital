@@ -31,6 +31,7 @@
                         </a>
                         <a href="{{ url('/patients/' . $patient->id . '/card') }}" target="_blank" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-credit-card"></i> Health card</a>
                         <a href="{{ url('/patients/' . $patient->id . '/wristband') }}" target="_blank" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-tag"></i> Wristband</a>
+                        @if (\App\Support\Permissions::allows('payment_add'))<a href="{{ url('/settlement?patient=' . $patient->id) }}" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-check"></i> Final settlement</a>@endif
                         <a href="{{ url('/patients') }}" class="btn btn-default btn-sm">Back to list</a>
                     </div>
                 </div>

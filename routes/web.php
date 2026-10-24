@@ -38,6 +38,7 @@ use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\PricingController;
 use App\Http\Controllers\DoctorShareController;
+use App\Http\Controllers\CashController;
 
 
 
@@ -568,4 +569,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/doctor-share/policies/{id}/assign', [DoctorShareController::class, 'assign'])->whereNumber('id')->middleware('checkPermission:doctor_share_approve');
     Route::put('/doctor-share/rules/{id}', [DoctorShareController::class, 'updateRule'])->whereNumber('id')->middleware('checkPermission:doctor_share_approve');
     Route::delete('/doctor-share/rules/{id}', [DoctorShareController::class, 'destroyRule'])->whereNumber('id')->middleware('checkPermission:doctor_share_approve');
+});
+
+
+// Front desk money: end-of-shift cash close, the day book and final settlement.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/cash-close', [CashController::class, 'cashClose'])->middleware('checkPermission:cash_close');
+    Route::post('/cash-close', [CashController::class, 'storeClose'])->middleware('checkPermission:cash_close');
+    Route::get('/cash-close/{id}', [CashController::class, 'showClose'])->whereNumber('id')->middleware('checkPermission:cash_close');
+    Route::get('/day-book', [CashController::class, 'dayBook'])->middleware('checkPermission:view_payment_reports');
+    Route::get('/settlement', [CashController::class, 'settlement'])->middleware('checkPermission:payment_add');
+    Route::post('/settlement/{patient}', [CashController::class, 'settle'])->whereNumber('patient')->middleware('checkPermission:payment_add');
 });

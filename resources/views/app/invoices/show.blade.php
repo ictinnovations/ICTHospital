@@ -164,7 +164,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Method</label>
-                                    <input type="text" name="method" class="form-control" placeholder="Cash, card">
+                                    <select name="method" class="form-control">
+                                        @foreach (\App\Support\PaymentModes::MODES as $mode)
+                                            <option value="{{ $mode }}">{{ $mode }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Reference</label>
