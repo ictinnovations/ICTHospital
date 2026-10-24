@@ -8,7 +8,7 @@
 @extends('layouts.master')
 @section('content')
     @include('app.partials._alerts')
-    @php($mins = fn ($a, $b) => ($a && $b) ? max(0, \Carbon\Carbon::parse($a)->diffInMinutes(\Carbon\Carbon::parse($b))) : null)
+    @php($mins = fn ($a, $b) => ($a && $b) ? max(0, (int) floor(\Carbon\Carbon::parse($a)->diffInMinutes(\Carbon\Carbon::parse($b)))) : null)
     <div class="row">
         <div class="box col-md-12">
             <div class="box-inner">

@@ -8,7 +8,7 @@
 @extends('layouts.master')
 @section('content')
     @include('app.partials._alerts')
-    @php($mins = fn ($a, $b) => ($a && $b) ? max(0, \Carbon\Carbon::parse($a)->diffInMinutes(\Carbon\Carbon::parse($b))) : null)
+    @php($mins = fn ($a, $b) => ($a && $b) ? max(0, (int) floor(\Carbon\Carbon::parse($a)->diffInMinutes(\Carbon\Carbon::parse($b)))) : null)
     @php($canUpdate = \App\Support\Permissions::allows('appointment_update'))
     @php($canBill = \App\Support\Permissions::allows('payment_add'))
     <div class="row">
@@ -57,7 +57,7 @@
                                 <td>{{ ($t = $mins($v->consult_started_at, $v->checked_out_at ?: ($v->status === 'in consultation' ? now() : null))) !== null ? $t . ' min' : '' }}</td>
                                 <td>{{ ucfirst($v->status) }}</td>
                                 <td>@if ($v->payment_id)<a href="{{ url('/invoices/' . $v->payment_id) }}">#{{ $v->payment_id }}</a>@endif</td>
-                                <td class="text-nowrap">
+                                <td style="min-width:170px">
                                     @if ($canUpdate)
                                         @if (in_array($v->status, ['scheduled', 'no show'], true))
                                             <form method="post" action="{{ url('/opd/' . $v->id . '/check-in') }}" style="display:inline">{{ csrf_field() }}<button class="btn btn-default btn-xs">Check in</button></form>
