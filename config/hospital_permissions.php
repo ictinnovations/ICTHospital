@@ -145,5 +145,13 @@ return [
         'Branch Add',
         'Branch Update',
         'Branch Delete',
+
+        // Added 2026-10: doctor share, cash closing, consultations.
+        'Doctor Share View',
+        'Doctor Share Approve',
+        'Cash Close',
+        'Cash Close All Users',
+        'Consultation View',
+        'Consultation Add',
     ],
 ];

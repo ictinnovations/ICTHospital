@@ -41,6 +41,7 @@ class Payment extends Model
         'date_string',
         'patient_type_id',
         'care_setting',
+        'referring_doctor',
     ];
 
     /** What was charged. category_name and category_amount are the legacy copies. */

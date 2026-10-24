@@ -156,6 +156,14 @@ $active = function ($prefixes) use ($here) {
       </a>
     </li>
 
+    @if ($may('doctor_share_view'))
+    <li>
+      <a class="{{ $active('doctor-share') ? 'active' : '' }}" href="{{ url('/doctor-share') }}">
+        <i class="glyphicon glyphicon-random"></i><span class="hidden-tablet"> Doctor Share</span>
+      </a>
+    </li>
+    @endif
+
     <li class="nav-header">People</li>
 
     @if ($may('department_view'))

@@ -24,5 +24,6 @@ class Doctor extends Model
         'y',
         'ion_user_id',
         'procedure_id',
+        'share_policy_id',
     ];
 }

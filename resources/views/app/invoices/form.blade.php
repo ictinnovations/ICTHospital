@@ -71,6 +71,15 @@
 
                         <div class="row">
                             <div class="col-md-4 form-group">
+                                <label>Referring doctor</label>
+                                <select name="referring_doctor" class="form-control">
+                                    <option value="">None</option>
+                                    @foreach ($doctors as $d)
+                                        <option value="{{ $d->id }}" {{ (string) old('referring_doctor') === (string) $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4 form-group">
                                 <label>Patient type</label>
                                 <select name="patient_type_id" id="inv-type" class="form-control">
                                     @foreach ($patientTypes as $t)
@@ -100,10 +109,11 @@
                         <table class="table table-bordered" id="invoice-rows">
                             <thead>
                                 <tr>
-                                    <th style="width:40%">Service</th>
-                                    <th style="width:20%">or type a description</th>
-                                    <th style="width:15%">Quantity</th>
-                                    <th style="width:20%">Unit price</th>
+                                    <th style="width:32%">Service</th>
+                                    <th style="width:18%">or type a description</th>
+                                    <th style="width:18%">Performed by</th>
+                                    <th style="width:12%">Quantity</th>
+                                    <th style="width:18%">Unit price</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -122,6 +132,12 @@
                                         </td>
                                         <td><input type="text" name="items[{{ $i }}][name]" class="form-control"
                                                    value="{{ $row['name'] ?? '' }}"></td>
+                                        <td><select name="items[{{ $i }}][doctor_id]" class="form-control">
+                                                <option value="">Invoice doctor</option>
+                                                @foreach ($doctors as $d)
+                                                    <option value="{{ $d->id }}" {{ (string) ($row['doctor_id'] ?? '') === (string) $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
+                                                @endforeach
+                                            </select></td>
                                         <td><input type="number" min="1" name="items[{{ $i }}][quantity]"
                                                    class="form-control" value="{{ $row['quantity'] ?? 1 }}"></td>
                                         <td><input type="number" step="0.01" min="0" name="items[{{ $i }}][unit_price]"

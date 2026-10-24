@@ -24,6 +24,8 @@ use App\Models\Payment;
 use App\Models\PaymentCategory;
 use App\Models\PatientType;
 use App\Support\PriceList;
+use App\Support\ShareCalculator;
+use App\Models\DoctorShare;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -88,6 +90,7 @@ class InvoiceController extends BaseController
             }
 
             $this->refreshTotals($invoice->fresh('items'));
+            ShareCalculator::forInvoice($invoice->fresh('items'));
 
             return $invoice;
         });
@@ -115,7 +118,13 @@ class InvoiceController extends BaseController
                 ->with('error', 'Money has been taken against this invoice, so it cannot be deleted.');
         }
 
+        if (DoctorShare::where('payment_id', $invoice->id)->where('status', '!=', 'pending')->exists()) {
+            return redirect('/invoices/' . $invoice->id)
+                ->with('error', 'A doctor share on this invoice is already approved or paid, so it cannot be deleted.');
+        }
+
         DB::transaction(function () use ($invoice) {
+            DoctorShare::where('payment_id', $invoice->id)->delete();
             $invoice->items()->delete();
             $invoice->delete();
         });
@@ -180,6 +189,7 @@ class InvoiceController extends BaseController
         $input = $request->validate([
             'patient' => 'required|integer|exists:patient,id',
             'doctor' => 'nullable|integer|exists:doctor,id',
+            'referring_doctor' => 'nullable|integer|exists:doctor,id',
             'date' => 'required|date',
             'discount' => 'nullable|numeric|min:0',
             'vat' => 'nullable|numeric|min:0',
@@ -191,6 +201,7 @@ class InvoiceController extends BaseController
             'items.*.name' => 'nullable|string|max:200',
             'items.*.quantity' => 'nullable|integer|min:1',
             'items.*.unit_price' => 'nullable|numeric|min:0',
+            'items.*.doctor_id' => 'nullable|integer|exists:doctor,id',
         ]);
 
         $patientRow = Patient::find($input['patient']);
@@ -248,6 +259,7 @@ class InvoiceController extends BaseController
             'deposit_type' => null,
             'patient_type_id' => $typeId,
             'care_setting' => $setting,
+            'referring_doctor' => $input['referring_doctor'] ?? null,
         ], $items];
     }
 
@@ -281,6 +293,7 @@ class InvoiceController extends BaseController
                 'quantity' => $quantity,
                 'unit_price' => number_format($unit, 2, '.', ''),
                 'line_total' => number_format($unit * $quantity, 2, '.', ''),
+                'doctor_id' => ! empty($row['doctor_id']) ? (int) $row['doctor_id'] : null,
             ];
         }
 

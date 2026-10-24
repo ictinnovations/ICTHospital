@@ -37,6 +37,7 @@ use App\Http\Controllers\MedicalHistoryController;
 use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\PricingController;
+use App\Http\Controllers\DoctorShareController;
 
 
 
@@ -551,4 +552,20 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pricing/copy', [PricingController::class, 'copy'])->middleware('checkPermission:service_update');
     Route::post('/pricing/adjust', [PricingController::class, 'adjust'])->middleware('checkPermission:service_update');
     Route::get('/pricing/export', [PricingController::class, 'export'])->middleware('checkPermission:service_view');
+});
+
+
+// Doctor share: policies and rules, the share report, approval and payout.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/doctor-share', [DoctorShareController::class, 'report'])->middleware('checkPermission:doctor_share_view');
+    Route::post('/doctor-share/approve', [DoctorShareController::class, 'approve'])->middleware('checkPermission:doctor_share_approve');
+    Route::post('/doctor-share/pay', [DoctorShareController::class, 'pay'])->middleware('checkPermission:doctor_share_approve');
+    Route::get('/doctor-share/policies', [DoctorShareController::class, 'policies'])->middleware('checkPermission:doctor_share_view');
+    Route::post('/doctor-share/policies', [DoctorShareController::class, 'storePolicy'])->middleware('checkPermission:doctor_share_approve');
+    Route::put('/doctor-share/policies/{id}', [DoctorShareController::class, 'updatePolicy'])->whereNumber('id')->middleware('checkPermission:doctor_share_approve');
+    Route::delete('/doctor-share/policies/{id}', [DoctorShareController::class, 'destroyPolicy'])->whereNumber('id')->middleware('checkPermission:doctor_share_approve');
+    Route::post('/doctor-share/policies/{id}/rules', [DoctorShareController::class, 'storeRule'])->whereNumber('id')->middleware('checkPermission:doctor_share_approve');
+    Route::post('/doctor-share/policies/{id}/assign', [DoctorShareController::class, 'assign'])->whereNumber('id')->middleware('checkPermission:doctor_share_approve');
+    Route::put('/doctor-share/rules/{id}', [DoctorShareController::class, 'updateRule'])->whereNumber('id')->middleware('checkPermission:doctor_share_approve');
+    Route::delete('/doctor-share/rules/{id}', [DoctorShareController::class, 'destroyRule'])->whereNumber('id')->middleware('checkPermission:doctor_share_approve');
 });

@@ -118,6 +118,20 @@
                         </tfoot>
                     </table>
 
+                    @php($shares = \App\Models\DoctorShare::where('payment_id', $invoice->id)->get())
+                    @if ($shares->isNotEmpty())
+                        <h4>Doctor shares</h4>
+                        @php($dn = \App\Models\Doctor::whereIn('id', $shares->pluck('doctor_id'))->pluck('name', 'id'))
+                        <table class="table table-condensed table-bordered" style="max-width:720px">
+                            <thead><tr><th>Doctor</th><th>Type</th><th class="text-right">Base</th><th class="text-right">%</th><th class="text-right">Share</th><th>Status</th></tr></thead>
+                            <tbody>
+                            @foreach ($shares as $sh)
+                                <tr><td>{{ $dn[$sh->doctor_id] ?? $sh->doctor_id }}</td><td>{{ ucfirst($sh->role) }}</td><td class="text-right">{{ number_format((float) $sh->base_amount, 2) }}</td><td class="text-right">{{ rtrim(rtrim($sh->percent, '0'), '.') }}</td><td class="text-right">{{ number_format((float) $sh->amount, 2) }}</td><td>{{ ucfirst($sh->status) }}</td></tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+
                     @if ($invoice->payments->isNotEmpty())
                         <h4>Payments</h4>
                         <table class="table table-striped">
