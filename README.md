@@ -27,7 +27,7 @@ Where it stands:
 - **Ready to try.** Install it, load the demonstration data, and the whole workflow runs
   end to end: register a patient, book them in, admit them, prescribe, order bloods,
   dispense, bill, and read the reports
-- **Tested.** 153 feature tests covering the clinical modules, the permission rules and
+- **Tested.** 255 feature tests covering the clinical modules, the permission rules and
   the writes that used to race. CI runs them on every push, alongside a dependency
   advisory check
 - **Not yet proven in production.** The screens are new and have automated coverage
@@ -81,6 +81,20 @@ Where it stands:
   or report attached where you have one
 - Payment gateway credentials, stored ready for the online payment work still to come.
   Nothing in this release charges a card, and the screen says so
+- Patient types (general, panel company, charity, online, staff) with a price list per
+  type for outpatients and inpatients; registration with CNIC, guardian MR number,
+  medico-legal flag, old MR number and a webcam photo; health card and wristband printing
+- Doctor share: policies with rules per service, department and patient type, performing
+  and referring doctor, approval once the invoice is paid, payout into accounting
+- Front desk cash: shift close by payment mode with counted cash, a day book split
+  private, panel and charity with doctor and hospital share, and final settlement across
+  a patient's invoices with an optional write-off
+- OPD token queue with waiting and treatment times, walk-ins, visit fees per doctor,
+  visit type and shift, OPD history, and weekly booking slots with blocked dates
+- OPD consultation screen: examination by system, diagnosis, plan, follow-up, lab and
+  radiology orders, gynae, dental, eye and immunization sections, reusable templates
+- Radiology worklist, reports, billing and an exam catalogue
+- Video consultations, service kinds and packages, and hospital branches
 - A demonstration data seeder, so an evaluator sees a working hospital rather than empty
   tables: `php artisan db:seed --class=DemoDataSeeder`
 
@@ -133,11 +147,11 @@ the locks are exercised by MySQL and MariaDB.
 
 - Patient deposits and operation theatre payments have tables and models but no screens.
   Both are planned
-- The doctor and hospital commission percentages on the price list are recorded and
-  applied to nothing. They come from the legacy schema, and how a split should actually
-  work is a decision rather than a missing screen
-- Reporting covers four questions: outstanding lab work, drug usage, debtors and bed
-  occupancy. Anything else still means querying the database
+- Reporting covers outstanding lab work, drug usage, debtors, bed occupancy, the day
+  book, doctor shares and OPD history. Anything else still means querying the database
+- Payroll, a patient self-booking portal and thumb-scanner registration are not built
+- Video visits open rooms on a Jitsi Meet server; the patient link is copied and sent by
+  hand, because one-off SMS through ICTCore is campaign based
 
 **Before you put real patients in it**
 

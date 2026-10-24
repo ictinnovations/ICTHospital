@@ -202,6 +202,61 @@ You can't overpay an invoice, and a refused payment isn't recorded at all.
 
 ---
 
+## Front desk, OPD and radiology
+
+**Patient types and prices.** Every patient has a type: General, a panel company, Charity,
+an online booking platform or Staff. Set them up under *Pricing by Patient Type*, then
+enter what each type pays for each service, separately for outpatients (OPD) and
+inpatients (IPD). A blank box means the list price. *Update pricing list* puts a whole
+list up or down by a percentage, *Copy pricing list* starts a new company from an
+existing one, and *Download price list* gives you a CSV. Invoices pick the price from the
+patient's type and the care setting.
+
+**Registration.** The patient form also takes the CNIC, the guardian's relation and MR
+number, an old MR number from a previous system, an employee or student number, the city,
+an alternate contact and the medico-legal (MLC) flag. *Take photo with webcam* works on
+HTTPS or localhost. From the patient page, *Health card* and *Wristband* print a card or a
+band with the MR number as a barcode.
+
+**OPD token queue.** *OPD, Token Queue* lists the day's visits. *Check in* gives the next
+token for that doctor, *Call in* starts the consultation and *Done* checks the patient out,
+so the waiting time and the time with the doctor are recorded. A walk-in is booked,
+checked in and given a token in one step, and the visit fee can be billed at the same
+time. Visit fees are set per doctor, visit type and shift under *Visit Fees*. A doctor's
+weekly clinic hours and days off are under *Booking slots* on the doctor's page; once set,
+bookings must fit inside them and the booking form offers the free slots.
+
+**Consultation.** *Consult* on the queue opens the doctor's note for that visit: vitals,
+complaint and history, allergies, examination by body system, diagnosis, plan, treatment
+and follow-up, with sections for gynae and obstetric (EDD and gestational age are worked
+out from the LMP), dental, eye with a glasses prescription and immunizations. Lab tests
+and radiology exams ticked on the page are ordered when you save. *Save and discharge*
+completes the visit. Text can be saved as a template and applied at the next visit.
+
+**Radiology.** *Radiology* is the worklist, urgent orders first. Open an order to schedule
+it, mark it performed and write the findings and impression. Exams, their modality and the
+service they are billed as are kept in the *Exam catalogue*.
+
+**Doctor share.** Under *Doctor Share, Policies*, a policy is a set of rules (service,
+department, patient type, doctor percentage, referral percentage) and each doctor is put
+on one policy. Shares are worked out on every invoice line. In the *Doctor share report*,
+shares can be approved once their invoice is paid in full, and *Pay share* records the
+payout as an expense in Accounting.
+
+**Cash.** *Front Desk Cash, Sale Close* shows the payments you have taken since your last
+close, by payment mode. Count the drawer, enter it and close the shift; the slip records
+any difference. The *Day Book* shows what was billed by department, split private, panel
+and charity, each line's doctor and hospital share, and what was collected by mode.
+*Final Settlement* takes one payment across all of a patient's open invoices, oldest first,
+with an optional write-off that needs a reason.
+
+**Video visits.** Tick *Video consultation* when booking. The appointment page shows the
+link to send the patient, and the doctor starts the call from the queue.
+
+**Branches.** Under *Settings, Branches*, add the hospital's sites and tick the users who
+work at each. Users tied to a branch see that branch only; others pick a branch from the
+top bar or see all of them.
+
 ## Reports
 
 ![Reports](screenshots/reports.png)
