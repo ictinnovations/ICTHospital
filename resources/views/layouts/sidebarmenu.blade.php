@@ -132,6 +132,13 @@ $active = function ($prefixes) use ($here) {
       </a>
     </li>
     @endif
+    @if ($may('diagnostic_report_view'))
+    <li>
+      <a class="{{ $active('radiology') ? 'active' : '' }}" href="{{ url('/radiology') }}">
+        <i class="glyphicon glyphicon-film"></i><span class="hidden-tablet"> Radiology</span>
+      </a>
+    </li>
+    @endif
     @if ($may('pharmacy_stock_view'))
     <li>
       <a class="{{ $active('pharmacy') ? 'active' : '' }}" href="{{ url('/pharmacy') }}">

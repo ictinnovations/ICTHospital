@@ -98,6 +98,8 @@ class ConsultationController extends BaseController
             'b_p' => 'nullable|string|max:100', 'pulse' => 'nullable|string|max:100',
             'temprature' => 'nullable|string|max:100', 'weight' => 'nullable|string|max:100',
             'lab_tests' => 'array', 'lab_tests.*' => 'integer|exists:lab_category,id',
+            'radiology_exams' => 'array', 'radiology_exams.*' => 'integer|exists:radiology_exam,id',
+            'radiology_urgent' => 'nullable|boolean',
             'action' => 'nullable|in:save,complete',
             'template_name' => 'nullable|string|max:100',
         ]);
@@ -138,6 +140,12 @@ class ConsultationController extends BaseController
                 if ($lab) {
                     $msg .= ' Lab request #' . $lab->id . ' raised.';
                 }
+            }
+
+            if (! empty($data['radiology_exams'])) {
+                $placed = \App\Models\RadiologyOrder::place($patient, $visit->doctor, $data['radiology_exams'],
+                    ! empty($data['radiology_urgent']), $data['provisional_diagnosis'] ?? null, $visit->id);
+                $msg .= ' ' . count($placed) . ' radiology exam(s) ordered.';
             }
 
             if (! empty($data['template_name'])) {

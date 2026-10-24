@@ -9,6 +9,19 @@
   Part of ICTHospital <https://www.icthospital.com>
   Licensed under the GNU General Public License v3.0.
 --}}
+@php($imaging = \App\Models\RadiologyOrder::where('patient_id', $patient->id)->orderByDesc('created_at')->get())
+@if ($imaging->isNotEmpty() && \App\Support\Permissions::allows('diagnostic_report_view'))
+<h3 style="margin-top:20px">Radiology</h3>
+<table class="table table-striped table-condensed">
+    <thead><tr><th>Ordered</th><th>Exam</th><th>Status</th><th>Impression</th><th></th></tr></thead>
+    <tbody>
+    @foreach ($imaging as $im)
+        <tr><td>{{ \Illuminate\Support\Str::of($im->created_at)->substr(0, 10) }}</td><td>{{ $im->name }}</td><td>{{ \App\Models\RadiologyOrder::STATUSES[$im->status] ?? $im->status }}</td>
+            <td>{{ \Illuminate\Support\Str::limit($im->impression, 60) }}</td><td><a href="{{ url('/radiology/' . $im->id) }}" class="btn btn-default btn-xs">Open</a></td></tr>
+    @endforeach
+    </tbody>
+</table>
+@endif
 @php($consults = \App\Models\Consultation::where('patient_id', $patient->id)->orderByDesc('date')->orderByDesc('id')->get())
 @if ($consults->isNotEmpty() && \App\Support\Permissions::allows('consultation_view'))
 <h3 style="margin-top:20px">Consultations</h3>

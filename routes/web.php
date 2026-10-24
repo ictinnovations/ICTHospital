@@ -41,6 +41,7 @@ use App\Http\Controllers\DoctorShareController;
 use App\Http\Controllers\CashController;
 use App\Http\Controllers\OpdController;
 use App\Http\Controllers\ConsultationController;
+use App\Http\Controllers\RadiologyController;
 
 
 
@@ -615,4 +616,20 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/consultations/visit/{id}', [ConsultationController::class, 'save'])->whereNumber('id')->middleware('checkPermission:consultation_add');
     Route::get('/consultations/{id}/print', [ConsultationController::class, 'printout'])->whereNumber('id')->middleware('checkPermission:consultation_view');
     Route::delete('/consultations/templates/{id}', [ConsultationController::class, 'destroyTemplate'])->whereNumber('id')->middleware('checkPermission:consultation_add');
+});
+
+
+// Radiology: worklist, orders, reports, billing and the exam catalogue. The catalogue
+// and create routes come before /radiology/{id}.
+Route::middleware(['auth'])->group(function () {
+    Route::get('/radiology', [RadiologyController::class, 'index'])->middleware('checkPermission:diagnostic_report_view');
+    Route::get('/radiology/create', [RadiologyController::class, 'create'])->middleware('checkPermission:diagnostic_report_add');
+    Route::post('/radiology', [RadiologyController::class, 'store'])->middleware('checkPermission:diagnostic_report_add');
+    Route::get('/radiology/catalogue', [RadiologyController::class, 'catalogue'])->middleware('checkPermission:diagnostic_report_view');
+    Route::post('/radiology/catalogue', [RadiologyController::class, 'storeExam'])->middleware('checkPermission:diagnostic_report_add');
+    Route::put('/radiology/catalogue/{id}', [RadiologyController::class, 'updateExam'])->whereNumber('id')->middleware('checkPermission:diagnostic_report_add');
+    Route::get('/radiology/{id}', [RadiologyController::class, 'show'])->whereNumber('id')->middleware('checkPermission:diagnostic_report_view');
+    Route::put('/radiology/{id}', [RadiologyController::class, 'update'])->whereNumber('id')->middleware('checkPermission:diagnostic_report_add');
+    Route::post('/radiology/{id}/bill', [RadiologyController::class, 'bill'])->whereNumber('id')->middleware('checkPermission:payment_add');
+    Route::get('/radiology/{id}/print', [RadiologyController::class, 'printout'])->whereNumber('id')->middleware('checkPermission:diagnostic_report_view');
 });
