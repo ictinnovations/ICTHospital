@@ -32,7 +32,7 @@ $permision[] = $permission->permission_name;
         ===
     -->
     <meta charset="utf-8">
-    <title>@if(Session::get('inName')=='') Ict Innovations School @else {{Session::get('inName')}} @endif</title>
+    <title>@if(Session::get('inName')=='') ICTHospital @else {{Session::get('inName')}} @endif</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}" />
 
@@ -52,7 +52,7 @@ window.addEventListener('keydown',function(e){if(e.keyIdentifier=='U+000A'||e.ke
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
     <link href="{{ URL::asset('/assets/css/font-face.css')}}" rel="stylesheet" media="all">
     <link href="{{ URL::asset('/assets/vendor/font-awesome-4.7/css/font-awesome.min.css')}}" rel="stylesheet" media="all">
-    <link href="{{ URL::asset('/assets/vendor/font-awesome-5/css/fontawesome-all.min.css')}}" rel="stylesheet" media="all">
+    <link href="{{ URL::asset('/assets/vendor/fontawesome-5.15/css/all.min.css')}}" rel="stylesheet" media="all">
     <link href="{{ URL::asset('/assets/vendor/mdi-font/css/material-design-iconic-font.min.css')}}" rel="stylesheet" media="all">
 
     <!-- Bootstrap CSS-->
@@ -81,7 +81,9 @@ window.addEventListener('keydown',function(e){if(e.keyIdentifier=='U+000A'||e.ke
     
 
 
-    <link rel="shortcut icon" href="{{ URL::asset('img/favicon.ico')}}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('img/brand/icthospital-mark.svg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('img/brand/favicon-180.png') }}">
     {{--<link href='//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css' rel='stylesheet'>--}}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
 
@@ -338,7 +340,7 @@ table i {
     <![endif]-->
 
     <!-- The fav icon -->
-    <link rel="shortcut icon" href="{{ URL::asset('img/favicon.ico')}}">
+    <!-- favicon links are in the head above -->
     <link href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.dataTables.min.css" rel="stylesheet">
 
   {{-- ICTHospital: keep the content clear of the fixed sidebar.
@@ -370,6 +372,7 @@ table i {
       .box-header h2 { white-space: normal; }
     }
   </style>
+  <link href="{{ asset('css/icthospital-ui.css') }}?v=2026.10" rel="stylesheet">
 </head>
 
 <body @if(Request::is('student/create-file')) @else class="animsition" @endif>
@@ -397,8 +400,8 @@ table i {
                             <div class="logo d-block d-lg-none">
 
                                 <a class="js-arrow" href="#">
-                                    @if(Session::get('inName')=='')
-                                    <img src="images/icon/logo-white.png" alt="CoolAdmin" />
+                                    @if(Session::get('inName')=='' || Session::get('inName')=='ICTHospital')
+                                    <img src="{{ asset('img/brand/icthospital-logo.svg') }}" alt="ICTHospital" style="height:34px" />
                                     @else
                                       <h2>{{Session::get('inName')}}</h2>
                                     @endif

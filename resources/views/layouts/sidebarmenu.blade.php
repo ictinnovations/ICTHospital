@@ -43,13 +43,14 @@ $active = function ($prefixes) use ($here) {
 ?>
 
 <div class="sidebar-nav nav-canvas-thumb">
+  <a class="ih-brand" href="{{ url('/dashboard') }}" aria-label="ICTHospital home"><img src="{{ asset('img/brand/icthospital-logo.svg') }}" alt="ICTHospital"></a>
   <ul class="nav nav-pills nav-stacked main-menu">
 
     <li class="nav-header">Main</li>
 
     <li>
       <a class="{{ $active('dashboard') ? 'active' : '' }}" href="{{ url('/dashboard') }}">
-        <i class="glyphicon glyphicon-home"></i><span class="hidden-tablet"> Dashboard</span>
+        <i class="fas fa-th-large"></i><span class="hidden-tablet"> Dashboard</span>
       </a>
     </li>
 
@@ -58,35 +59,35 @@ $active = function ($prefixes) use ($here) {
     @if ($may('patient_view'))
     <li>
       <a class="{{ $active('patients') ? 'active' : '' }}" href="{{ url('/patients') }}">
-        <i class="glyphicon glyphicon-user"></i><span class="hidden-tablet"> Patients</span>
+        <i class="fas fa-user-injured"></i><span class="hidden-tablet"> Patients</span>
       </a>
     </li>
     @endif
     @if ($may('patient_medical_history'))
     <li>
       <a class="{{ $active('history') ? 'active' : '' }}" href="{{ url('/history') }}">
-        <i class="glyphicon glyphicon-folder-open"></i><span class="hidden-tablet"> Medical History</span>
+        <i class="fas fa-notes-medical"></i><span class="hidden-tablet"> Medical History</span>
       </a>
     </li>
     @endif
     @if ($may('doctor_view'))
     <li>
       <a class="{{ $active('doctors') ? 'active' : '' }}" href="{{ url('/doctors') }}">
-        <i class="glyphicon glyphicon-briefcase"></i><span class="hidden-tablet"> Doctors</span>
+        <i class="fas fa-user-md"></i><span class="hidden-tablet"> Doctors</span>
       </a>
     </li>
     @endif
     @if ($may('appointment_view'))
     <li>
       <a class="{{ $active('appointments') ? 'active' : '' }}" href="{{ url('/appointments') }}">
-        <i class="glyphicon glyphicon-calendar"></i><span class="hidden-tablet"> Appointments</span>
+        <i class="fas fa-calendar-check"></i><span class="hidden-tablet"> Appointments</span>
       </a>
     </li>
     @endif
     @if ($may('appointment_view'))
     <li>
       <a class="dropmenu {{ $active('opd') ? 'active' : '' }}" href="#">
-        <i class="glyphicon glyphicon-sort-by-order"></i><span class="hidden-tablet"> OPD</span>
+        <i class="fas fa-stethoscope"></i><span class="hidden-tablet"> OPD</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
       <ul style="{{ $active(['opd', 'consultations']) ? '' : 'display:none;' }}">
@@ -100,87 +101,87 @@ $active = function ($prefixes) use ($here) {
     @if ($may('admission_view'))
     <li>
       <a class="{{ $active('admissions') ? 'active' : '' }}" href="{{ url('/admissions') }}">
-        <i class="glyphicon glyphicon-log-in"></i><span class="hidden-tablet"> Admissions</span>
+        <i class="fas fa-procedures"></i><span class="hidden-tablet"> Admissions</span>
       </a>
     </li>
     @endif
     @if ($may('bed_view'))
     <li>
       <a class="{{ $active('beds') ? 'active' : '' }}" href="{{ url('/beds') }}">
-        <i class="glyphicon glyphicon-th"></i><span class="hidden-tablet"> Beds</span>
+        <i class="fas fa-bed"></i><span class="hidden-tablet"> Beds</span>
       </a>
     </li>
     @endif
     @if ($may('prescription_view'))
     <li>
       <a class="{{ $active('prescriptions') ? 'active' : '' }}" href="{{ url('/prescriptions') }}">
-        <i class="glyphicon glyphicon-list-alt"></i><span class="hidden-tablet"> Prescriptions</span>
+        <i class="fas fa-file-prescription"></i><span class="hidden-tablet"> Prescriptions</span>
       </a>
     </li>
     @endif
     @if ($may('medicine_view'))
     <li>
       <a class="{{ $active('medicines') ? 'active' : '' }}" href="{{ url('/medicines') }}">
-        <i class="glyphicon glyphicon-plus-sign"></i><span class="hidden-tablet"> Medicines</span>
+        <i class="fas fa-pills"></i><span class="hidden-tablet"> Medicines</span>
       </a>
     </li>
     @endif
     @if ($may('lab_test_view'))
     <li>
       <a class="{{ $active('lab') ? 'active' : '' }}" href="{{ url('/lab') }}">
-        <i class="glyphicon glyphicon-tint"></i><span class="hidden-tablet"> Laboratory</span>
+        <i class="fas fa-flask"></i><span class="hidden-tablet"> Laboratory</span>
       </a>
     </li>
     @endif
     @if ($may('diagnostic_report_view'))
     <li>
       <a class="{{ $active('radiology') ? 'active' : '' }}" href="{{ url('/radiology') }}">
-        <i class="glyphicon glyphicon-film"></i><span class="hidden-tablet"> Radiology</span>
+        <i class="fas fa-x-ray"></i><span class="hidden-tablet"> Radiology</span>
       </a>
     </li>
     @endif
     @if ($may('pharmacy_stock_view'))
     <li>
       <a class="{{ $active('pharmacy') ? 'active' : '' }}" href="{{ url('/pharmacy') }}">
-        <i class="glyphicon glyphicon-shopping-cart"></i><span class="hidden-tablet"> Pharmacy</span>
+        <i class="fas fa-clinic-medical"></i><span class="hidden-tablet"> Pharmacy</span>
       </a>
     </li>
     @endif
     @if ($may('invoice_view'))
     <li>
       <a class="{{ $active('invoices') ? 'active' : '' }}" href="{{ url('/invoices') }}">
-        <i class="glyphicon glyphicon-usd"></i><span class="hidden-tablet"> Invoices</span>
+        <i class="fas fa-file-invoice-dollar"></i><span class="hidden-tablet"> Invoices</span>
       </a>
     </li>
     @endif
     @if ($may('service_view'))
     <li>
       <a class="{{ $active('services') ? 'active' : '' }}" href="{{ url('/services') }}">
-        <i class="glyphicon glyphicon-tags"></i><span class="hidden-tablet"> Services and Prices</span>
+        <i class="fas fa-tags"></i><span class="hidden-tablet"> Services and Prices</span>
       </a>
     </li>
     <li>
       <a class="{{ $active(['pricing', 'patient-types']) ? 'active' : '' }}" href="{{ url('/pricing') }}">
-        <i class="glyphicon glyphicon-list"></i><span class="hidden-tablet"> Pricing by Patient Type</span>
+        <i class="fas fa-hand-holding-usd"></i><span class="hidden-tablet"> Pricing by Patient Type</span>
       </a>
     </li>
     @endif
     <li>
       <a class="{{ $active('search') ? 'active' : '' }}" href="{{ url('/search') }}">
-        <i class="glyphicon glyphicon-search"></i><span class="hidden-tablet"> Search Patients</span>
+        <i class="fas fa-search"></i><span class="hidden-tablet"> Search Patients</span>
       </a>
     </li>
 
     <li>
       <a class="{{ $active('reports') ? 'active' : '' }}" href="{{ url('/reports') }}">
-        <i class="glyphicon glyphicon-stats"></i><span class="hidden-tablet"> Reports</span>
+        <i class="fas fa-chart-bar"></i><span class="hidden-tablet"> Reports</span>
       </a>
     </li>
 
     @if ($may('cash_close') || $may('view_payment_reports') || $may('payment_add'))
     <li>
       <a class="dropmenu {{ $active(['cash-close', 'day-book', 'settlement']) ? 'active' : '' }}" href="#">
-        <i class="glyphicon glyphicon-briefcase"></i><span class="hidden-tablet"> Front Desk Cash</span>
+        <i class="fas fa-cash-register"></i><span class="hidden-tablet"> Front Desk Cash</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
       <ul style="{{ $active(['cash-close', 'day-book', 'settlement']) ? '' : 'display:none;' }}">
@@ -193,7 +194,7 @@ $active = function ($prefixes) use ($here) {
     @if ($may('doctor_share_view'))
     <li>
       <a class="{{ $active('doctor-share') ? 'active' : '' }}" href="{{ url('/doctor-share') }}">
-        <i class="glyphicon glyphicon-random"></i><span class="hidden-tablet"> Doctor Share</span>
+        <i class="fas fa-handshake"></i><span class="hidden-tablet"> Doctor Share</span>
       </a>
     </li>
     @endif
@@ -203,21 +204,21 @@ $active = function ($prefixes) use ($here) {
     @if ($may('department_view'))
     <li>
       <a class="{{ $active('departments') ? 'active' : '' }}" href="{{ url('/departments') }}">
-        <i class="glyphicon glyphicon-tower"></i><span class="hidden-tablet"> Departments</span>
+        <i class="fas fa-hospital"></i><span class="hidden-tablet"> Departments</span>
       </a>
     </li>
     @endif
     @if ($may('nurse_view'))
     <li>
       <a class="{{ $active('staff/nurse') ? 'active' : '' }}" href="{{ url('/staff/nurse') }}">
-        <i class="glyphicon glyphicon-heart"></i><span class="hidden-tablet"> Nurses</span>
+        <i class="fas fa-user-nurse"></i><span class="hidden-tablet"> Nurses</span>
       </a>
     </li>
     @endif
     @if ($may('staff_view'))
     <li>
       <a class="dropmenu {{ $active('staff') ? 'active' : '' }}" href="#">
-        <i class="glyphicon glyphicon-user"></i><span class="hidden-tablet"> Other Staff</span>
+        <i class="fas fa-id-badge"></i><span class="hidden-tablet"> Other Staff</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
       <ul style="{{ $active('staff') ? '' : 'display:none;' }}">
@@ -234,7 +235,7 @@ $active = function ($prefixes) use ($here) {
 
     <li>
       <a class="dropmenu {{ $active('accounting') ? 'active' : '' }}" href="#">
-        <i class="glyphicon glyphicon-usd"></i><span class="hidden-tablet"> Accounting</span>
+        <i class="fas fa-calculator"></i><span class="hidden-tablet"> Accounting</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
       <ul style="{{ $active('accounting') ? '' : 'display:none;' }}">
@@ -254,7 +255,7 @@ $active = function ($prefixes) use ($here) {
 
     <li>
       <a class="dropmenu {{ $active(['message', 'template', 'smslog', 'notification_type']) ? 'active' : '' }}" href="#">
-        <i class="glyphicon glyphicon-envelope"></i><span class="hidden-tablet"> Messaging</span>
+        <i class="fas fa-comment-dots"></i><span class="hidden-tablet"> Messaging</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
       <ul style="{{ $active(['message', 'template', 'smslog', 'notification_type']) ? '' : 'display:none;' }}">
@@ -268,7 +269,7 @@ $active = function ($prefixes) use ($here) {
 
     <li>
       <a class="dropmenu {{ $active('ictcore') ? 'active' : '' }}" href="#">
-        <i class="glyphicon glyphicon-phone-alt"></i><span class="hidden-tablet"> ICTCore</span>
+        <i class="fas fa-phone-alt"></i><span class="hidden-tablet"> ICTCore</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
       <ul style="{{ $active('ictcore') ? '' : 'display:none;' }}">
@@ -282,7 +283,7 @@ $active = function ($prefixes) use ($here) {
 
     <li>
       <a class="dropmenu {{ $active(['users', 'permission', 'useredit', 'verification_code', 'verify_code']) ? 'active' : '' }}" href="#">
-        <i class="glyphicon glyphicon-user"></i><span class="hidden-tablet"> Users and Roles</span>
+        <i class="fas fa-users-cog"></i><span class="hidden-tablet"> Users and Roles</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
       <ul style="{{ $active(['users', 'permission']) ? '' : 'display:none;' }}">
@@ -293,7 +294,7 @@ $active = function ($prefixes) use ($here) {
 
     <li>
       <a class="dropmenu {{ $active(['institute', 'branches', 'hospital-branches', 'schedule', 'barcode', 'gateways']) ? 'active' : '' }}" href="#">
-        <i class="glyphicon glyphicon-cog"></i><span class="hidden-tablet"> Settings</span>
+        <i class="fas fa-cog"></i><span class="hidden-tablet"> Settings</span>
         <span class="pull-right"><i class="glyphicon glyphicon-chevron-down"></i></span>
       </a>
       <ul style="{{ $active(['institute', 'branches', 'hospital-branches', 'schedule', 'barcode', 'gateways']) ? '' : 'display:none;' }}">
@@ -307,7 +308,7 @@ $active = function ($prefixes) use ($here) {
 
     <li>
       <a class="{{ $active('activity') ? 'active' : '' }}" href="{{ url('/activity') }}">
-        <i class="glyphicon glyphicon-list-alt"></i><span class="hidden-tablet"> Activity Log</span>
+        <i class="fas fa-history"></i><span class="hidden-tablet"> Activity Log</span>
       </a>
     </li>
     @endif
@@ -316,13 +317,13 @@ $active = function ($prefixes) use ($here) {
 
     <li>
       <a class="{{ $active('settings') ? 'active' : '' }}" href="{{ url('/settings') }}">
-        <i class="glyphicon glyphicon-wrench"></i><span class="hidden-tablet"> My Profile</span>
+        <i class="fas fa-user-circle"></i><span class="hidden-tablet"> My Profile</span>
       </a>
     </li>
 
     <li>
       <a href="{{ url('/users/logout') }}">
-        <i class="glyphicon glyphicon-off"></i><span class="hidden-tablet"> Sign out</span>
+        <i class="fas fa-sign-out-alt"></i><span class="hidden-tablet"> Sign out</span>
       </a>
     </li>
 

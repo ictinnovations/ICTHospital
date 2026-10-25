@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1031" height="270" viewBox="0 0 1031 270"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14b8a6"/><stop offset="1" stop-color="#0f766e"/></linearGradient></defs><g transform="translate(14 20)">
+  <rect width="230" height="230" rx="52" fill="url(#g)"/>
+  <rect x="88" y="40" width="54" height="150" rx="14" fill="#ffffff"/>
+  <rect x="40" y="88" width="150" height="54" rx="14" fill="#ffffff"/>
+  <path d="M50 115 H86 l11 -21 l18 44 l15 -33 l9 10 H180" fill="none" stroke="#0f766e" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+</g><text x="286" y="180" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="132" font-weight="800" letter-spacing="-3"><tspan fill="#0B2B4A">ICT</tspan><tspan fill="#0f766e">Hospital</tspan></text></svg>

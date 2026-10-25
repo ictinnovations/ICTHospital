@@ -35,28 +35,28 @@
 <div class="row">
   <div class="col-md-3 col-sm-6">
     <div class="ich-card">
-      <i class="fa fa-user-md ich-icon"></i>
+      <i class="fas fa-user-injured ich-icon"></i>
       <div class="ich-num">{{ number_format($totalPatients) }}</div>
       <div class="ich-label">Patients</div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="ich-card">
-      <i class="fa fa-calendar-check-o ich-icon"></i>
+      <i class="fas fa-calendar-check ich-icon"></i>
       <div class="ich-num">{{ number_format($totalAppointments) }}</div>
       <div class="ich-label">Appointments</div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="ich-card">
-      <i class="fa fa-stethoscope ich-icon"></i>
+      <i class="fas fa-user-md ich-icon"></i>
       <div class="ich-num">{{ number_format($totalDoctors) }}</div>
       <div class="ich-label">Doctors</div>
     </div>
   </div>
   <div class="col-md-3 col-sm-6">
     <div class="ich-card">
-      <i class="fa fa-users ich-icon"></i>
+      <i class="fas fa-users ich-icon"></i>
       <div class="ich-num">{{ number_format($totalStaff) }}</div>
       <div class="ich-label">Staff</div>
     </div>
