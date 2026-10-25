@@ -50,7 +50,7 @@
                                             <span class="input-group-addon"><i class="glyphicon glyphicon-info-sign blue"></i></span>
                                             <select name="type" id="type" required="true" class="form-control" >
                                                 <option value="Income">Income</option>
-                                                <option value="Expence">Expence</option>
+                                                <option value="Expence">Expense</option>
                                             </select>
 
 

@@ -8,7 +8,7 @@
         <div class="box col-md-12">
             <div class="box-inner">
                 <div data-original-title="" class="box-header well">
-                    <h2><i class="glyphicon glyphicon-book"></i>Expence Edit</h2>
+                    <h2><i class="glyphicon glyphicon-book"></i>Expense Edit</h2>
 
                 </div>
                 <div class="box-content">

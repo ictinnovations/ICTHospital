@@ -550,7 +550,7 @@ table i {
                                                       </a>
                                                       <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('academicYear', 'gpa', 'users', 'holidays', 'class-off', 'institute', 'ictcore?type=sms', 'ictcore?type=voice','notification_type','ictcore/attendance','permission') ? 'block' : 'none' }} ;">
                                                         <li class="{{ Request::is('academicYear') ? 'active' : '' }}"><a href="{{url('/academicYear')}}">Academic Year</a></li>
-                                                        <li class="{{ Request::is('gpa') ? 'active' : '' }}"><a href="{{url('/gpa')}}">GPA Ruels</a></li>
+                                                        <li class="{{ Request::is('gpa') ? 'active' : '' }}"><a href="{{url('/gpa')}}">GPA Rules</a></li>
                                                         <li class="{{ Request::is('users') ? 'active' : '' }}"><a href="{{url('/users')}}">Users</a></li>
                                                         <li class="{{ Request::is('holidays') ? 'active' : '' }}"><a href="{{url('/holidays')}}">Holidays</a></li>
                                                         <li class="{{ Request::is('class-off') ? 'active' : '' }}"><a href="{{url('/class-off')}}">Class Off Days</a></li>
@@ -618,7 +618,7 @@ table i {
                       </a>
                       <ul class="list-unstyled navbar__sub-list js-sub-list" style="display:{{ Request::is('academicYear', 'gpa', 'users', 'holidays', 'class-off', 'institute', 'ictcore?type=sms', 'ictcore?type=voice','notification_type','ictcore/attendance','permission','accounting') ? 'block' : 'none' }} ;">
                         <li class="{{ Request::is('academicYear') ? 'active' : '' }}"><a href="{{url('/academicYear')}}">Academic Year</a></li>
-                        <li class="{{ Request::is('gpa') ? 'active' : '' }}"><a href="{{url('/gpa')}}">GPA Ruels</a></li>
+                        <li class="{{ Request::is('gpa') ? 'active' : '' }}"><a href="{{url('/gpa')}}">GPA Rules</a></li>
                         <li class="{{ Request::is('users') ? 'active' : '' }}"><a href="{{url('/users')}}">Users</a></li>
                         <li class="{{ Request::is('holidays') ? 'active' : '' }}"><a href="{{url('/holidays')}}">Holidays</a></li>
                         <li class="{{ Request::is('class-off') ? 'active' : '' }}"><a href="{{url('/class-off')}}">Class Off Days</a></li>

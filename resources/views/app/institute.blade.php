@@ -68,7 +68,7 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="type">Web Stie</label>
+                                            <label for="type">Website</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="glyphicon glyphicon-info-sign blue"></i></span>
                                                 <input type="text"  class="form-control" required name="web" placeholder="www.ictinnovations.com" value="{{$institute->web}}">

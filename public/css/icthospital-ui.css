@@ -90,6 +90,41 @@ label, .control-label { color: #334155; font-weight: 600; }
   .header-desktop2 .logo h2 { font-size: 17px; }
 }
 
+/* Grey .well boxes (OPD summary, cash close, branches) become white cards */
+.main-content .well:not(.box-header) { background: #fff !important; background-image: none !important; border: 1px solid var(--ih-line) !important; border-radius: 12px !important; box-shadow: 0 1px 3px rgba(15,23,42,.05) !important; }
+.main-content .card { border-radius: 12px; border-color: var(--ih-line); }
+.main-content .card-header { background: #fff; border-bottom: 1px solid var(--ih-line); font-weight: 600; color: var(--ih-navy); }
+
+/* Action buttons stay on one line */
+.table td:has(> .btn), .table td:has(> form), .table td:has(> a.btn) { white-space: nowrap; }
+.table td > .btn + .btn, .table td > form + .btn, .table td > .btn + form { margin-left: 4px; }
+
+/* DataTables controls */
+.dataTables_wrapper { padding: 2px 0; }
+.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter { margin: 4px 0 14px; color: var(--ih-muted); font-size: 14px; }
+.dataTables_wrapper .dataTables_filter label, .dataTables_wrapper .dataTables_length label { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; color: var(--ih-muted); }
+.dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length select { border: 1px solid #cbd5e1 !important; border-radius: 8px !important; height: 36px; padding: 4px 10px !important; background: #fff; color: var(--ih-ink); margin: 0 !important; width: auto; }
+.dataTables_wrapper .dataTables_filter input { min-width: 220px; }
+.dataTables_wrapper .dataTables_filter input:focus { border-color: var(--ih-teal-2) !important; outline: none; box-shadow: 0 0 0 3px rgba(20,184,166,.18); }
+.dataTables_wrapper .dataTables_info { color: var(--ih-muted); font-size: 13px; padding-top: 14px !important; }
+.dataTables_wrapper .dataTables_paginate { padding-top: 10px !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button, .dataTables_wrapper .dataTables_paginate .paginate_button.next, .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+.dataTables_wrapper .dataTables_paginate .paginate_button.first, .dataTables_wrapper .dataTables_paginate .paginate_button.last, #studentList_next, #studentList_previous, #attendanceList_next, #attendanceList_previous {
+  display: inline-block !important; padding: 6px 12px !important; margin: 0 0 0 4px !important; border: 1px solid var(--ih-line) !important; border-radius: 8px !important;
+  background: #fff !important; background-image: none !important; color: #334155 !important; font-size: 13px !important; line-height: 1.4 !important; box-shadow: none !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover { background: var(--ih-teal) !important; border-color: var(--ih-teal) !important; color: #fff !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: var(--ih-teal-soft) !important; color: var(--ih-teal) !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover { color: #cbd5e1 !important; background: #fff !important; cursor: default; }
+table.dataTable thead .sorting, table.dataTable thead .sorting_asc, table.dataTable thead .sorting_desc { background-color: #f8fafc; }
+table.dataTable { border-collapse: collapse !important; }
+
+/* Tables placed straight in a panel (outside .box-content) get the same inner spacing */
+.box-inner > .row { margin: 0; padding: 0 20px 20px; }
+
+/* FA4-style "fa fa-<brand>" icons (activity log browsers and platforms) need the brands font */
+.fa.fa-chrome, .fa.fa-firefox, .fa.fa-safari, .fa.fa-opera, .fa.fa-edge, .fa.fa-internet-explorer,
+.fa.fa-windows, .fa.fa-apple, .fa.fa-linux, .fa.fa-android, .fa.fa-ubuntu { font-family: "Font Awesome 5 Brands" !important; font-weight: 400 !important; }
+
 /* Glyphicons drawn with Font Awesome 5.15 */
 .glyphicon { top: 0; }
 

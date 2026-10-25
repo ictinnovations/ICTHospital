@@ -36,7 +36,7 @@
                                 <div class="col-md-12">
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label for="gpa">Fist Name</label>
+                                            <label for="gpa">First Name</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="glyphicon glyphicon-info-sign blue"></i></span>
                                                 <input type="text" class="form-control" required name="firstname" value="{{$user->firstname}}" placeholder="">
@@ -124,7 +124,7 @@
                                 <div class="col-md-12">
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label for="gpa">Fist Name</label>
+                                            <label for="gpa">First Name</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="glyphicon glyphicon-info-sign blue"></i></span>
                                                 <input type="text" class="form-control" required name="firstname"  placeholder="">
@@ -218,7 +218,7 @@
                                     <th>Email</th>
                                     <th>Login</th>
                                     <th>Group</th>
-                                    <th>Descripton</th>
+                                    <th>Description</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>

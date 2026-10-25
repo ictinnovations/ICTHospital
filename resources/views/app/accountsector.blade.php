@@ -49,7 +49,7 @@
 
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="glyphicon glyphicon-info-sign blue"></i></span>
-                                                {{ Form::select('type',['Income'=>'Income','Expence'=>'Expence'],$sector->type,['class'=>'form-control','required'=>'true'])}}
+                                                {{ Form::select('type',['Income'=>'Income','Expence'=>'Expense'],$sector->type,['class'=>'form-control','required'=>'true'])}}
 
                                             </div>
                                         </div>
@@ -82,7 +82,7 @@
                                                 <span class="input-group-addon"><i class="glyphicon glyphicon-info-sign blue"></i></span>
                                                 <select name="type" id="type" required="true" class="form-control" >
                                                     <option value="Income">Income</option>
-                                                    <option value="Expence">Expence</option>
+                                                    <option value="Expence">Expense</option>
                                                 </select>
 
 
@@ -117,7 +117,7 @@
 
                                     <tr>
                                         <td>{{$sector->name}}</td>
-                                        <td>{{$sector->type}}</td>
+                                        <td>{{ $sector->type === 'Expence' ? 'Expense' : $sector->type }}</td>
 
 
                                         <td>
