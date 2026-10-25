@@ -9,6 +9,12 @@ Built and maintained by [ICT Vision](https://ict.vision), part of
 
 Product site: **[www.icthospital.com](https://www.icthospital.com)**
 
+## Community and Enterprise
+
+Everything in this repository is the Community edition: open source under GPL-3.0 and free to run on your own server.
+
+Enterprise is the same code, set up and looked after by our team: installation in your hospital's name and logo, support, and our communication products as add-ons with their own licences. That means ICTContact / ICTCRM for appointment calls and campaigns, and ICTDesk for live chat on your hospital website. Plans and prices are on [icthospital.com](https://www.icthospital.com/#enterprise-plans).
+
 ---
 
 ## Status: the core system works
