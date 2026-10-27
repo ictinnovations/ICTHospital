@@ -178,4 +178,20 @@ class PricingTest extends TestCase
         $this->get('/patients/create')->assertOk()->assertSee('Medico-legal case');
         $this->get('/invoices/create')->assertOk()->assertSee('Care setting');
     }
+
+    public function test_a_view_only_role_sees_no_edit_controls(): void
+    {
+        \Illuminate\Support\Facades\DB::table('permission')->updateOrInsert(
+            ['permission_name' => 'service_view', 'permission_group' => 'receptionist'], ['permission_type' => 'yes']);
+        $this->actingAs(User::create([
+            'firstname' => 'Front', 'lastname' => 'Desk', 'login' => 'desk', 'email' => 'desk@example.test',
+            'desc' => '', 'group' => 'Receptionist', 'password' => bcrypt('secret'),
+        ]));
+
+        $this->get('/pricing?type=' . $this->panel->id)->assertOk()->assertSee('X-ray chest')
+            ->assertDontSee('Save price list')->assertDontSee('Put prices up or down');
+        $this->get('/patient-types')->assertOk()->assertSee('State Life panel')->assertDontSee('Add a patient type');
+        $this->post('/pricing/adjust', ['type' => $this->panel->id, 'percent' => 10, 'setting' => 'both'])->assertRedirect();
+        $this->assertSame(0, ServicePrice::count());
+    }
 }

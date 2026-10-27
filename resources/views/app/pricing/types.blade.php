@@ -8,6 +8,8 @@
 @extends('layouts.master')
 @section('content')
     @include('app.partials._alerts')
+    @php($canEdit = \App\Support\Permissions::allows('service_update'))
+    @php($canDelete = \App\Support\Permissions::allows('service_delete'))
     <div class="row">
         <div class="box col-md-12">
             <div class="box-inner">
@@ -39,9 +41,9 @@
                                 <td><input form="type-save-{{ $t->id }}" type="checkbox" name="active" value="1" {{ $t->active ? 'checked' : '' }}></td>
                                 <td>{{ $counts[$t->id] ?? 0 }}</td>
                                 <td class="text-nowrap">
-                                    <button form="type-save-{{ $t->id }}" class="btn btn-primary btn-xs">Save</button>
+                                    @if ($canEdit)<button form="type-save-{{ $t->id }}" class="btn btn-primary btn-xs">Save</button>@endif
                                     <a class="btn btn-default btn-xs" href="{{ url('/pricing?type=' . $t->id) }}">Prices</a>
-                                    <button form="type-del-{{ $t->id }}" class="btn btn-danger btn-xs">Delete</button>
+                                    @if ($canDelete)<button form="type-del-{{ $t->id }}" class="btn btn-danger btn-xs">Delete</button>@endif
                                 </td>
                             </tr>
                         @endforeach
@@ -49,6 +51,7 @@
                     </table>
                     </div>
 
+                    @if ($canEdit)
                     <h4>Add a patient type</h4>
                     <form action="{{ url('/patient-types') }}" method="post" class="row">
                         {{ csrf_field() }}
@@ -58,6 +61,7 @@
                         <div class="col-md-2 form-group"><label><input type="checkbox" name="active" value="1" checked> Active</label></div>
                         <div class="col-md-1 form-group"><button class="btn btn-primary">Add</button></div>
                     </form>
+                    @endif
                 </div>
             </div>
         </div>

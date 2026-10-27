@@ -8,6 +8,7 @@
 @extends('layouts.master')
 @section('content')
     @include('app.partials._alerts')
+    @php($canEdit = \App\Support\Permissions::allows('service_update'))
     <div class="row">
         <div class="box col-md-12">
             <div class="box-inner">
@@ -63,9 +64,10 @@
                         </table>
                         </div>
                         <p class="help-block">A blank box means this type pays the list price for that service.</p>
-                        <button class="btn btn-primary">Save price list</button>
+                        @if ($canEdit)<button class="btn btn-primary">Save price list</button>@endif
                     </form>
 
+                    @if ($canEdit)
                     <hr>
                     <div class="row">
                         <div class="col-md-6">
@@ -89,6 +91,7 @@
                             </form>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
