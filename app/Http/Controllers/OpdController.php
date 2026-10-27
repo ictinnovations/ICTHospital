@@ -14,7 +14,9 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\DoctorSlot;
 use App\Models\Patient;
+use App\Models\PatientType;
 use App\Models\PaymentCategory;
+use App\Models\ServicePrice;
 use App\Models\SlotBlock;
 use App\Models\VisitFee;
 use App\Support\Billing;
@@ -198,8 +200,15 @@ class OpdController extends BaseController
         }
 
         $patient = Patient::findOrFail($visit->patient);
-        $invoice = DB::transaction(function () use ($patient, $visit, $service, $fee) {
-            $invoice = Billing::raise($patient, $visit->doctor, [['service' => $service, 'price' => $fee->fee]], 'opd', 'OPD visit, token ' . $visit->token_no);
+
+        // A patient type with its own OPD price for the service (a panel, a charity rate)
+        // pays that price; the fixed visit fee is for types that have none.
+        $typeId = $patient->patient_type_id ?: PatientType::defaultId();
+        $typePrice = $typeId ? ServicePrice::where('payment_category_id', $service->id)->where('patient_type_id', $typeId)->value('opd_price') : null;
+        $price = $typePrice !== null ? null : $fee->fee;
+
+        $invoice = DB::transaction(function () use ($patient, $visit, $service, $price) {
+            $invoice = Billing::raise($patient, $visit->doctor, [['service' => $service, 'price' => $price]], 'opd', 'OPD visit, token ' . $visit->token_no);
             $visit->update(['payment_id' => $invoice->id]);
 
             return $invoice;

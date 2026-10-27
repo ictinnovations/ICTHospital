@@ -132,6 +132,19 @@ class OpdQueueTest extends TestCase
         $this->assertSame('800.00', (string) VisitFee::resolve($this->doctor->id, 'follow_up', Carbon::parse('2026-10-26 17:00'))->fee);
     }
 
+    public function test_a_type_price_beats_a_fixed_visit_fee(): void
+    {
+        $panel = PatientType::create(['name' => 'Panel C', 'kind' => 'panel', 'active' => true]);
+        ServicePrice::create(['payment_category_id' => $this->consult->id, 'patient_type_id' => $panel->id, 'opd_price' => 1800]);
+        VisitFee::create(['visit_type' => 'first', 'shift' => 'any', 'payment_category_id' => $this->consult->id, 'fee' => 1000, 'active' => true]);
+        $p = $this->patient('Panel Patient', '000044', ['patient_type_id' => $panel->id]);
+
+        $this->post('/opd/walk-in', ['patient' => $p->id, 'doctor' => $this->doctor->id, 'visit_type' => 'first', 'bill' => 1]);
+        $this->post('/opd/walk-in', ['patient' => $this->p1->id, 'doctor' => $this->doctor->id, 'visit_type' => 'first', 'bill' => 1]);
+
+        $this->assertSame(['1800.00', '1000.00'], Payment::orderBy('id')->pluck('gross_total')->map(fn ($v) => (string) $v)->all());
+    }
+
     public function test_a_blank_visit_fee_uses_the_patient_type_price(): void
     {
         $panel = PatientType::create(['name' => 'Panel B', 'kind' => 'panel', 'active' => true]);

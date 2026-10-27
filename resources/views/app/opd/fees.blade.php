@@ -14,7 +14,7 @@
             <div class="box-inner">
                 <div class="box-header well"><h2><i class="glyphicon glyphicon-usd"></i> Doctor visit fee</h2></div>
                 <div class="box-content">
-                    <p class="help-block">The fee billed when a visit is checked in. A doctor's own fee beats an all-doctors fee, and a fee for the shift beats an any-time fee. Leave the fee blank to charge the service's price for the patient's type.</p>
+                    <p class="help-block">The fee billed when a visit is checked in. A doctor's own fee beats an all-doctors fee, and a fee for the shift beats an any-time fee. Leave the fee blank to charge the service's price for the patient's type. A patient whose type has its own OPD price for the service, such as a panel or charity rate on Price by Patient Type, always pays that price instead of the fee.</p>
                     <div class="table-responsive">
                     <table class="table table-striped table-bordered table-condensed">
                         <thead><tr><th>Doctor</th><th>Visit type</th><th>Shift</th><th>Service on invoice</th><th class="text-right">Visit fee</th><th></th></tr></thead>
