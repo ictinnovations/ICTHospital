@@ -17,6 +17,7 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Carbon\Carbon;
 use Tests\TestCase;
 
 class AppointmentTest extends TestCase
@@ -28,9 +29,16 @@ class AppointmentTest extends TestCase
     private $doctor;
     private $otherDoctor;
 
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
+        Carbon::setTestNow(Carbon::parse('2026-10-01 08:00:00')); // bookings in the past are refused
 
         $this->actingAs(User::create([
             'firstname' => 'Test', 'lastname' => 'Staff', 'login' => 'teststaff',

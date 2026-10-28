@@ -427,6 +427,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/invoices/create', [InvoiceController::class, 'create'])->middleware('checkPermission:payment_add');
     Route::post('/invoices', [InvoiceController::class, 'store'])->middleware('checkPermission:payment_add');
     Route::get('/invoices/{id}', [InvoiceController::class, 'show'])->whereNumber('id')->middleware('checkPermission:invoice_view');
+    Route::get('/invoices/{id}/print', [InvoiceController::class, 'print'])->whereNumber('id')->middleware('checkPermission:invoice_view');
     Route::post('/invoices/{id}/pay', [InvoiceController::class, 'pay'])->whereNumber('id')->middleware('checkPermission:payment_add');
     Route::delete('/invoices/{id}', [InvoiceController::class, 'destroy'])->whereNumber('id')->middleware('checkPermission:payment_delete');
 });
@@ -557,6 +558,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pricing', [PricingController::class, 'save'])->middleware('checkPermission:service_update');
     Route::post('/pricing/copy', [PricingController::class, 'copy'])->middleware('checkPermission:service_update');
     Route::post('/pricing/adjust', [PricingController::class, 'adjust'])->middleware('checkPermission:service_update');
+    Route::post('/pricing/reset', [PricingController::class, 'reset'])->middleware('checkPermission:service_update');
     Route::get('/pricing/export', [PricingController::class, 'export'])->middleware('checkPermission:service_view');
 });
 

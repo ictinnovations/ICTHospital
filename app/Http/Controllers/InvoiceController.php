@@ -109,6 +109,18 @@ class InvoiceController extends BaseController
         ]);
     }
 
+    /** The invoice as a page of its own, for printing. */
+    public function print($id)
+    {
+        $invoice = Payment::with(['items', 'payments'])->findOrFail($id);
+
+        return view('app.invoices.print', [
+            'invoice' => $invoice,
+            'patient' => Patient::find($invoice->patient),
+            'doctor' => Doctor::find($invoice->doctor),
+        ]);
+    }
+
     public function destroy($id)
     {
         $invoice = Payment::findOrFail($id);

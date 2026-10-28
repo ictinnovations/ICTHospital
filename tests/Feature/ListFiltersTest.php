@@ -18,6 +18,7 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Carbon\Carbon;
 use Tests\TestCase;
 
 class ListFiltersTest extends TestCase
@@ -27,9 +28,16 @@ class ListFiltersTest extends TestCase
     private $patient;
     private $doctor;
 
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
+        Carbon::setTestNow(Carbon::today()->setTime(8, 0)); // bookings in the past are refused
         $this->actingAs(User::create([
             'firstname' => 'Test', 'lastname' => 'Admin', 'login' => 'filters',
             'email' => 'filters@example.test', 'desc' => '', 'group' => 'Admin',

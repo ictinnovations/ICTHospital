@@ -16,14 +16,22 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Carbon\Carbon;
 use Tests\TestCase;
 
 class DashboardTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
+    }
+
     use RefreshDatabase;
 
     public function test_recent_appointments_show_names_not_ids(): void
     {
+        Carbon::setTestNow(Carbon::parse('2026-10-01 08:00:00')); // bookings in the past are refused
         $this->actingAs(User::create([
             'firstname' => 'Test', 'lastname' => 'Desk', 'login' => 'desk',
             'email' => 'desk@example.test', 'desc' => '', 'group' => 'Admin',

@@ -235,6 +235,26 @@ class PatientController extends BaseController
         if ($data['cnic']) {
             $digits = preg_replace('/\D/', '', $data['cnic']);
             $data['cnic'] = substr($digits, 0, 5) . '-' . substr($digits, 5, 7) . '-' . substr($digits, 12, 1);
+
+            // One person, one record: a CNIC already registered means this patient is on file.
+            $same = Patient::where('cnic', $data['cnic'])->when($ignoreId, fn ($q) => $q->where('id', '<>', $ignoreId))->first();
+            if ($same) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'cnic' => 'This CNIC is already registered to ' . $same->name . ' (MR ' . $same->patient_id . '). Open that record instead of adding a new one.',
+                ]);
+            }
+        }
+
+        // A phone number already on file is usually the same patient registered twice, but
+        // family members often share one phone, so it is a warning the desk can accept.
+        $phone = trim((string) ($data['phone'] ?? ''));
+        if ($phone !== '' && ! $request->boolean('allow_same_phone')) {
+            $same = Patient::where('phone', $phone)->when($ignoreId, fn ($q) => $q->where('id', '<>', $ignoreId))->first();
+            if ($same) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'phone' => $same->name . ' (MR ' . $same->patient_id . ') already has this phone number. If this is a different person, for example a family member, tick "Save anyway" and save again.',
+                ]);
+            }
         }
         $data['mlc'] = (bool) ($data['mlc'] ?? false);
         $data['patient_type_id'] = $data['patient_type_id'] ?? PatientType::defaultId();

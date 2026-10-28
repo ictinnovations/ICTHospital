@@ -59,7 +59,7 @@
                                 <td>@if ($v->payment_id)<a href="{{ url('/invoices/' . $v->payment_id) }}">#{{ $v->payment_id }}</a>@endif</td>
                                 <td style="min-width:170px">
                                     @if ($canUpdate)
-                                        @if (in_array($v->status, ['scheduled', 'no show'], true))
+                                        @if (in_array($v->status, ['scheduled', 'no show'], true) || ($v->status === 'arrived' && $v->token_no === null))
                                             <form method="post" action="{{ url('/opd/' . $v->id . '/check-in') }}" style="display:inline">{{ csrf_field() }}<button class="btn btn-default btn-xs">Check in</button></form>
                                         @elseif ($v->status === 'arrived')
                                             <form method="post" action="{{ url('/opd/' . $v->id . '/call-in') }}" style="display:inline">{{ csrf_field() }}<button class="btn btn-primary btn-xs">Call in</button></form>

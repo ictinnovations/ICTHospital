@@ -157,6 +157,17 @@ class AppointmentController extends BaseController
         $start = Carbon::parse($input['date'] . ' ' . $input['start']);
         $end = (clone $start)->addMinutes($minutes);
 
+        // A new booking, or a booking moved to a new time, cannot start in the past. Five
+        // minutes of grace covers a clerk filling the form in. A patient who is already
+        // here is a walk-in (OPD, Walk-in), which books, checks in and issues a token.
+        $existing = $ignoreId ? Appointment::find($ignoreId) : null;
+        $moved = ! $existing || $existing->s_time !== $start->toDateTimeString();
+        if ($input['status'] === 'scheduled' && $moved && $start->lt(now()->subMinutes(5))) {
+            throw ValidationException::withMessages([
+                'start' => 'That time has already passed. Pick a later slot, or use OPD, Walk-in for a patient who is here now.',
+            ]);
+        }
+
         $this->assertNoClash($input['doctor'], $start, $end, $ignoreId);
         // Cancelling or marking a no-show must not be refused because the doctor's
         // hours changed since the booking was made.
@@ -164,7 +175,6 @@ class AppointmentController extends BaseController
             DoctorSchedule::assertBookable($input['doctor'], $start, $end);
         }
 
-        $existing = $ignoreId ? Appointment::find($ignoreId) : null;
         $video = ! empty($input['video']);
 
         return [

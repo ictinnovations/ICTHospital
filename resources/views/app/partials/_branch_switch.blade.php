@@ -17,7 +17,7 @@
                 </select>
             </form>
         @else
-            <span class="label label-info" style="font-size:12px"><i class="glyphicon glyphicon-map-marker"></i> {{ \App\Support\Branch::name(\App\Support\Branch::current()) }}</span>
+            <span class="label label-info" style="font-size:12px" title="Your user works at this branch only. An administrator can change that under Settings, Branches, Users who work at this branch."><i class="glyphicon glyphicon-map-marker"></i> {{ \App\Support\Branch::name(\App\Support\Branch::current()) }}</span>
         @endif
     </div>
 @endif

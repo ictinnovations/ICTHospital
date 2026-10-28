@@ -13,7 +13,7 @@
             <div class="box-inner">
                 <div class="box-header well"><h2><i class="glyphicon glyphicon-map-marker"></i> Branches</h2></div>
                 <div class="box-content">
-                    <p class="help-block">Invoices, OPD visits and shift closes are stamped with the branch they happen at. A user tied to a branch sees that branch only; a user with no branch picks one from the top bar, or sees all. Records from before branches were set up show in every branch.</p>
+                    <p class="help-block">Invoices, OPD visits and shift closes are stamped with the branch they happen at. A user tied to a branch sees that branch only and gets no branch dropdown; a user with no branch picks one from the top bar, or sees all. Leave administrators unticked if they need to switch. Records from before branches were set up show in every branch.</p>
                     @forelse ($branches as $b)
                         <div class="panel panel-default">
                             <div class="panel-heading">

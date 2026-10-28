@@ -36,7 +36,7 @@
                         Invoice #{{ $invoice->id }} <small>{{ $invoice->date }}</small>
                     </h2>
                     <div class="box-icon">
-                        <a href="javascript:window.print()" class="btn btn-default btn-sm">
+                        <a href="{{ url('/invoices/' . $invoice->id . '/print') }}" target="_blank" rel="noopener" class="btn btn-default btn-sm">
                             <i class="glyphicon glyphicon-print"></i> Print
                         </a>
                         <a href="{{ url('/invoices') }}" class="btn btn-default btn-sm">Back to invoices</a>

@@ -182,9 +182,7 @@ class OpdController extends BaseController
 
     private function nextToken($doctorId, $date)
     {
-        $max = Appointment::where('doctor', $doctorId)->whereDate('date', Carbon::parse($date)->toDateString())->lockForUpdate()->max('token_no');
-
-        return ((int) $max) + 1;
+        return Appointment::nextToken($doctorId, $date);
     }
 
     private function billFor(Appointment $visit)
@@ -241,6 +239,22 @@ class OpdController extends BaseController
         ]);
         $data['doctor_id'] = $data['doctor_id'] ?? null;
         $data['fee'] = isset($data['fee']) && $data['fee'] !== '' ? $data['fee'] : null;
+
+        // Only one row can apply to a visit. A second row for the same doctor, visit type
+        // and shift would never be billed, so refuse it and say which row is in the way.
+        $clash = VisitFee::where('active', true)->where('visit_type', $data['visit_type'])->where('shift', $data['shift'])
+            ->where(fn ($q) => $data['doctor_id'] ? $q->where('doctor_id', $data['doctor_id']) : $q->whereNull('doctor_id'))
+            ->first();
+        if ($clash) {
+            return redirect('/opd/visit-fees')->withInput()->with('error', sprintf(
+                'There is already a fee for %s, %s, %s (%s). Remove that row first, or add the fee for one doctor or one shift.',
+                $data['doctor_id'] ? (Doctor::whereKey($data['doctor_id'])->value('name') ?: 'that doctor') : 'all doctors',
+                strtolower(VisitFee::TYPES[$data['visit_type']] ?? $data['visit_type']),
+                strtolower(VisitFee::SHIFTS[$data['shift']] ?? $data['shift']),
+                PaymentCategory::whereKey($clash->payment_category_id)->value('category') ?: 'a service'
+            ));
+        }
+
         VisitFee::create($data + ['active' => true]);
 
         return redirect('/opd/visit-fees')->with('success', 'Visit fee added.');

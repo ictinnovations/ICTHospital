@@ -158,6 +158,7 @@ class OpdQueueTest extends TestCase
 
     public function test_bookings_must_fit_the_doctors_slots_once_set(): void
     {
+        Carbon::setTestNow(Carbon::parse('2026-10-26 08:00:00')); // slots before the usual 10:00 test clock
         $this->book($this->p1, '18:00')->assertSessionHasNoErrors(); // no slots yet: any time
 
         DoctorSlot::create(['doctor_id' => $this->doctor->id, 'weekday' => 1, 'start_time' => '09:00', 'end_time' => '13:00', 'slot_minutes' => 15, 'active' => true]);
@@ -173,6 +174,7 @@ class OpdQueueTest extends TestCase
 
     public function test_free_slots_leave_out_bookings_and_blocks(): void
     {
+        Carbon::setTestNow(Carbon::parse('2026-10-26 08:00:00')); // slots before the usual 10:00 test clock
         DoctorSlot::create(['doctor_id' => $this->doctor->id, 'weekday' => 1, 'start_time' => '09:00', 'end_time' => '10:00', 'slot_minutes' => 15, 'active' => true]);
         SlotBlock::create(['doctor_id' => $this->doctor->id, 'date' => '2026-10-26', 'start_time' => '09:45', 'end_time' => '10:00']);
         $this->book($this->p1, '09:15');

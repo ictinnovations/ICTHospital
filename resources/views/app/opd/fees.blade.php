@@ -15,6 +15,11 @@
                 <div class="box-header well"><h2><i class="glyphicon glyphicon-usd"></i> Doctor visit fee</h2></div>
                 <div class="box-content">
                     <p class="help-block">The fee billed when a visit is checked in. A doctor's own fee beats an all-doctors fee, and a fee for the shift beats an any-time fee. Leave the fee blank to charge the service's price for the patient's type. A patient whose type has its own OPD price for the service, such as a panel or charity rate on Price by Patient Type, always pays that price instead of the fee.</p>
+                    @php($used = $fees->where('active', true)->groupBy(fn ($f) => ($f->doctor_id ?: 0) . '|' . $f->visit_type . '|' . $f->shift)->map(fn ($g) => $g->min('id')))
+                    @php($unused = $fees->where('active', true)->filter(fn ($f) => $used[($f->doctor_id ?: 0) . '|' . $f->visit_type . '|' . $f->shift] !== $f->id)->pluck('id')->all())
+                    @if ($unused)
+                        <div class="alert alert-warning">Some rows below match the same visits as an earlier row, so they are never billed. Only the first row added for a doctor, visit type and shift is used. Remove the rows marked "Not used", or change them to one doctor or one shift.</div>
+                    @endif
                     <div class="table-responsive">
                     <table class="table table-striped table-bordered table-condensed">
                         <thead><tr><th>Doctor</th><th>Visit type</th><th>Shift</th><th>Service on invoice</th><th class="text-right">Visit fee</th><th></th></tr></thead>
@@ -24,7 +29,7 @@
                                 <td>{{ $f->doctor_id ? ($doctorNames[$f->doctor_id] ?? $f->doctor_id) : 'All doctors' }}</td>
                                 <td>{{ \App\Models\VisitFee::TYPES[$f->visit_type] ?? $f->visit_type }}</td>
                                 <td>{{ \App\Models\VisitFee::SHIFTS[$f->shift] ?? $f->shift }}</td>
-                                <td>{{ $serviceNames[$f->payment_category_id] ?? '' }}</td>
+                                <td>{{ $serviceNames[$f->payment_category_id] ?? '' }} @if (in_array($f->id, $unused, true))<span class="label label-warning">Not used</span>@endif</td>
                                 <td class="text-right">{{ $f->fee !== null ? number_format((float) $f->fee, 2) : 'Price list' }}</td>
                                 <td>@if ($canEdit)<form method="post" action="{{ url('/opd/visit-fees/' . $f->id) }}">{{ csrf_field() }}<input type="hidden" name="_method" value="DELETE"><button class="btn btn-danger btn-xs">Remove</button></form>@endif</td>
                             </tr>

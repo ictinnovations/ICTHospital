@@ -199,6 +199,28 @@ class PricingController extends BaseController
         return redirect('/pricing?type=' . $data['type'])->with('success', 'Prices adjusted by ' . $data['percent'] . '%.');
     }
 
+    /**
+     * Back to the list price: clears this type's own OPD and/or IPD prices. A row with
+     * neither price left is removed, which is what a blank box on the list does too.
+     */
+    public function reset(Request $request)
+    {
+        $data = $request->validate([
+            'type' => 'required|integer|exists:patient_type,id',
+            'setting' => 'required|in:opd,ipd,both',
+        ]);
+        $columns = $data['setting'] === 'both' ? ['opd_price', 'ipd_price'] : [$data['setting'] . '_price'];
+
+        DB::transaction(function () use ($data, $columns) {
+            ServicePrice::where('patient_type_id', $data['type'])->update(array_fill_keys($columns, null));
+            ServicePrice::where('patient_type_id', $data['type'])->whereNull('opd_price')->whereNull('ipd_price')->delete();
+        });
+
+        $what = ['both' => 'OPD and IPD', 'opd' => 'OPD', 'ipd' => 'IPD'][$data['setting']];
+
+        return redirect('/pricing?type=' . $data['type'])->with('success', $what . ' prices for this type are back to the list price.');
+    }
+
     public function export(Request $request)
     {
         $type = PatientType::findOrFail((int) ($request->input('type') ?: PatientType::defaultId()));

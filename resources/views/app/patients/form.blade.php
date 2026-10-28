@@ -62,6 +62,9 @@
                                     <label>Phone</label>
                                     <input type="text" name="phone" class="form-control"
                                            value="{{ old('phone', $patient->phone) }}">
+                                    @if ($errors->has('phone') || old('allow_same_phone'))
+                                        <div class="checkbox"><label><input type="checkbox" name="allow_same_phone" value="1" {{ old('allow_same_phone') ? 'checked' : '' }}> Save anyway: a different person shares this phone</label></div>
+                                    @endif
                                 </div>
                                 <div class="form-group">
                                     <label>Email</label>

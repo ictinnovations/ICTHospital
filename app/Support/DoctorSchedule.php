@@ -61,6 +61,8 @@ class DoctorSchedule
         $booked = Appointment::where('doctor', $doctorId)->whereDate('date', $day->toDateString())
             ->whereNotIn('status', ['cancelled', 'no show'])->get(['s_time', 'e_time']);
 
+        // A slot that has already started is not on offer: booking it would put the visit in the past.
+        $now = now();
         $free = [];
         foreach ($slots as $slot) {
             $t = Carbon::parse($day->toDateString() . ' ' . $slot->start_time);
@@ -68,7 +70,7 @@ class DoctorSchedule
             while ($t->copy()->addMinutes($slot->slot_minutes)->lte($stop)) {
                 $end = $t->copy()->addMinutes($slot->slot_minutes);
                 $taken = $booked->first(fn ($b) => $b->s_time < $end->toDateTimeString() && $b->e_time > $t->toDateTimeString());
-                if (! $taken && ! self::blockFor($doctorId, $t, $end)) {
+                if (! $taken && $t->gte($now) && ! self::blockFor($doctorId, $t, $end)) {
                     $free[] = ['start' => $t->format('H:i'), 'minutes' => $slot->slot_minutes];
                 }
                 $t = $end;

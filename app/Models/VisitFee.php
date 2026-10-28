@@ -35,7 +35,10 @@ class VisitFee extends Model
             ->where(fn ($q) => $q->where('doctor_id', $doctorId)->orWhereNull('doctor_id'))
             ->whereIn('shift', [$shift, 'any'])
             ->get()
-            ->sortByDesc(fn ($r) => ($r->doctor_id ? 2 : 0) + ($r->shift !== 'any' ? 1 : 0))
+            ->sortBy([
+                fn ($a, $b) => (($b->doctor_id ? 2 : 0) + ($b->shift !== 'any' ? 1 : 0)) <=> (($a->doctor_id ? 2 : 0) + ($a->shift !== 'any' ? 1 : 0)),
+                fn ($a, $b) => $a->id <=> $b->id,
+            ])
             ->first();
     }
 }
