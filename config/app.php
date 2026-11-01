@@ -70,6 +70,9 @@ return [
 
     'timezone' => env('APP_TIMEZONE', 'UTC'),
 
+    // Public demo: logins whose password, login and role nobody may change (comma separated).
+    'demo_locked_logins' => env('DEMO_LOCKED_LOGINS', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
