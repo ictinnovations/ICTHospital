@@ -38,6 +38,15 @@ class CronjobController extends BaseController
      * Returns a JSON summary so both the HTTP route and the console command can
      * report what happened.
      */
+    public function paymentReminderUrl(\Illuminate\Http\Request $request)
+    {
+        $token = (string) env('CRON_TOKEN', '');
+        if ($token === '' || !hash_equals($token, (string) $request->query('token', ''))) {
+            abort(404);
+        }
+        return $this->paymentReminder();
+    }
+
     public function paymentReminder()
     {
         $result = $this->runPaymentReminder();

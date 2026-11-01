@@ -60,9 +60,10 @@ Route::group(['middleware' => ['web', 'activity']], function () {
     Route::get('/dashboard/', [DashboardController::class, 'index']);
     Route::post('/users/login', [UsersController::class, 'postSignin']);
     Route::get('/verification_code', [UsersController::class, 'codeverify']);
-    Route::post('/users/code_check', [UsersController::class, 'code_check']);
+    // One-time codes: at most 5 guesses a minute per client, so the code space can't be walked.
+    Route::post('/users/code_check', [UsersController::class, 'code_check'])->middleware('throttle:5,1');
     Route::get('/verify_code', [UsersController::class, 'verify_code']);
-    Route::post('/verified', [UsersController::class, 'verified']);
+    Route::post('/verified', [UsersController::class, 'verified'])->middleware('throttle:5,1');
     Route::get('/users/logout', [UsersController::class, 'getLogout']);
 });
 
@@ -298,7 +299,9 @@ Route::middleware(['super_admin'])->group(function () {
 });
 
 
-Route::get('/cronjob/payment-reminder', [CronjobController::class, 'paymentReminder']);
+// Texts every patient with a balance. The scheduler runs it as an artisan command; the URL
+// is only for hosts without cron and needs ?token= matching CRON_TOKEN in .env.
+Route::get('/cronjob/payment-reminder', [CronjobController::class, 'paymentReminderUrl']);
 
 
 // The doctor register. Appointments, prescriptions, lab requests and invoices all

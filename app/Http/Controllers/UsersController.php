@@ -141,7 +141,12 @@ class UsersController extends BaseController
 
     $check = VerificationCode::find($request->id);
 
-    if ($check->code == $request->code) {
+    // A code works once, for 15 minutes, and only for the row it was issued on.
+    $fresh = $check && $check->status !== 'used' && $check->created_at
+      && $check->created_at->gt(now()->subMinutes(VerificationCode::EXPIRATION_TIME));
+    if ($fresh && hash_equals((string) $check->code, (string) $request->code)) {
+      $check->status = 'used';
+      $check->save();
 
       if (Auth::loginUsingId($check->user_id)) {
         //request()->session()->flush();
@@ -194,9 +199,10 @@ class UsersController extends BaseController
 
   public function verified(Request $request)
   {
-    $verification_code = VerifyCode::first();
+    // Legacy flow: only a code issued in the last 15 minutes counts, compared in constant time.
+    $verification_code = VerifyCode::where('created_at', '>', now()->subMinutes(15))->latest()->first();
 
-    if (!empty($verification_code) && $verification_code->code == $request->input('code')) {
+    if (!empty($verification_code) && hash_equals((string) $verification_code->code, (string) $request->input('code'))) {
 
       $user_id = $verification_code->user_id;
       VerifyCode::truncate();
