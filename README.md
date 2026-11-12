@@ -9,6 +9,10 @@ Built and maintained by [ICT Vision](https://ict.vision), part of
 
 Product site: **[www.icthospital.com](https://www.icthospital.com)**
 
+**[Try the live demo](https://www.icthospital.com/demo/)** · [User guide](docs/USER-GUIDE.md) · [Latest release](https://github.com/ictinnovations/ICTHospital/releases/latest)
+
+![ICTHospital dashboard](docs/screenshots/dashboard-overview.png)
+
 ## Community and Enterprise
 
 Everything in this repository is the Community edition: open source under GPL-3.0 and free to run on your own server.
