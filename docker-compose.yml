@@ -24,10 +24,19 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ./src:/app
+      - .:/app
     ports:
       - "8082:8000"
     working_dir: /app
+    environment:
+      # Real environment variables win over .env, so the container talks to the
+      # db service while a host-side `php artisan serve` keeps its own setting.
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: icthospital
+      DB_USERNAME: icthospital
+      DB_PASSWORD: icthospital
     command: php artisan serve --host=0.0.0.0 --port=8000
 
 volumes:
