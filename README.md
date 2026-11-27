@@ -49,8 +49,8 @@ Where it stands:
 - Full hospital data model: 50 tables covering patients, appointments, doctors, nurses,
   beds and wards, prescriptions, lab tests, diagnostic reports, pharmacy, payments,
   expenses and payroll
-- Authentication, users, and a hospital role catalogue: 90 permissions across Admin,
-  Doctor, Nurse and Accountant, grouped by patients, appointments, admissions, clinical,
+- Authentication, users, and a hospital role catalogue: 96 permissions across seven roles
+  (Admin, Doctor, Nurse, Receptionist, Accountant, Pharmacist and Laboratory staff), grouped by patients, appointments, admissions, clinical,
   pharmacy, staff, billing and administration
 - Hospital dashboard: patient and appointment counts, bed occupancy, clinical activity,
   income against expenses, recent patients and appointments
@@ -125,8 +125,8 @@ given day, and they must not change when a catalogue or price list is next edite
 
 **Permissions**
 
-The 90 permission catalogue in `config/hospital_permissions.php` covers Admin, Doctor,
-Nurse and Accountant, and the clinical routes check it. Admin is granted everything by
+The 96 permission catalogue in `config/hospital_permissions.php` covers Admin, Doctor,
+Nurse, Receptionist, Accountant, Pharmacist and Laboratory staff, and the clinical routes check it. Admin is granted everything by
 the seeder; the other roles start with nothing and are granted what they need on the
 permissions screen. The menu hides what a role cannot open, so nobody is offered a link
 that bounces them.
